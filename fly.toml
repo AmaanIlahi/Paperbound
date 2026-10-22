@@ -1,48 +1,41 @@
-# Paperbound on Fly.io: one public app. Samples always work; uploads turn on when the secrets below are set.
-# Change `app` (names are global on Fly), then follow MORNING_REPORT_5B.md:
-#   fly launch --no-deploy --copy-config
-#   fly volumes create paperbound_data --size 1 --region ewr
-#   fly secrets set DATABASE_URL=... OPENAI_API_KEY=... SESSION_SECRET=$(openssl rand -hex 32)
-#   fly deploy
-app = "paperbound"
-primary_region = "ewr"
+# fly.toml app configuration file generated for paperbound-amaan on 2026-10-22T18:09:38-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'paperbound-amaan'
+primary_region = 'ewr'
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = 'Dockerfile'
+
+[deploy]
+  release_command = 'alembic upgrade head'
 
 [env]
-  PORT = "8080"
-  STORAGE_DIR = "/data/storage"
-  # Limits (defaults shown): MAX_UPLOAD_MB=10, MAX_PAGES=20, UPLOADS_PER_IP_PER_HOUR=5, DAILY_LLM_BUDGET_USD=1.00,
-  # UPLOAD_TTL_HOURS=24. Add any of them here to change it.
+  PORT = '8080'
+  STORAGE_DIR = '/data/storage'
 
-# Secrets (never put these in this file): DATABASE_URL, OPENAI_API_KEY, SESSION_SECRET.
-# Without DATABASE_URL or OPENAI_API_KEY the app still starts and serves the samples; uploads switch themselves off.
-
-# Run the database migrations before each new version starts. This runs in a temporary machine that can read the secrets.
-[deploy]
-  release_command = "alembic upgrade head"
-
-# Uploaded files live on a volume so they survive restarts (they are deleted after 24 hours anyway).
-# A volume attaches to one machine, so run exactly one: the in-process worker and the cleanup task live in it.
-[mounts]
-  source = "paperbound_data"
-  destination = "/data"
+[[mounts]]
+  source = 'paperbound_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "off"   # the background worker must stay up to finish runs
+  auto_stop_machines = 'off'
   auto_start_machines = true
   min_machines_running = 1
 
   [[http_service.checks]]
-    grace_period = "15s"
-    interval = "30s"
-    method = "GET"
-    timeout = "5s"
-    path = "/healthz"
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '15s'
+    method = 'GET'
+    path = '/healthz'
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "512mb"
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 512
