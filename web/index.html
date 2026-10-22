@@ -10,7 +10,7 @@
     header { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: #fff; border-bottom: 1px solid #e4e4e7; position: sticky; top: 0; z-index: 5; }
     header h1 { font-size: 1.1rem; margin: 0; }
     #status { color: var(--muted); font-size: .9rem; }
-    main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 1rem; padding: 1rem; align-items: start; }
+    main { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 1rem; padding: 1rem; align-items: start; }
     @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
     #pages { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
     .page { position: relative; box-shadow: 0 1px 4px rgba(0,0,0,.2); background: #fff; max-width: 100%; }
@@ -39,6 +39,24 @@
     .obligation { font-size: .92rem; }
     .obligation .due { font-weight: 700; font-size: 1.05rem; }
     .empty { color: var(--muted); font-size: .85rem; }
+    .action { padding: .5rem 0; border-top: 1px solid #f0f0f2; font-size: .88rem; }
+    .action:first-of-type { border-top: 0; }
+    .action .head { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
+    .action .tool { font-weight: 700; }
+    .badge { font-size: .72rem; border-radius: 999px; padding: 0 .5rem; background: #e4e4e7; }
+    .badge.pending { background: #fef3c7; color: var(--warn); } .badge.executed { background: #dcfce7; color: var(--ok); }
+    .badge.rejected, .badge.failed { background: #fee2e2; color: var(--bad); }
+    .args { margin: .3rem 0; display: grid; grid-template-columns: auto 1fr; gap: .1rem .5rem; font-size: .82rem; }
+    .args dt { color: var(--muted); } .args dd { margin: 0; word-break: break-word; white-space: pre-wrap; }
+    .why, .policy { color: var(--muted); font-size: .78rem; margin: .15rem 0; }
+    .src { background: none; border: 0; padding: 0; color: #2563eb; cursor: pointer; font: inherit; font-size: .78rem; text-decoration: underline; margin-right: .5rem; }
+    .btns { margin-top: .35rem; display: flex; gap: .4rem; }
+    .btns button { font: inherit; font-size: .82rem; padding: .15rem .7rem; border-radius: 6px; border: 1px solid #d4d4d8; background: #fff; cursor: pointer; }
+    .btns button.approve { background: var(--ok); color: #fff; border-color: var(--ok); }
+    .sandbox-note { font-size: .75rem; color: var(--muted); margin: 0 0 .4rem; }
+    .sbx { border: 1px dashed #d4d4d8; border-radius: 6px; padding: .4rem .5rem; margin-bottom: .4rem; font-size: .84rem; }
+    .sbx .kind { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .sbx .body { white-space: pre-wrap; color: #3f3f46; margin-top: .2rem; }
   </style>
 </head>
 <body>
@@ -53,6 +71,11 @@
       <section class="card"><h2>Run timeline</h2><div id="steps"></div></section>
       <section class="card"><h2>Fields</h2><div id="fields"></div></section>
       <section class="card"><h2>Obligations</h2><div id="obligations"></div></section>
+      <section class="card"><h2>Proposed actions</h2><div id="actions"></div></section>
+      <section class="card"><h2>Sandbox</h2>
+        <p class="sandbox-note">Approved actions run in a sandbox. Nothing is sent or saved outside this app.</p>
+        <div id="sandbox"></div>
+      </section>
     </aside>
   </main>
   <div id="tip"></div>
@@ -60,15 +83,24 @@
   <script>
     const $ = (id) => document.getElementById(id);
     const tip = $('tip');
-    const pageEls = {};    // page_no -> {wrap, meta}
-    let activeHighlight = null;
+    const pageEls = {};    // page_no -> {wrap, page}
+    let activeHighlights = [];
+    let currentRun = null;
+
+    // All text from the document or the model is inserted with textContent, never as HTML.
+    function el(tag, cls, text) {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined) n.textContent = text;
+      return n;
+    }
 
     $('file').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
       $('pages').replaceChildren();
       $('panel').hidden = true;
-      $('status').textContent = 'Uploading, parsing and extracting...';
+      $('status').textContent = 'Uploading, parsing, extracting and planning...';
       try {
         const form = new FormData();
         form.append('file', file);
@@ -80,12 +112,14 @@
         for (let n = 1; n <= doc.page_count; n++) {
           renderPage(await (await fetch(`/documents/${doc.document_id}/pages/${n}`)).json());
         }
+        currentRun = doc.run_id;
         const [steps, fields, obligations] = await Promise.all(
           ['steps', 'fields', 'obligations'].map((k) => fetch(`/runs/${doc.run_id}/${k}`).then((r) => r.json()))
         );
         renderSteps(steps);
         renderFields(fields);
         renderObligations(obligations);
+        await loadActions();
         $('panel').hidden = false;
       } catch (err) {
         $('status').textContent = 'Error: ' + err.message;
@@ -121,11 +155,23 @@
       return box;
     }
 
-    function el(tag, cls, text) {
-      const n = document.createElement(tag);
-      if (cls) n.className = cls;
-      if (text !== undefined) n.textContent = text;
-      return n;
+    // Draws one box per matched line. Takes anything shaped like {page_no, bboxes}: a field or action sources.
+    function highlight(items) {
+      activeHighlights.forEach((n) => n.remove());
+      activeHighlights = [];
+      let first = null;
+      for (const item of [].concat(items)) {
+        const target = pageEls[item.page_no];
+        if (!target) continue;
+        const boxes = item.bboxes && item.bboxes.length ? item.bboxes : (item.bbox ? [item.bbox] : []);
+        for (const b of boxes) {
+          const box = placeBox(target.wrap, target.page, b, 'hl');
+          activeHighlights.push(box);
+          first = first || box;
+        }
+        first = first || target.wrap;
+      }
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function renderSteps(steps) {
@@ -150,8 +196,7 @@
       root.replaceChildren();
       for (const f of fields) {
         const row = el('div', 'field');
-        const conf = el('span', 'conf ' + confClass(f.confidence ?? 0), (f.confidence ?? 0).toFixed(2));
-        row.appendChild(conf);
+        row.appendChild(el('span', 'conf ' + confClass(f.confidence ?? 0), (f.confidence ?? 0).toFixed(2)));
         row.appendChild(el('div', 'name', f.name + (f.page_no ? ` · page ${f.page_no}` : '')));
         row.appendChild(el('div', 'value', f.value === null ? '(not found)' : String(f.value)));
         for (const flag of f.flags) row.appendChild(el('span', 'flag', flag));
@@ -161,19 +206,6 @@
           highlight(f);
         });
         root.appendChild(row);
-      }
-    }
-
-    function highlight(f) {
-      if (activeHighlight) activeHighlight.remove();
-      activeHighlight = null;
-      const target = pageEls[f.page_no];
-      if (!target) return;
-      if (f.bbox) {
-        activeHighlight = placeBox(target.wrap, target.page, f.bbox, 'hl');
-        activeHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        target.wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
 
@@ -189,6 +221,93 @@
         row.appendChild(el('div', 'due', o.due_date));
         row.appendChild(el('div', '', o.description));
         root.appendChild(row);
+      }
+    }
+
+    async function loadActions() {
+      const actions = await (await fetch(`/runs/${currentRun}/actions`)).json();
+      renderActions(actions);
+      renderSandbox(actions);
+    }
+
+    function renderArgs(args) {
+      const dl = el('dl', 'args');
+      for (const [k, v] of Object.entries(args)) {
+        dl.appendChild(el('dt', '', k));
+        dl.appendChild(el('dd', '', typeof v === 'string' ? v : JSON.stringify(v)));
+      }
+      return dl;
+    }
+
+    function renderActions(actions) {
+      const root = $('actions');
+      root.replaceChildren();
+      if (!actions.length) {
+        root.appendChild(el('div', 'empty', 'No actions proposed (see the planner step above for why).'));
+        return;
+      }
+      for (const a of actions) {
+        const row = el('div', 'action');
+        const head = el('div', 'head');
+        head.appendChild(el('span', 'tool', a.tool));
+        head.appendChild(el('span', 'badge ' + a.status, a.status));
+        row.appendChild(head);
+        row.appendChild(renderArgs(a.args));
+        if (a.rationale) row.appendChild(el('div', 'why', a.rationale));
+        const because = el('div', 'why', 'because of ');
+        for (const src of a.sources) {
+          const link = el('button', 'src', `page ${src.page_no} (${src.name})`);
+          link.type = 'button';
+          link.addEventListener('click', () => highlight(a.sources));
+          because.appendChild(link);
+        }
+        row.appendChild(because);
+        if (a.policy_reason) row.appendChild(el('div', 'policy', 'Policy: ' + a.policy_reason));
+        if (a.status === 'pending') {
+          const btns = el('div', 'btns');
+          for (const verb of ['approve', 'reject']) {
+            const b = el('button', verb, verb === 'approve' ? 'Approve' : 'Reject');
+            b.type = 'button';
+            b.addEventListener('click', async () => {
+              b.disabled = true;
+              const res = await fetch(`/actions/${a.id}/${verb}`, { method: 'POST' });
+              if (!res.ok) $('status').textContent = 'Error: ' + ((await res.json()).detail || res.statusText);
+              await loadActions();
+            });
+            btns.appendChild(b);
+          }
+          row.appendChild(btns);
+        }
+        root.appendChild(row);
+      }
+    }
+
+    function renderSandbox(actions) {
+      const root = $('sandbox');
+      root.replaceChildren();
+      const done = actions.filter((a) => a.status === 'executed' && a.result);
+      if (!done.length) {
+        root.appendChild(el('div', 'empty', 'Nothing executed yet. Approve an action to see it here.'));
+        return;
+      }
+      for (const a of done) {
+        const box = el('div', 'sbx');
+        const args = a.args;
+        if (a.tool === 'create_calendar_event') {
+          box.appendChild(el('div', 'kind', 'Sandbox Calendar'));
+          box.appendChild(el('div', '', `${args.date}: ${args.title}`));
+          box.appendChild(el('div', 'body', args.description || ''));
+        } else if (a.tool === 'draft_email') {
+          box.appendChild(el('div', 'kind', 'Sandbox Inbox (draft, not sent)'));
+          box.appendChild(el('div', '', `To: ${args.to}`));
+          box.appendChild(el('div', '', `Subject: ${args.subject}`));
+          box.appendChild(el('div', 'body', args.body));
+        } else {
+          box.appendChild(el('div', 'kind', 'Sandbox: ' + a.tool));
+          box.appendChild(el('div', 'body', JSON.stringify(args, null, 1)));
+        }
+        box.appendChild(el('div', 'why', a.result.response.status || ''));
+        root.appendChild(box);
       }
     }
   </script>

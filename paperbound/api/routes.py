@@ -8,7 +8,18 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from paperbound import config
-from paperbound.db.models import Document, Field, Obligation, Page, Run, Step
+from paperbound.agent.executor import execute_action
+from paperbound.agent.tools import get_tool
+from paperbound.db.models import (
+    ActionResult,
+    Document,
+    Field,
+    Obligation,
+    Page,
+    ProposedAction,
+    Run,
+    Step,
+)
 from paperbound.db.session import get_session
 from paperbound.pipeline.parse import ParsedPage, parse_pdf
 from paperbound.pipeline.runner import make_parse_step, run_pipeline
@@ -87,7 +98,18 @@ def upload_document(
     session.add(run)
     session.flush()
 
-    result = run_pipeline(pages, make_parse_step(pages, parse_ms, reused))
+    earlier = session.scalars(
+        select(Obligation)
+        .join(Run, Obligation.run_id == Run.id)
+        .where(Run.document_id == document.id, Run.id != run.id)
+    )
+    existing = [
+        {"kind": o.kind, "due_date": o.due_date.isoformat() if o.due_date else None, "description": o.description}
+        for o in earlier
+    ]
+    result = run_pipeline(
+        pages, make_parse_step(pages, parse_ms, reused), existing_obligations=existing
+    )
 
     for seq, step in enumerate(result.steps, start=1):
         session.add(Step(run_id=run.id, seq=seq, **vars(step)))
@@ -100,6 +122,7 @@ def upload_document(
             source_quote=f.source_quote,
             page_no=f.page_no,
             bbox=f.bbox,
+            bboxes=f.bboxes,
             confidence=f.confidence,
             flags=f.flags,
         )
@@ -116,6 +139,21 @@ def upload_document(
                 source_field_ids=[field_ids[name] for name in o.source_fields if name in field_ids],
             )
         )
+    for planned in result.plan.actions if result.plan else []:
+        action = ProposedAction(
+            run_id=run.id,
+            tool=planned.tool,
+            args_json=planned.args,
+            source_field_ids=[field_ids[name] for name in planned.source_fields if name in field_ids],
+            rationale=planned.rationale,
+            status="pending",
+            policy_reason=planned.policy_reason,
+        )
+        session.add(action)
+        session.flush()
+        if planned.policy_status == "approved":  # auto-approval is off by default
+            action.status = "approved"
+            execute_action(session, action)
     run.status = result.status
     run.cost_usd = result.cost_usd
     run.finished_at = datetime.now(timezone.utc)
@@ -208,6 +246,7 @@ def get_fields(run_id: int, session: Session = Depends(get_session)):
             "source_quote": f.source_quote,
             "page_no": f.page_no,
             "bbox": f.bbox,
+            "bboxes": f.bboxes or ([f.bbox] if f.bbox else []),
             "confidence": f.confidence,
             "flags": f.flags,
         }
@@ -229,6 +268,74 @@ def get_obligations(run_id: int, session: Session = Depends(get_session)):
         }
         for o in rows
     ]
+
+
+@router.get("/runs/{run_id}/actions")
+def get_actions(run_id: int, session: Session = Depends(get_session)):
+    _get_run(session, run_id)
+    fields = {f.id: f for f in session.scalars(select(Field).where(Field.run_id == run_id))}
+    actions = session.scalars(select(ProposedAction).where(ProposedAction.run_id == run_id).order_by(ProposedAction.id))
+    return [_action_json(session, a, fields) for a in actions]
+
+
+def _action_json(session: Session, action: ProposedAction, fields: dict) -> dict:
+    tool = get_tool(action.tool)
+    result = session.scalar(
+        select(ActionResult).where(ActionResult.action_id == action.id).order_by(ActionResult.id.desc())
+    )
+    return {
+        "id": action.id,
+        "run_id": action.run_id,
+        "tool": action.tool,
+        "side_effect": bool(tool and tool.side_effect),
+        "args": action.args_json,
+        "status": action.status,
+        "rationale": action.rationale,
+        "policy_reason": action.policy_reason,
+        "sources": [
+            {
+                "field_id": fid,
+                "name": fields[fid].name,
+                "page_no": fields[fid].page_no,
+                "bboxes": fields[fid].bboxes or ([fields[fid].bbox] if fields[fid].bbox else []),
+            }
+            for fid in action.source_field_ids or []
+            if fid in fields
+        ],
+        "result": (
+            {"adapter": result.adapter, "response": result.response_json, "executed_at": result.executed_at}
+            if result
+            else None
+        ),
+    }
+
+
+def _get_pending_action(session: Session, action_id: int) -> ProposedAction:
+    action = session.get(ProposedAction, action_id)
+    if action is None:
+        raise HTTPException(404, "Action not found")
+    if action.status != "pending":
+        raise HTTPException(409, f"Action is already {action.status}")
+    return action
+
+
+@router.post("/actions/{action_id}/approve")
+def approve_action(action_id: int, session: Session = Depends(get_session)):
+    action = _get_pending_action(session, action_id)
+    action.status = "approved"
+    execute_action(session, action)  # sandbox adapter: nothing leaves the system
+    session.commit()
+    fields = {f.id: f for f in session.scalars(select(Field).where(Field.run_id == action.run_id))}
+    return _action_json(session, action, fields)
+
+
+@router.post("/actions/{action_id}/reject")
+def reject_action(action_id: int, session: Session = Depends(get_session)):
+    action = _get_pending_action(session, action_id)
+    action.status = "rejected"
+    session.commit()
+    fields = {f.id: f for f in session.scalars(select(Field).where(Field.run_id == action.run_id))}
+    return _action_json(session, action, fields)
 
 
 @router.get("/files/{key:path}", include_in_schema=False)

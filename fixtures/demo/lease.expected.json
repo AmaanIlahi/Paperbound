@@ -7,7 +7,7 @@
   "premises": "Suite 410, 220 Hudson Street, New York, NY 10013",
   "start_date": "2024-04-01",
   "end_date": "2027-03-31",
-  "rent_amount": 8500.00,
+  "rent_amount": 8500.0,
   "rent_period": "monthly",
   "rent_escalation_percent": 3,
   "notice_period_days": 90,
@@ -16,7 +16,27 @@
       "kind": "deadline",
       "due_date": "2026-12-31",
       "description": "Send written notice to renew or terminate the lease (90 days before the 2027-03-31 expiration)",
-      "source_fields": ["end_date", "notice_period_days"]
+      "source_fields": [
+        "end_date",
+        "notice_period_days"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "tool": "create_calendar_event",
+      "date_before": "2026-12-31",
+      "description": "a calendar reminder before the notice deadline"
+    },
+    {
+      "tool": "draft_email",
+      "mentions_any": [
+        "renew",
+        "renewal",
+        "terminat",
+        "notice"
+      ],
+      "description": "a draft email about renewal / notice"
     }
   ]
 }

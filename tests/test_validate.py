@@ -30,18 +30,18 @@ PAGES = [PAGE1, PAGE2]
 
 
 def test_exact_match_recovers_union_bbox():
-    score, page_no, bbox = ground_quote("Harborview Properties LLC", PAGES, preferred_page=1)
+    score, page_no, bboxes = ground_quote("Harborview Properties LLC", PAGES, preferred_page=1)
     assert score == 1.0
     assert page_no == 1
-    # words 5, 6, 7 of page 1 start at x=250, 300, 350 (each 40 wide), same row
-    assert bbox == [250, 0, 390, 10]
+    # words 5, 6, 7 of page 1 start at x=250, 300, 350 (each 40 wide), same row -> one line box
+    assert bboxes == [[250, 0, 390, 10]]
 
 
 def test_fuzzy_match_tolerates_ocr_style_noise():
-    score, page_no, bbox = ground_quote("base rent of $8,5OO.00 per month", PAGES, preferred_page=2)
+    score, page_no, bboxes = ground_quote("base rent of $8,5OO.00 per month", PAGES, preferred_page=2)
     assert 0.8 <= score < 1.0
     assert page_no == 2
-    assert bbox is not None
+    assert bboxes
 
 
 def test_no_match_scores_low():
@@ -91,6 +91,7 @@ def test_grounded_field_gets_full_confidence_and_bbox():
     fields = {f.name: f for f in validate_fields(make_lease(), PAGES)}
     landlord = fields["landlord"]
     assert landlord.bbox is not None
+    assert landlord.bboxes == [landlord.bbox]
     assert landlord.flags == []
     assert landlord.confidence == 1.0
 

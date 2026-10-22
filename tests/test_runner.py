@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from paperbound.agent.planner import PlanResult
 from paperbound.pipeline.extract import ExtractionResult
 from paperbound.pipeline.runner import make_parse_step, run_pipeline
 from paperbound.schemas.lease import LeaseFields
@@ -36,12 +37,16 @@ def fake_extractor(pages):
     return ExtractionResult(lease, "fake-model", 100, 0.001)
 
 
+def fake_planner(fields, obligations, existing):
+    return PlanResult(model="fake-model", tokens=50, cost_usd=0.0005, api_calls=1, tool_calls=1)
+
+
 def test_full_run_with_fake_extractor():
-    result = run_pipeline(PAGES, make_parse_step(PAGES, 5, reused=False), extractor=fake_extractor)
+    result = run_pipeline(PAGES, make_parse_step(PAGES, 5, reused=False), extractor=fake_extractor, planner=fake_planner)
     assert result.status == "done"
-    assert [s.stage for s in result.steps] == ["parse", "extract", "validate", "obligations"]
+    assert [s.stage for s in result.steps] == ["parse", "extract", "validate", "obligations", "planner"]
     assert all(s.status == "done" for s in result.steps)
-    assert result.cost_usd == 0.001 and result.tokens == 100
+    assert result.cost_usd == 0.0015 and result.tokens == 150
     assert [o.due_date.isoformat() for o in result.obligations] == ["2026-12-31"]
     offsets = [s.ts_offset_ms for s in result.steps]
     assert offsets == sorted(offsets)
@@ -54,6 +59,20 @@ def test_extract_failure_gives_partial_run_and_skips_later_steps():
     result = run_pipeline(PAGES, make_parse_step(PAGES, 5, reused=False), extractor=boom)
     assert result.status == "partial"
     statuses = {s.stage: s.status for s in result.steps}
-    assert statuses == {"parse": "done", "extract": "failed", "validate": "skipped", "obligations": "skipped"}
+    assert statuses == {
+        "parse": "done", "extract": "failed", "validate": "skipped", "obligations": "skipped", "planner": "skipped",
+    }
     assert "api down" in next(s for s in result.steps if s.stage == "extract").error
     assert result.fields == [] and result.obligations == []
+
+
+def test_planner_failure_gives_partial_run_but_keeps_fields_and_obligations():
+    def boom(fields, obligations, existing):
+        raise RuntimeError("planner down")
+
+    result = run_pipeline(PAGES, make_parse_step(PAGES, 5, reused=False), extractor=fake_extractor, planner=boom)
+    assert result.status == "partial"
+    assert result.fields and result.obligations
+    planner_step = result.steps[-1]
+    assert planner_step.stage == "planner" and planner_step.status == "failed"
+    assert "planner down" in planner_step.error

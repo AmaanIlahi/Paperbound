@@ -126,7 +126,12 @@ Output: `pages` rows with `route`, `text`, `words[] {text, bbox}`, `quality_scor
 - **Grounding check**: fuzzy-match `source_quote` (rapidfuzz `fuzz.ratio` on punctuation-stripped, case-folded tokens) against the page's word list using a sliding window over consecutive words (window size = quote length ± 2 words). The best window gives a score from 0 to 1 and the union bbox of its words. The page the model named is searched first; other pages are searched only if that page scores below 0.8, so a wrong page number is recovered (flag `page_corrected`). A score below 0.8 flags the field `ungrounded` and drops the bbox.
 - **Value-in-quote check**: the extracted value must appear in or be derivable from its quote (`$8,500.00` or "Eight Thousand Five Hundred Dollars ($8,500.00)" → 8500; "March 31, 2027" → 2027-03-31; "ninety (90) days" → 90). If not, the field gets `value_not_in_quote`.
 - **Field confidence** = `0.6 * grounding_score + 0.3 * validators_passed + 0.1 * page_quality`. `validators_passed` is 1 only if the type/range/cross-field checks and the value-in-quote check all pass, else 0. `page_quality` is the quality score of the page the field was grounded on. No reliance on the LLM's self-reported confidence. A field the model could not find has confidence 0 and flag `not_found`.
-- **Flags**: `not_found`, `ungrounded`, `page_corrected`, `value_not_in_quote`, `invalid_date`, `end_before_start`, `invalid_amount`, `invalid_notice_period`.
+- **Quote rules (injection hardening)**: the quote must look like text that can state the field. `rent_amount`: a currency amount (`$` or `USD` followed by digits). `start_date` / `end_date`: a date. `notice_period_days`: a number directly followed by "day(s)". Failing adds `quote_rule_failed`.
+- **Instruction detector**: a quote containing instruction-like text (`ignore`, `disregard`, `instruction(s)`, `assistant`, `system:`, `set X to`) gets `suspicious_instruction`. Its confidence is capped at 0.3, and it is never used for obligations or actions. This is a deliberately blunt regex and will produce false positives on lease text such as "written instructions"; a false positive costs a human review, a false negative costs trust.
+- **Rent table cross-check**: if the extracted `rent_amount` differs from the first row of a rent escalation table on any page (`Lease Year | Period | Monthly Base Rent`), it gets `conflicting_values`.
+- **`validators_passed`** is 0 if any of `invalid_date`, `end_before_start`, `invalid_amount`, `invalid_notice_period`, `value_not_in_quote`, `quote_rule_failed`, `conflicting_values` is present. Fields carrying any of these, or `ungrounded`, `suspicious_instruction`, `not_found`, are "blocked": they are never used for obligations or shown to the action planner.
+- **Per-line boxes**: grounding returns one bbox per text line (matched words grouped by line); the field stores them as `bboxes`, plus their union as `bbox`.
+- **Flags**: `not_found`, `ungrounded`, `page_corrected`, `value_not_in_quote`, `invalid_date`, `end_before_start`, `invalid_amount`, `invalid_notice_period`, `quote_rule_failed`, `suspicious_instruction`, `conflicting_values`.
 
 ### 4.5 Obligations
 Deterministic derivation from validated fields (no LLM). An obligation is skipped, with the reason recorded on the step, if an input is missing, `ungrounded`, or failed validation:
@@ -137,7 +142,13 @@ Deterministic derivation from validated fields (no LLM). An obligation is skippe
 Example: lease end 2027-03-31 + 90-day notice → obligation "Send renewal or termination notice by 2026-12-31".
 
 ### 4.6 Action planner (agent)
-An LLM agent with tools receives the doc summary, fields, and obligations, and proposes actions. It does not execute them.
+An LLM agent (`agent/planner.py`, gpt-4o-mini with tool calling) receives a deterministic doc summary, the usable (non-blocked) fields with local ids, and the derived obligations, and proposes actions. It does not execute them. Rules enforced in code, not just in the prompt:
+- Every action must cite `source_field_ids` that exist in the list it was shown; proposals with none, or unknown ids, are rejected and the model is told why.
+- Email recipients and webhook URLs are never taken from the model or the document: `draft_email` is stored with `to: {{RECIPIENT}}` and `fire_webhook` with `url: {{WEBHOOK_URL}}`, and any such args from the model are dropped.
+- A calendar reminder must be dated today or later and strictly before a deadline.
+- Duplicate proposals are rejected. The planner runs `get_obligations` itself before the model proposes anything (it counts as one of the 8 tool calls) and passes the result in.
+- The planner is skipped when there are no obligations. A planner failure makes the run `partial` but keeps fields and obligations.
+- The model follows up only after read-only calls or rejections; if every call was an accepted proposal the loop ends (typically 1 model call).
 
 ### 4.7 Approval gate
 Policy (in `policy.py`, deterministic):
@@ -189,6 +200,8 @@ Every proposed action stores `source_refs[]` (field ids → page + bbox) so the 
 
 **Agent loop limits**: max 8 tool calls per run, 60s timeout, and a dedupe check against `get_obligations` before proposing.
 
+**Implementation status**: all six tools exist in `agent/tools/` (one file each). Action tools have a working `sandbox` adapter (writes a `sandbox_actions` row with the full args and a fake response); the `live` adapters raise "not connected". `get_entity` is a stub returning `null` (no `entities` table yet). `get_obligations` returns obligations stored by earlier runs of the same document. Approving an action (`POST /actions/{id}/approve`) runs the sandbox adapter and records an `action_results` row; rejecting only changes the status. A decided action cannot be decided again (409).
+
 ---
 
 ## 6. Data model
@@ -199,10 +212,11 @@ pages            id, document_id, page_no, route, text, words_json, quality_scor
 chunks           id, document_id, page_no, text, embedding vector(1536)
 runs             id, document_id, status, started_at, finished_at, cost_usd
 steps            id, run_id, seq, stage, status, input_summary, output_summary, reason, model, tokens, cost_usd, duration_ms, ts_offset_ms
-fields           id, run_id, name, value_json, source_quote, page_no, bbox, confidence, flags[]
+fields           id, run_id, name, value_json, source_quote, page_no, bbox, bboxes (one box per matched line; bbox is their union), confidence, flags[]
 obligations      id, run_id, kind, due_date, description, source_field_ids[]
-proposed_actions id, run_id, tool, args_json, source_field_ids[], status (pending|approved|rejected|executed|failed), policy_reason
+proposed_actions id, run_id, tool, args_json, source_field_ids[], rationale, status (pending|approved|rejected|executed|failed), policy_reason, created_at
 action_results   id, action_id, adapter (live|sandbox), response_json, executed_at
+sandbox_actions  id, run_id, action_id, tool, args_json, response_json, created_at   (what sandbox adapters "did": full args + fake response)
 entities         id, name, kind, aliases[], attrs_json
 jobs             id, run_id, stage, status, attempts, locked_at, error
 eval_runs        id, dataset, config_json, metrics_json, created_at
@@ -249,8 +263,10 @@ SSE event shape:
 
 Single page, three panes:
 1. **Left**: document viewer (page images with bbox highlights).
-2. **Middle**: run timeline (live SSE steps) and extracted fields. Clicking a field highlights its source on the page.
-3. **Right**: obligations and proposed actions with Approve / Reject; sandbox panels (Calendar, Inbox, Webhook log) in demo mode.
+2. **Middle**: run timeline (live SSE steps) and extracted fields. Clicking a field highlights its source on the page, one box per line.
+3. **Right**: obligations and proposed actions with Approve / Reject (each action has "because of page N" links that highlight its source fields); a sandbox panel showing executed actions (Calendar, Inbox drafts). Webhook log panel comes with demo mode.
+
+Today the timeline, fields, obligations, actions and sandbox sit in one right-hand column, loaded after the synchronous upload response (no SSE yet).
 
 Top bar: **Upload** and **Run Demo** (dropdown of fixtures: Lease, Insurance Certificate, Vendor Contract, Invoice).
 
@@ -292,7 +308,7 @@ paperbound/
   api/            FastAPI app, routes, SSE
   worker/         job loop, stage runner
   pipeline/       parse.py classify.py extract.py validate.py obligations.py runner.py types.py
-  agent/          planner.py policy.py tools/ (one file per tool, live + sandbox adapters)
+  agent/          planner.py policy.py executor.py tools/ (one file per tool, live + sandbox adapters)
   schemas/        Pydantic field schemas per doc type
   demo/           replay.py, session sandbox store
   evals/          datasets/, runners, metrics

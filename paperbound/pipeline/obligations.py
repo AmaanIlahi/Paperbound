@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 from paperbound.pipeline.types import DerivedObligation, ValidatedField
+from paperbound.pipeline.validate import BLOCKING_FLAGS
 
 
 def derive_obligations(fields: list[ValidatedField]) -> tuple[list[DerivedObligation], list[str]]:
@@ -32,8 +33,9 @@ def derive_obligations(fields: list[ValidatedField]) -> tuple[list[DerivedObliga
 def _usable(field: ValidatedField | None, name: str) -> str | None:
     if field is None or field.value is None:
         return f"{name} missing"
-    if "ungrounded" in field.flags:
+    blocked = sorted(set(field.flags) & BLOCKING_FLAGS)
+    if "ungrounded" in blocked:
         return f"{name} is ungrounded"
-    if set(field.flags) & {"invalid_date", "invalid_notice_period", "end_before_start"}:
-        return f"{name} failed validation ({', '.join(field.flags)})"
+    if blocked:
+        return f"{name} failed validation ({', '.join(blocked)})"
     return None

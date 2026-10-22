@@ -16,7 +16,11 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+# The SQLite variants exist only so unit tests can run on an in-memory database; Postgres is unchanged.
 Json = JSON().with_variant(JSONB(), "postgresql")
+BigPK = BigInteger().with_variant(Integer(), "sqlite")
+StrArray = ARRAY(String).with_variant(JSON(), "sqlite")
+IntArray = ARRAY(BigInteger).with_variant(JSON(), "sqlite")
 
 
 class Base(DeclarativeBase):
@@ -26,7 +30,7 @@ class Base(DeclarativeBase):
 class Document(Base):
     __tablename__ = "documents"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
     filename: Mapped[str] = mapped_column(String)
     storage_key: Mapped[str] = mapped_column(String)
     sha256: Mapped[str] = mapped_column(String(64), unique=True)
@@ -41,7 +45,7 @@ class Page(Base):
     __tablename__ = "pages"
     __table_args__ = (UniqueConstraint("document_id", "page_no"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
     document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"), index=True)
     page_no: Mapped[int] = mapped_column(Integer)
     route: Mapped[str] = mapped_column(String)
@@ -58,7 +62,7 @@ class Page(Base):
 class Run(Base):
     __tablename__ = "runs"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
     document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"), index=True)
     status: Mapped[str] = mapped_column(String, default="running")
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -70,7 +74,7 @@ class Step(Base):
     __tablename__ = "steps"
     __table_args__ = (UniqueConstraint("run_id", "seq"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
     run_id: Mapped[int] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
     seq: Mapped[int] = mapped_column(Integer)
     stage: Mapped[str] = mapped_column(String)
@@ -89,23 +93,62 @@ class Step(Base):
 class Field(Base):
     __tablename__ = "fields"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
     run_id: Mapped[int] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String)
     value_json: Mapped[dict | list | str | float | None] = mapped_column(Json)
     source_quote: Mapped[str | None] = mapped_column(Text)
     page_no: Mapped[int | None] = mapped_column(Integer)
-    bbox: Mapped[list | None] = mapped_column(Json)
+    bbox: Mapped[list | None] = mapped_column(Json)  # union of bboxes
+    bboxes: Mapped[list | None] = mapped_column(Json)  # one box per matched line
     confidence: Mapped[float | None] = mapped_column(Float)
-    flags: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
+    flags: Mapped[list[str]] = mapped_column(StrArray, default=list)
 
 
 class Obligation(Base):
     __tablename__ = "obligations"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
     run_id: Mapped[int] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
     kind: Mapped[str] = mapped_column(String)
     due_date: Mapped[date | None]
     description: Mapped[str] = mapped_column(Text)
-    source_field_ids: Mapped[list[int]] = mapped_column(ARRAY(BigInteger), default=list)
+    source_field_ids: Mapped[list[int]] = mapped_column(IntArray, default=list)
+
+
+class ProposedAction(Base):
+    __tablename__ = "proposed_actions"
+
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
+    run_id: Mapped[int] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
+    tool: Mapped[str] = mapped_column(String)
+    args_json: Mapped[dict] = mapped_column(Json)
+    source_field_ids: Mapped[list[int]] = mapped_column(IntArray, default=list)
+    rationale: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="pending")  # pending|approved|rejected|executed|failed
+    policy_reason: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ActionResult(Base):
+    __tablename__ = "action_results"
+
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
+    action_id: Mapped[int] = mapped_column(ForeignKey("proposed_actions.id", ondelete="CASCADE"), index=True)
+    adapter: Mapped[str] = mapped_column(String)  # live | sandbox
+    response_json: Mapped[dict] = mapped_column(Json)
+    executed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class SandboxAction(Base):
+    """What the sandbox adapters 'did': full args plus a fake response. Nothing leaves the database."""
+
+    __tablename__ = "sandbox_actions"
+
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
+    run_id: Mapped[int | None] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
+    action_id: Mapped[int | None] = mapped_column(ForeignKey("proposed_actions.id", ondelete="CASCADE"))
+    tool: Mapped[str] = mapped_column(String)
+    args_json: Mapped[dict] = mapped_column(Json)
+    response_json: Mapped[dict] = mapped_column(Json)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

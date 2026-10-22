@@ -2,6 +2,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Callable
 
+from paperbound.agent.planner import PlanResult, plan_actions
 from paperbound.pipeline.extract import extract_lease
 from paperbound.pipeline.obligations import derive_obligations
 from paperbound.pipeline.types import DerivedObligation, StepRecord, ValidatedField
@@ -14,6 +15,7 @@ class PipelineResult:
     steps: list[StepRecord] = field(default_factory=list)
     fields: list[ValidatedField] = field(default_factory=list)
     obligations: list[DerivedObligation] = field(default_factory=list)
+    plan: PlanResult | None = None
 
     @property
     def cost_usd(self) -> float:
@@ -43,8 +45,14 @@ def make_parse_step(pages, duration_ms: int, reused: bool) -> StepRecord:
     )
 
 
-def run_pipeline(pages, parse_step: StepRecord, extractor: Callable = extract_lease) -> PipelineResult:
-    """extract -> validate -> obligations over already-parsed pages. Never raises on extract failure."""
+def run_pipeline(
+    pages,
+    parse_step: StepRecord,
+    extractor: Callable = extract_lease,
+    planner: Callable = plan_actions,
+    existing_obligations: list[dict] | None = None,
+) -> PipelineResult:
+    """extract -> validate -> obligations -> planner over already-parsed pages. Never raises on stage failure."""
     result = PipelineResult(status="done", steps=[parse_step])
     clock = parse_step.duration_ms
 
@@ -74,7 +82,7 @@ def run_pipeline(pages, parse_step: StepRecord, extractor: Callable = extract_le
     lease = timed("extract", do_extract, input_summary=f"{len(pages)} page text(s)")
     if lease is None:
         result.status = "partial"
-        for stage in ("validate", "obligations"):
+        for stage in ("validate", "obligations", "planner"):
             result.steps.append(
                 StepRecord(stage=stage, status="skipped", ts_offset_ms=clock, reason="Extraction failed, nothing to check.")
             )
@@ -95,9 +103,10 @@ def run_pipeline(pages, parse_step: StepRecord, extractor: Callable = extract_le
     validated = timed("validate", do_validate, input_summary="extracted fields")
     if validated is None:
         result.status = "partial"
-        result.steps.append(
-            StepRecord(stage="obligations", status="skipped", ts_offset_ms=clock, reason="Validation failed.")
-        )
+        for stage in ("obligations", "planner"):
+            result.steps.append(
+                StepRecord(stage=stage, status="skipped", ts_offset_ms=clock, reason="Validation failed.")
+            )
         return result
     result.fields = validated
 
@@ -112,6 +121,31 @@ def run_pipeline(pages, parse_step: StepRecord, extractor: Callable = extract_le
     derived = timed("obligations", do_obligations, input_summary="validated fields")
     if derived is None:
         result.status = "partial"
+        result.steps.append(StepRecord(stage="planner", status="skipped", ts_offset_ms=clock, reason="Obligations failed."))
+        return result
+    result.obligations = derived
+
+    if not derived:
+        result.steps.append(
+            StepRecord(stage="planner", status="skipped", ts_offset_ms=clock, reason="No obligations, so there is nothing to plan.")
+        )
+        return result
+
+    def do_planner(step: StepRecord):
+        plan = planner(validated, derived, existing_obligations)
+        step.model, step.tokens, step.cost_usd = plan.model, plan.tokens, plan.cost_usd
+        step.output_summary = f"{len(plan.actions)} action(s) proposed, {len(plan.rejected)} rejected"
+        step.reason = (
+            "The agent only proposes; every side-effect action waits for approval. "
+            f"{plan.api_calls} model call(s), {plan.tool_calls} tool call(s)."
+            + (f" Rejected: {'; '.join(r['tool'] + ': ' + r['reason'] for r in plan.rejected)}." if plan.rejected else "")
+            + (f" {' '.join(plan.notes)}" if plan.notes else "")
+        )
+        return plan
+
+    plan = timed("planner", do_planner, input_summary=f"{len(derived)} obligation(s), usable fields only")
+    if plan is None:
+        result.status = "partial"
     else:
-        result.obligations = derived
+        result.plan = plan
     return result

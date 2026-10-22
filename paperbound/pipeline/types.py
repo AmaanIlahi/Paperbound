@@ -23,11 +23,12 @@ class ValidatedField:
     value: object  # normalized: ISO date string, float, int or str; None if not found
     source_quote: str | None
     page_no: int | None
-    bbox: list[float] | None
+    bbox: list[float] | None  # union of bboxes
     confidence: float
     grounding_score: float
     flags: list[str] = field(default_factory=list)
     validators_passed: bool = False
+    bboxes: list[list[float]] = field(default_factory=list)  # one box per matched line
 
 
 @dataclass

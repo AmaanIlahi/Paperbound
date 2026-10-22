@@ -1,14 +1,14 @@
 """Run the full pipeline on a lease PDF and compare against its expected JSON.
 
 Usage: python scripts/eval_lease.py [--pdf fixtures/demo/lease.pdf] [--expected fixtures/demo/lease.expected.json]
-Makes one OpenAI call. Does not touch the database.
+Makes about three OpenAI calls (extraction + planner). Does not touch the database.
 """
 
 import argparse
 import json
 import sys
 import time
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 from rapidfuzz import fuzz
@@ -43,6 +43,45 @@ def matches(name: str, want, got) -> bool:
     if isinstance(want, str):
         return str(got).strip().rstrip(".").casefold() == want.strip().rstrip(".").casefold()
     return got == want
+
+
+def check_actions(expected: dict, plan) -> dict:
+    """Compare proposed actions with the expected ones. Extra actions are reported, not penalized."""
+    actions = plan.actions if plan else []
+    checks = []
+    for want in expected.get("actions", []):
+        found = None
+        for a in actions:
+            if a.tool != want["tool"]:
+                continue
+            if "date_before" in want:
+                try:
+                    ok = date.fromisoformat(a.args.get("date", "")) < date.fromisoformat(want["date_before"])
+                except ValueError:
+                    ok = False
+            else:
+                text = f"{a.args.get('subject', '')} {a.args.get('body', '')}".casefold()
+                ok = any(word in text for word in want["mentions_any"])
+            if ok:
+                found = a
+                break
+        checks.append({"expected": want["description"], "tool": want["tool"], "match": found is not None})
+    expected_tools = {w["tool"] for w in expected.get("actions", [])}
+    return {
+        "checks": checks,
+        "match": bool(checks) and all(c["match"] for c in checks),
+        "extra": [a.tool for a in actions if a.tool not in expected_tools],
+        "proposed": [
+            {
+                "tool": a.tool,
+                "args": a.args,
+                "source_fields": a.source_fields,
+                "policy": f"{a.policy_status}: {a.policy_reason}",
+            }
+            for a in actions
+        ],
+        "rejected": plan.rejected if plan else [],
+    }
 
 
 def main():
@@ -89,10 +128,18 @@ def main():
         "match": bool(got_obl and got_obl.due_date.isoformat() == want_obl["due_date"]),
     }
 
+    actions = check_actions(expected, result.plan)
+    rent = by_name.get("rent_amount")
+    api_calls = 1 + (result.plan.api_calls if result.plan else 0)
     summary = {
         "pdf": pdf_path.name,
         "run_status": result.status,
         "fields_matched": f"{sum(r['match'] for r in rows)}/{len(rows)}",
+        "obligation_match": obligation["match"],
+        "actions_match": actions["match"],
+        "rent_amount_extracted": rent.value if rent else None,
+        "rent_amount_flags": rent.flags if rent else [],
+        "openai_calls": api_calls,
         "tokens": result.tokens,
         "cost_usd": result.cost_usd,
         "latency_ms": latency_ms,
@@ -108,8 +155,16 @@ def main():
         )
     print(f"\nobligation: expected {obligation['expected_due_date']}, got {obligation['extracted_due_date']} -> "
           f"{'yes' if obligation['match'] else 'NO'}")
-    print(f"tokens {summary['tokens']}  cost ${summary['cost_usd']:.5f}  latency {latency_ms} ms  "
-          f"fields matched {summary['fields_matched']}")
+    print("\nproposed actions:")
+    for a in actions["proposed"]:
+        detail = a["args"].get("date") or a["args"].get("subject") or ""
+        print(f"  {a['tool']:24} {str(detail)[:50]:50} from {','.join(a['source_fields'])} [{a['policy'].split(':')[0]}]")
+    for c in actions["checks"]:
+        print(f"  expected {c['tool']:24} ({c['expected']}) -> {'yes' if c['match'] else 'NO'}")
+    if actions["extra"] or actions["rejected"]:
+        print(f"  extra actions: {actions['extra']}  rejected proposals: {actions['rejected']}")
+    print(f"\ntokens {summary['tokens']}  cost ${summary['cost_usd']:.5f}  latency {latency_ms} ms  "
+          f"openai calls {api_calls}  fields matched {summary['fields_matched']}")
 
     out_dir = ROOT / "evals" / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -120,6 +175,7 @@ def main():
                 "summary": summary,
                 "fields": rows,
                 "obligation": obligation,
+                "actions": actions,
                 "steps": [vars(s) for s in result.steps],
             },
             indent=2,
