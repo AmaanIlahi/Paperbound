@@ -7,11 +7,12 @@ from paperbound.pipeline.types import ValidatedField
 from paperbound.schemas.lease import LeaseFields
 
 GROUNDING_THRESHOLD = 0.8
+SHORT_QUOTE_TOKENS = 3  # quotes this short are too easy to fuzzy-match to the wrong place, so they must match exactly
 W_GROUNDING, W_VALIDATORS, W_QUALITY = 0.6, 0.3, 0.1
 SUSPICIOUS_CONFIDENCE_CAP = 0.3
 # Any of these flags means the validator weight is dropped from the confidence.
 CHECK_FLAGS = {
-    "invalid_date", "end_before_start", "invalid_amount", "invalid_notice_period",
+    "invalid_date", "end_before_start", "invalid_amount", "invalid_notice_period", "invalid_percent",
     "value_not_in_quote", "quote_rule_failed", "conflicting_values",
 }
 # Fields carrying any of these flags are never used for obligations or actions.
@@ -30,6 +31,8 @@ _UNITS = {
     "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
 }
 _TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
+AMOUNT_FIELDS = ("rent_amount", "security_deposit", "current_rent")
+PERCENT_FIELDS = ("holdover_rate_percent", "rent_escalation_percent")
 _PERIOD_WORDS = {
     "monthly": ("month", "monthly"),
     "quarterly": ("quarter",),
@@ -160,8 +163,13 @@ def value_in_quote(name: str, value, quote: str | None) -> bool:
         return False
     if name in ("start_date", "end_date"):
         return value in _dates_in(quote)
-    if name == "rent_amount":
+    if name in AMOUNT_FIELDS:
         return any(abs(n - float(value)) < 0.005 for n in _numbers_in(quote))
+    if name in PERCENT_FIELDS:
+        return any(abs(n - float(value)) < 0.005 for n in _numbers_in(quote)) or float(value) in _word_numbers(quote)
+    if name == "notice_section":
+        ident = re.sub(r"^\s*(?:section|article|clause|§)\s*", "", str(value), flags=re.I).strip().rstrip(".")
+        return bool(ident) and bool(re.search(rf"(?<![\w.]){re.escape(ident)}(?![\w]|\.\d)", quote, re.I))
     if name == "notice_period_days":
         return float(value) in _numbers_in(quote) or int(value) in _word_numbers(quote)
     if name == "rent_period":
@@ -182,14 +190,21 @@ def _normalize(name: str, value, flags: list[str]):
         except ValueError:
             flags.append("invalid_date")
             return value
-    if name == "rent_amount":
+    if name in AMOUNT_FIELDS:
         if not isinstance(value, (int, float)) or value <= 0:
             flags.append("invalid_amount")
+        return float(value) if isinstance(value, (int, float)) else value
+    if name in PERCENT_FIELDS:
+        if not isinstance(value, (int, float)) or not 0 < value <= 1000:
+            flags.append("invalid_percent")
         return float(value) if isinstance(value, (int, float)) else value
     if name == "notice_period_days":
         if not isinstance(value, int) or not 1 <= value <= 365:
             flags.append("invalid_notice_period")
         return value
+    if name == "notice_section" and isinstance(value, str):
+        lead = re.match(r"\s*(?:section\s+)?(\d+(?:\.\d+)*)(?![\w])", value, re.I)
+        return f"Section {lead.group(1)}" if lead else value.strip()  # "11. Renewal; ..." -> "Section 11"
     return value.strip() if isinstance(value, str) else value
 
 
@@ -197,6 +212,9 @@ def _normalize(name: str, value, flags: list[str]):
 
 _CURRENCY_RE = re.compile(r"(?:\$|US\$|USD\s?)\s*\d", re.I)
 _NUMBER_WORDS = "|".join([*_UNITS, *_TENS, "hundred"])
+_PERCENT_RE = re.compile(r"%|\bper\s?cent\b", re.I)
+_DELIVERY_RE = re.compile(r"\b(?:mail|courier|deliver\w*|e-?mail|fax|hand|person|post\w*|registered|writing|written)\b", re.I)
+_SECTION_RE = re.compile(r"\b(?i:section|article|clause)\b|§|(?:^|\s)\d+(?:\.\d+)*\.?\s+[A-Z]")
 _DAYS_RE = re.compile(rf"(?:\d+|\b(?:{_NUMBER_WORDS})\b)\)?\s*-?\s*days?\b", re.I)
 _INSTRUCTION_RE = re.compile(
     r"\b(?:ignore|disregard|instructions?|assistant)\b|\bsystem\s*:|\bset\s+[\w.]+\s+to\b", re.I
@@ -210,8 +228,14 @@ def quote_rule_ok(name: str, quote: str | None) -> bool:
     """A quote must look like the kind of text that can state this field."""
     if not quote:
         return False
-    if name == "rent_amount":
+    if name in AMOUNT_FIELDS:
         return bool(_CURRENCY_RE.search(quote))
+    if name in PERCENT_FIELDS:
+        return bool(_PERCENT_RE.search(quote))
+    if name == "notice_method":
+        return bool(_DELIVERY_RE.search(quote))
+    if name == "notice_section":
+        return bool(_SECTION_RE.search(quote))
     if name in ("start_date", "end_date"):
         return bool(_dates_in(quote))
     if name == "notice_period_days":
@@ -232,7 +256,43 @@ def rent_table_first_amount(pages) -> float | None:
     return None
 
 
-def validate_fields(lease: LeaseFields, pages) -> list[ValidatedField]:
+_ROW_RE = re.compile(
+    r"\b(\d{1,2})\s+([A-Za-z]{3,9}\.?\s+\d{1,2},?\s+\d{4})\s*[-–]\s*([A-Za-z]{3,9}\.?\s+\d{1,2},?\s+\d{4})\s+\$\s*([\d,]+(?:\.\d+)?)"
+)
+_LOOSE_DATE_RE = re.compile(r"([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})")
+_MONTH_BY_PREFIX = {m[:3]: n for m, n in MONTHS.items()}
+
+
+def _loose_date(text: str) -> date | None:
+    m = _LOOSE_DATE_RE.fullmatch(text.strip())
+    if not m or m.group(1).lower()[:3] not in _MONTH_BY_PREFIX:
+        return None
+    try:
+        return date(int(m.group(3)), _MONTH_BY_PREFIX[m.group(1).lower()[:3]], int(m.group(2)))
+    except ValueError:
+        return None
+
+
+def rent_table_rows(pages) -> list[tuple[date, date, float]]:
+    """(period start, period end, monthly amount) for each row of a rent escalation table."""
+    rows = []
+    for page in pages:
+        for _, start, end, amount in _ROW_RE.findall(" ".join(page.text.split())):
+            s, e = _loose_date(start), _loose_date(end)
+            if s and e:
+                rows.append((s, e, float(amount.replace(",", ""))))
+    return rows
+
+
+def rent_table_amount_on(pages, day: date) -> float | None:
+    for start, end, amount in rent_table_rows(pages):
+        if start <= day <= end:
+            return amount
+    return None
+
+
+def validate_fields(lease: LeaseFields, pages, today: date | None = None) -> list[ValidatedField]:
+    today = today or date.today()
     pages_by_no = {p.page_no: p for p in pages}
     results: list[ValidatedField] = []
 
@@ -250,7 +310,8 @@ def validate_fields(lease: LeaseFields, pages) -> list[ValidatedField]:
             score, page_no, bboxes = ground_quote(quote, pages, extracted.page)
         else:
             score, page_no, bboxes = 0.0, extracted.page, []
-        if score < GROUNDING_THRESHOLD:
+        short = bool(quote) and len(_tokens(quote)) <= SHORT_QUOTE_TOKENS
+        if score < GROUNDING_THRESHOLD or (short and score < 1.0):  # a short quote must match exactly
             flags.append("ungrounded")
             bboxes = []
         elif extracted.page is not None and page_no != extracted.page:
@@ -271,6 +332,10 @@ def validate_fields(lease: LeaseFields, pages) -> list[ValidatedField]:
     table_amount = rent_table_first_amount(pages)
     if isinstance(rent.value, (int, float)) and table_amount is not None and abs(rent.value - table_amount) > 0.005:
         rent.flags.append("conflicting_values")
+    current = by_name["current_rent"]
+    table_today = rent_table_amount_on(pages, today)
+    if isinstance(current.value, (int, float)) and table_today is not None and abs(current.value - table_today) > 0.005:
+        current.flags.append("conflicting_values")
     start, end = by_name["start_date"], by_name["end_date"]
     if (
         start.value and end.value

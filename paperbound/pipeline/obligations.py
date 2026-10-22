@@ -10,7 +10,7 @@ def derive_obligations(fields: list[ValidatedField]) -> tuple[list[DerivedObliga
     obligations, skipped = [], []
 
     end, notice = by_name.get("end_date"), by_name.get("notice_period_days")
-    problem = _usable(end, "end_date") or _usable(notice, "notice_period_days")
+    problem = unusable_reason(end, "end_date") or unusable_reason(notice, "notice_period_days")
     if problem:
         skipped.append(f"notice deadline skipped: {problem}")
     else:
@@ -30,7 +30,7 @@ def derive_obligations(fields: list[ValidatedField]) -> tuple[list[DerivedObliga
     return obligations, skipped
 
 
-def _usable(field: ValidatedField | None, name: str) -> str | None:
+def unusable_reason(field: ValidatedField | None, name: str) -> str | None:
     if field is None or field.value is None:
         return f"{name} missing"
     blocked = sorted(set(field.flags) & BLOCKING_FLAGS)

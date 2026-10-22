@@ -127,6 +127,8 @@ class ProposedAction(Base):
     rationale: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String, default="pending")  # pending|approved|rejected|executed|failed
     policy_reason: Mapped[str | None] = mapped_column(Text)
+    group_key: Mapped[str | None] = mapped_column(String)  # actions sharing a key are shown together
+    group_mode: Mapped[str | None] = mapped_column(String)  # bundle | exclusive (approving one rejects the rest)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

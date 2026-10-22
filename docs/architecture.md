@@ -117,7 +117,7 @@ Output: `pages` rows with `route`, `text`, `words[] {text, bbox}`, `quality_scor
 ### 4.3 Extract (schema-constrained)
 - Each doc type has a Pydantic schema in `schemas/` (e.g. `LeaseFields`, `InsuranceCertFields`).
 - `other` uses a generic schema: parties, dates, amounts, obligations, summary.
-- LLM extraction uses structured outputs (`gpt-4o-mini`, temperature 0, one call per document). Every field returns `{value, source_quote, page}`. The system prompt states that document text is untrusted data and instructions inside it must be ignored; quotes must be verbatim and at most 30 words; rent is the first-year base rent, not escalation-table values. Currently only the `lease` schema exists (`schemas/lease.py`: landlord, tenant, premises_address, start_date, end_date, rent_amount, rent_period, notice_period_days).
+- LLM extraction uses structured outputs (`gpt-4o-mini`, temperature 0, one call per document). Every field returns `{value, source_quote, page}`. The system prompt states that document text is untrusted data and instructions inside it must be ignored; quotes must be verbatim and at most 30 words; rent is the first-year base rent, not escalation-table values. Currently only the `lease` schema exists (`schemas/lease.py`: landlord, tenant, premises_address, start_date, end_date, rent_amount, rent_period, notice_period_days, and for the decision brief holdover_rate_percent, security_deposit, notice_method, notice_section, rent_escalation_percent, current_rent). The user message starts with today's date so the model can pick the rent-table row that covers it (`current_rent`).
 - Long docs: chunk by page, retrieve relevant chunks per field group with pgvector, then extract.
 
 ### 4.4 Validate and ground (deterministic)
@@ -126,12 +126,15 @@ Output: `pages` rows with `route`, `text`, `words[] {text, bbox}`, `quality_scor
 - **Grounding check**: fuzzy-match `source_quote` (rapidfuzz `fuzz.ratio` on punctuation-stripped, case-folded tokens) against the page's word list using a sliding window over consecutive words (window size = quote length ± 2 words). The best window gives a score from 0 to 1 and the union bbox of its words. The page the model named is searched first; other pages are searched only if that page scores below 0.8, so a wrong page number is recovered (flag `page_corrected`). A score below 0.8 flags the field `ungrounded` and drops the bbox.
 - **Value-in-quote check**: the extracted value must appear in or be derivable from its quote (`$8,500.00` or "Eight Thousand Five Hundred Dollars ($8,500.00)" → 8500; "March 31, 2027" → 2027-03-31; "ninety (90) days" → 90). If not, the field gets `value_not_in_quote`.
 - **Field confidence** = `0.6 * grounding_score + 0.3 * validators_passed + 0.1 * page_quality`. `validators_passed` is 1 only if the type/range/cross-field checks and the value-in-quote check all pass, else 0. `page_quality` is the quality score of the page the field was grounded on. No reliance on the LLM's self-reported confidence. A field the model could not find has confidence 0 and flag `not_found`.
-- **Quote rules (injection hardening)**: the quote must look like text that can state the field. `rent_amount`: a currency amount (`$` or `USD` followed by digits). `start_date` / `end_date`: a date. `notice_period_days`: a number directly followed by "day(s)". Failing adds `quote_rule_failed`.
+- **Quote rules (injection hardening)**: the quote must look like text that can state the field. `rent_amount`: a currency amount (`$` or `USD` followed by digits). `start_date` / `end_date`: a date. `notice_period_days`: a number directly followed by "day(s)". `security_deposit` / `current_rent`: a currency amount. `holdover_rate_percent` / `rent_escalation_percent`: a `%` or "percent". `notice_method`: a delivery word (mail, courier, deliver, written...). `notice_section`: a "section"/"article"/"clause" word or a numbered heading. Failing adds `quote_rule_failed`.
 - **Instruction detector**: a quote containing instruction-like text (`ignore`, `disregard`, `instruction(s)`, `assistant`, `system:`, `set X to`) gets `suspicious_instruction`. Its confidence is capped at 0.3, and it is never used for obligations or actions. This is a deliberately blunt regex and will produce false positives on lease text such as "written instructions"; a false positive costs a human review, a false negative costs trust.
 - **Rent table cross-check**: if the extracted `rent_amount` differs from the first row of a rent escalation table on any page (`Lease Year | Period | Monthly Base Rent`), it gets `conflicting_values`.
-- **`validators_passed`** is 0 if any of `invalid_date`, `end_before_start`, `invalid_amount`, `invalid_notice_period`, `value_not_in_quote`, `quote_rule_failed`, `conflicting_values` is present. Fields carrying any of these, or `ungrounded`, `suspicious_instruction`, `not_found`, are "blocked": they are never used for obligations or shown to the action planner.
+- **Short quotes must match exactly**: a quote of three words or fewer is `ungrounded` unless it scores 1.0. Without this, "Section 11" fuzzy-matched "Section 16" and the UI would have highlighted the wrong clause.
+- **Normalization by code**: `notice_section` is reduced to its identifier ("11. Renewal; Termination at Expiration" becomes "Section 11"); percentages must be in (0, 1000], else `invalid_percent`.
+- **Current-rent cross-check**: the rent table is parsed into rows (`Lease Year | Period | Monthly Base Rent`); if a row covers today and `current_rent` differs from it, the field gets `conflicting_values`.
+- **`validators_passed`** is 0 if any of `invalid_date`, `end_before_start`, `invalid_amount`, `invalid_notice_period`, `invalid_percent`, `value_not_in_quote`, `quote_rule_failed`, `conflicting_values` is present. Fields carrying any of these, or `ungrounded`, `suspicious_instruction`, `not_found`, are "blocked": they are never used for obligations or shown to the action planner.
 - **Per-line boxes**: grounding returns one bbox per text line (matched words grouped by line); the field stores them as `bboxes`, plus their union as `bbox`.
-- **Flags**: `not_found`, `ungrounded`, `page_corrected`, `value_not_in_quote`, `invalid_date`, `end_before_start`, `invalid_amount`, `invalid_notice_period`, `quote_rule_failed`, `suspicious_instruction`, `conflicting_values`.
+- **Flags**: `not_found`, `ungrounded`, `page_corrected`, `value_not_in_quote`, `invalid_date`, `end_before_start`, `invalid_amount`, `invalid_notice_period`, `invalid_percent`, `quote_rule_failed`, `suspicious_instruction`, `conflicting_values`.
 
 ### 4.5 Obligations
 Deterministic derivation from validated fields (no LLM). An obligation is skipped, with the reason recorded on the step, if an input is missing, `ungrounded`, or failed validation:
@@ -141,14 +144,28 @@ Deterministic derivation from validated fields (no LLM). An obligation is skippe
 
 Example: lease end 2027-03-31 + 90-day notice → obligation "Send renewal or termination notice by 2026-12-31".
 
+### 4.5b Decision brief (`pipeline/impact.py`, deterministic, no LLM)
+A pipeline step (`impact`) between obligations and the planner, and `GET /runs/{id}/brief` (recomputed from the stored fields, so days remaining stay current). It uses grounded, non-blocked fields only. Each line carries the names of the fields it came from (the API maps them to field ids, pages and boxes):
+- `deadline` and `days_remaining` (same rule as the obligation, so they cannot disagree)
+- `current_rent`, and `next_rent` = current rent plus one more escalation step (labelled illustrative: this lease sets the renewal rent separately)
+- `holdover_rent` = current rent x holdover rate, `holdover_extra` = holdover rent minus current rent, `holdover_percent` (assumes the current rent is still in effect at expiration)
+- `notice_method`, `notice_section`, `security_deposit`
+Money uses `Decimal` rounded half up to cents. A line whose inputs are missing or blocked is skipped and the reason is recorded (step reason, API `skipped`, UI "Not available").
+
 ### 4.6 Action planner (agent)
 An LLM agent (`agent/planner.py`, gpt-4o-mini with tool calling) receives a deterministic doc summary, the usable (non-blocked) fields with local ids, and the derived obligations, and proposes actions. It does not execute them. Rules enforced in code, not just in the prompt:
 - Every action must cite `source_field_ids` that exist in the list it was shown; proposals with none, or unknown ids, are rejected and the model is told why.
 - Email recipients and webhook URLs are never taken from the model or the document: `draft_email` is stored with `to: {{RECIPIENT}}` and `fire_webhook` with `url: {{WEBHOOK_URL}}`, and any such args from the model are dropped.
-- A calendar reminder must be dated today or later and strictly before a deadline.
-- Duplicate proposals are rejected. The planner runs `get_obligations` itself before the model proposes anything (it counts as one of the 8 tool calls) and passes the result in.
+- **The model writes prose only; code supplies every number, date and name.** The model puts `{tokens}` (`{deadline}`, `{current_rent}`, `{landlord}`, `{notice_section}`...) in its text and code substitutes them from the brief and grounded fields. A proposal is rejected if it uses an unknown or unavailable token, or if any date or number the model typed literally does not match the brief. Spelled-out numbers are not checked.
+- **Staged reminders**: one `create_calendar_event` for each of 60, 30 and 14 days before the deadline that is still in the future (code computes the dates; any other date is rejected). The model writes the title and an intro sentence; code appends the clause quote and page, the notice method and section, the holdover consequence, and a link `/#run={id}&page={n}` to the source page. Reminders form one `bundle` group.
+- **Two email drafts**, `variant` `renew` and `terminate`, each the tenant's formal notice to the landlord. Code requires each to cite the landlord, tenant, deadline, notice section and current rent (whichever are available) and to say renew / terminate. Both share one `exclusive` group: approving one auto-rejects the other.
+- **Tracker record**: one `upsert_record` (obligation) built entirely by code from the brief (deadline, counterparty, premises, current rent, holdover risk, status `decision needed`). The model cannot propose it.
+- Names (landlord, tenant) come from grounded fields; recipient and URLs stay placeholders.
+- The action's `source_field_ids` are the model's ids plus every field the inserted text draws on.
+- Duplicate proposals are rejected. The planner runs `get_obligations` itself before the model proposes anything (it counts as one of the 12 tool calls) and passes the result in.
+- If staged proposals are still missing after a round, the model is told what is missing (at most 4 model rounds).
 - The planner is skipped when there are no obligations. A planner failure makes the run `partial` but keeps fields and obligations.
-- The model follows up only after read-only calls or rejections; if every call was an accepted proposal the loop ends (typically 1 model call).
+- The loop ends when everything expected was proposed. Typical cost is one planner call; rejections add rounds.
 
 ### 4.7 Approval gate
 Policy (in `policy.py`, deterministic):
@@ -196,9 +213,11 @@ Action tools have two adapters, `live` and `sandbox`, selected by `ctx.mode`.
 | `draft_email` | Gmail API (create draft) | Sandbox Inbox panel |
 | `fire_webhook` | HTTP POST to user URL | Logged request/response viewer |
 
+`proposed_actions.group_key` / `group_mode` (`bundle` or `exclusive`) record grouping. Approving an action in an `exclusive` group rejects its still-pending siblings in the same run.
+
 Every proposed action stores `source_refs[]` (field ids → page + bbox) so the UI can show "because of page 12, clause 4.2".
 
-**Agent loop limits**: max 8 tool calls per run, 60s timeout, and a dedupe check against `get_obligations` before proposing.
+**Agent loop limits**: max 12 tool calls and 4 model rounds per run (raised from 8 when the plan grew from 2 to 5 model-proposed actions), 60s timeout, and a dedupe check against `get_obligations` before proposing.
 
 **Implementation status**: all six tools exist in `agent/tools/` (one file each). Action tools have a working `sandbox` adapter (writes a `sandbox_actions` row with the full args and a fake response); the `live` adapters raise "not connected". `get_entity` is a stub returning `null` (no `entities` table yet). `get_obligations` returns obligations stored by earlier runs of the same document. Approving an action (`POST /actions/{id}/approve`) runs the sandbox adapter and records an `action_results` row; rejecting only changes the status. A decided action cannot be decided again (409).
 
@@ -214,7 +233,7 @@ runs             id, document_id, status, started_at, finished_at, cost_usd
 steps            id, run_id, seq, stage, status, input_summary, output_summary, reason, model, tokens, cost_usd, duration_ms, ts_offset_ms
 fields           id, run_id, name, value_json, source_quote, page_no, bbox, bboxes (one box per matched line; bbox is their union), confidence, flags[]
 obligations      id, run_id, kind, due_date, description, source_field_ids[]
-proposed_actions id, run_id, tool, args_json, source_field_ids[], rationale, status (pending|approved|rejected|executed|failed), policy_reason, created_at
+proposed_actions id, run_id, tool, args_json, source_field_ids[], rationale, status (pending|approved|rejected|executed|failed), policy_reason, group_key, group_mode (bundle|exclusive), created_at
 action_results   id, action_id, adapter (live|sandbox), response_json, executed_at
 sandbox_actions  id, run_id, action_id, tool, args_json, response_json, created_at   (what sandbox adapters "did": full args + fake response)
 entities         id, name, kind, aliases[], attrs_json
@@ -234,13 +253,14 @@ Only live runs are stored in the database. Demo runs exist only as files in `fix
 
 ```
 POST   /documents                 upload PDF → {document_id, run_id}
-GET    /runs/{id}                 run summary
+GET    /runs/{id}                 run summary (includes page_count)
 GET    /runs/{id}/events          SSE stream of step events
 GET    /runs/{id}/fields          extracted fields with provenance
 GET    /runs/{id}/steps           pipeline steps (timeline), ordered by seq
 GET    /runs/{id}/obligations     derived obligations
 GET    /documents/{id}/pages/{n}  page image + word boxes
-GET    /runs/{id}/actions         proposed actions
+GET    /runs/{id}/brief           decision brief: numbers with their source fields (recomputed, no LLM)
+GET    /runs/{id}/actions         proposed actions (with group_key / group_mode)
 POST   /actions/{id}/approve      execute via adapter
 POST   /actions/{id}/reject
 GET    /demo/fixtures             available demo snapshots (from fixtures/demo/)
@@ -264,7 +284,7 @@ SSE event shape:
 Single page, three panes:
 1. **Left**: document viewer (page images with bbox highlights).
 2. **Middle**: run timeline (live SSE steps) and extracted fields. Clicking a field highlights its source on the page, one box per line.
-3. **Right**: obligations and proposed actions with Approve / Reject (each action has "because of page N" links that highlight its source fields); a sandbox panel showing executed actions (Calendar, Inbox drafts). Webhook log panel comes with demo mode.
+3. **Right**: obligations, a **Decision brief** card (each number clickable: it highlights its source fields, with one link per source) and proposed actions with Approve / Reject. Each "because of page N" link highlights only its own source on its own page. Reminders appear as one group (Approve all), the two notice drafts as a "choose one" group. Reminder links `/#run=N&page=M` open that run and scroll to the page; a sandbox panel showing executed actions (Calendar, Inbox drafts). Webhook log panel comes with demo mode.
 
 Today the timeline, fields, obligations, actions and sandbox sit in one right-hand column, loaded after the synchronous upload response (no SSE yet).
 

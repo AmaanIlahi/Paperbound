@@ -66,8 +66,11 @@ def make_lease(rent=None, start=None, end=None, notice=None):
     start = start or (None, None, None)
     end = end or (None, None, None)
     notice = notice or (None, None, None)
+    new_fields = {n: f(None) for n in ("holdover_rate_percent", "security_deposit", "notice_method", "notice_section",
+                                          "rent_escalation_percent", "current_rent")}
     return LeaseFields.model_validate(
         {
+            **new_fields,
             "landlord": f("Harborview Properties LLC", "Harborview Properties LLC", 1),
             "tenant": f(None),
             "premises_address": f(None),

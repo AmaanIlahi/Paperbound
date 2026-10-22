@@ -1,6 +1,6 @@
 import hashlib
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from paperbound import config
 from paperbound.agent.executor import execute_action
+from paperbound.agent.planner import resolve_placeholders
 from paperbound.agent.tools import get_tool
 from paperbound.db.models import (
     ActionResult,
@@ -21,8 +22,10 @@ from paperbound.db.models import (
     Step,
 )
 from paperbound.db.session import get_session
+from paperbound.pipeline.impact import build_brief
 from paperbound.pipeline.parse import ParsedPage, parse_pdf
 from paperbound.pipeline.runner import make_parse_step, run_pipeline
+from paperbound.pipeline.types import ValidatedField
 from paperbound.storage import Storage, get_storage
 
 router = APIRouter()
@@ -143,11 +146,13 @@ def upload_document(
         action = ProposedAction(
             run_id=run.id,
             tool=planned.tool,
-            args_json=planned.args,
+            args_json=resolve_placeholders(planned.args, run.id),
             source_field_ids=[field_ids[name] for name in planned.source_fields if name in field_ids],
             rationale=planned.rationale,
             status="pending",
             policy_reason=planned.policy_reason,
+            group_key=planned.group_key,
+            group_mode=planned.group_mode,
         )
         session.add(action)
         session.flush()
@@ -201,9 +206,11 @@ def _get_run(session: Session, run_id: int) -> Run:
 @router.get("/runs/{run_id}")
 def get_run(run_id: int, session: Session = Depends(get_session)):
     run = _get_run(session, run_id)
+    document = session.get(Document, run.document_id)
     return {
         "id": run.id,
         "document_id": run.document_id,
+        "page_count": document.page_count if document else 0,
         "status": run.status,
         "started_at": run.started_at,
         "finished_at": run.finished_at,
@@ -270,6 +277,43 @@ def get_obligations(run_id: int, session: Session = Depends(get_session)):
     ]
 
 
+@router.get("/runs/{run_id}/brief")
+def get_brief(run_id: int, today: date | None = None, session: Session = Depends(get_session)):
+    """Decision brief, recomputed from the stored fields (deterministic, no LLM). Every line cites its source fields."""
+    _get_run(session, run_id)
+    rows = list(session.scalars(select(Field).where(Field.run_id == run_id).order_by(Field.id)))
+    validated = [
+        ValidatedField(f.name, f.value_json, f.source_quote, f.page_no, f.bbox, f.confidence or 0.0, 0.0,
+                       list(f.flags or []), False, f.bboxes or [])
+        for f in rows
+    ]
+    by_name = {f.name: f for f in rows}
+    brief = build_brief(validated, today)
+    return {
+        "lines": [
+            {
+                "key": ln.key,
+                "label": ln.label,
+                "value": ln.value,
+                "text": ln.text,
+                "note": ln.note,
+                "sources": [
+                    {
+                        "field_id": by_name[n].id,
+                        "name": n,
+                        "page_no": by_name[n].page_no,
+                        "bboxes": by_name[n].bboxes or ([by_name[n].bbox] if by_name[n].bbox else []),
+                    }
+                    for n in ln.source_fields
+                    if n in by_name
+                ],
+            }
+            for ln in brief.lines
+        ],
+        "skipped": brief.skipped,
+    }
+
+
 @router.get("/runs/{run_id}/actions")
 def get_actions(run_id: int, session: Session = Depends(get_session)):
     _get_run(session, run_id)
@@ -292,6 +336,8 @@ def _action_json(session: Session, action: ProposedAction, fields: dict) -> dict
         "status": action.status,
         "rationale": action.rationale,
         "policy_reason": action.policy_reason,
+        "group_key": action.group_key,
+        "group_mode": action.group_mode,
         "sources": [
             {
                 "field_id": fid,
@@ -324,6 +370,18 @@ def approve_action(action_id: int, session: Session = Depends(get_session)):
     action = _get_pending_action(session, action_id)
     action.status = "approved"
     execute_action(session, action)  # sandbox adapter: nothing leaves the system
+    if action.group_mode == "exclusive":
+        siblings = session.scalars(
+            select(ProposedAction).where(
+                ProposedAction.run_id == action.run_id,
+                ProposedAction.group_key == action.group_key,
+                ProposedAction.id != action.id,
+                ProposedAction.status == "pending",
+            )
+        )
+        for sibling in siblings:
+            sibling.status = "rejected"
+            sibling.policy_reason = f"Auto-rejected: action {action.id} from the same choice was approved. {sibling.policy_reason or ''}".strip()
     session.commit()
     fields = {f.id: f for f in session.scalars(select(Field).where(Field.run_id == action.run_id))}
     return _action_json(session, action, fields)

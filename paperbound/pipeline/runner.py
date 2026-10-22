@@ -1,9 +1,11 @@
 import time
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Callable
 
 from paperbound.agent.planner import PlanResult, plan_actions
 from paperbound.pipeline.extract import extract_lease
+from paperbound.pipeline.impact import Brief, build_brief
 from paperbound.pipeline.obligations import derive_obligations
 from paperbound.pipeline.types import DerivedObligation, StepRecord, ValidatedField
 from paperbound.pipeline.validate import GROUNDING_THRESHOLD, validate_fields
@@ -15,6 +17,7 @@ class PipelineResult:
     steps: list[StepRecord] = field(default_factory=list)
     fields: list[ValidatedField] = field(default_factory=list)
     obligations: list[DerivedObligation] = field(default_factory=list)
+    brief: Brief | None = None
     plan: PlanResult | None = None
 
     @property
@@ -51,8 +54,10 @@ def run_pipeline(
     extractor: Callable = extract_lease,
     planner: Callable = plan_actions,
     existing_obligations: list[dict] | None = None,
+    today: date | None = None,
 ) -> PipelineResult:
     """extract -> validate -> obligations -> planner over already-parsed pages. Never raises on stage failure."""
+    today = today or date.today()
     result = PipelineResult(status="done", steps=[parse_step])
     clock = parse_step.duration_ms
 
@@ -82,14 +87,14 @@ def run_pipeline(
     lease = timed("extract", do_extract, input_summary=f"{len(pages)} page text(s)")
     if lease is None:
         result.status = "partial"
-        for stage in ("validate", "obligations", "planner"):
+        for stage in ("validate", "obligations", "impact", "planner"):
             result.steps.append(
                 StepRecord(stage=stage, status="skipped", ts_offset_ms=clock, reason="Extraction failed, nothing to check.")
             )
         return result
 
     def do_validate(step: StepRecord):
-        validated = validate_fields(lease, pages)
+        validated = validate_fields(lease, pages, today)
         present = [f for f in validated if f.value is not None]
         grounded = [f for f in present if "ungrounded" not in f.flags]
         flagged = [f"{f.name}: {', '.join(f.flags)}" for f in validated if f.flags]
@@ -103,7 +108,7 @@ def run_pipeline(
     validated = timed("validate", do_validate, input_summary="extracted fields")
     if validated is None:
         result.status = "partial"
-        for stage in ("obligations", "planner"):
+        for stage in ("obligations", "impact", "planner"):
             result.steps.append(
                 StepRecord(stage=stage, status="skipped", ts_offset_ms=clock, reason="Validation failed.")
             )
@@ -121,9 +126,23 @@ def run_pipeline(
     derived = timed("obligations", do_obligations, input_summary="validated fields")
     if derived is None:
         result.status = "partial"
-        result.steps.append(StepRecord(stage="planner", status="skipped", ts_offset_ms=clock, reason="Obligations failed."))
+        for stage in ("impact", "planner"):
+            result.steps.append(StepRecord(stage=stage, status="skipped", ts_offset_ms=clock, reason="Obligations failed."))
         return result
     result.obligations = derived
+
+    def do_impact(step: StepRecord):
+        brief = build_brief(validated, today)
+        step.output_summary = f"{len(brief.lines)} line(s), {len(brief.skipped)} skipped"
+        step.reason = (
+            "Computed by code from grounded fields only; no LLM. "
+            + ("Skipped: " + "; ".join(f"{s['key']} ({s['reason']})" for s in brief.skipped) + "." if brief.skipped else "")
+        ).strip()
+        return brief
+
+    result.brief = timed("impact", do_impact, input_summary="validated fields, obligations")
+    if result.brief is None:
+        result.status = "partial"
 
     if not derived:
         result.steps.append(
@@ -132,7 +151,7 @@ def run_pipeline(
         return result
 
     def do_planner(step: StepRecord):
-        plan = planner(validated, derived, existing_obligations)
+        plan = planner(validated, derived, existing_obligations, brief=result.brief, today=today)
         step.model, step.tokens, step.cost_usd = plan.model, plan.tokens, plan.cost_usd
         step.output_summary = f"{len(plan.actions)} action(s) proposed, {len(plan.rejected)} rejected"
         step.reason = (

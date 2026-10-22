@@ -13,10 +13,11 @@ class DraftEmail(BaseTool):
     reversible = True
     always_draft = True
     parameters = {
+        "variant": {"type": "string", "enum": ["renew", "terminate"], "description": "Which choice this notice states."},
         "subject": {"type": "string"},
         "body": {"type": "string", "description": "Plain text. Use [PLACEHOLDERS] for anything the user must decide or fill in."},
     }
-    required = ["subject", "body"]
+    required = ["variant", "subject", "body"]
 
     def finalize_args(self, args: dict) -> dict:
         clean = super().finalize_args(args)

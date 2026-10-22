@@ -56,6 +56,19 @@
     .sandbox-note { font-size: .75rem; color: var(--muted); margin: 0 0 .4rem; }
     .sbx { border: 1px dashed #d4d4d8; border-radius: 6px; padding: .4rem .5rem; margin-bottom: .4rem; font-size: .84rem; }
     .sbx .kind { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .brief-line { display: grid; grid-template-columns: 1fr auto; gap: .1rem .5rem; padding: .3rem .3rem; border-top: 1px solid #f0f0f2; border-radius: 6px; cursor: pointer; }
+    .brief-line:first-of-type { border-top: 0; }
+    .brief-line:hover, .brief-line.active { background: #fff7ed; }
+    .brief-line .label { font-size: .78rem; color: var(--muted); }
+    .brief-line .num { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+    .brief-line .note { grid-column: 1 / 3; font-size: .72rem; color: var(--muted); }
+    .brief-line .cites { grid-column: 1 / 3; }
+    .brief-skipped { font-size: .78rem; color: var(--muted); margin-top: .4rem; }
+    .group { border: 1px solid #e4e4e7; border-radius: 8px; padding: .4rem .5rem; margin: .5rem 0; background: #fafafa; }
+    .group > .ghead { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; font-weight: 700; font-size: .88rem; }
+    .group > .gnote { color: var(--muted); font-size: .76rem; margin: .1rem 0 .2rem; }
+    .group .action { border-top: 1px solid #e4e4e7; }
+    .group .action:first-of-type { border-top: 0; }
     .sbx .body { white-space: pre-wrap; color: #3f3f46; margin-top: .2rem; }
   </style>
 </head>
@@ -71,6 +84,7 @@
       <section class="card"><h2>Run timeline</h2><div id="steps"></div></section>
       <section class="card"><h2>Fields</h2><div id="fields"></div></section>
       <section class="card"><h2>Obligations</h2><div id="obligations"></div></section>
+      <section class="card"><h2>Decision brief</h2><div id="brief"></div></section>
       <section class="card"><h2>Proposed actions</h2><div id="actions"></div></section>
       <section class="card"><h2>Sandbox</h2>
         <p class="sandbox-note">Approved actions run in a sandbox. Nothing is sent or saved outside this app.</p>
@@ -106,25 +120,52 @@
         form.append('file', file);
         const res = await fetch('/documents', { method: 'POST', body: form });
         if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
-        const doc = await res.json();
-        $('status').textContent = `Document ${doc.document_id}, run ${doc.run_id} (${doc.status}), ${doc.page_count} page(s)` +
-          (doc.reused ? ', file already parsed' : '');
-        for (let n = 1; n <= doc.page_count; n++) {
-          renderPage(await (await fetch(`/documents/${doc.document_id}/pages/${n}`)).json());
-        }
-        currentRun = doc.run_id;
-        const [steps, fields, obligations] = await Promise.all(
-          ['steps', 'fields', 'obligations'].map((k) => fetch(`/runs/${doc.run_id}/${k}`).then((r) => r.json()))
-        );
-        renderSteps(steps);
-        renderFields(fields);
-        renderObligations(obligations);
-        await loadActions();
-        $('panel').hidden = false;
+        await showRun(await res.json());
       } catch (err) {
         $('status').textContent = 'Error: ' + err.message;
       }
     });
+
+    // doc = {document_id, run_id, status, page_count, reused?}
+    async function showRun(doc) {
+      $('pages').replaceChildren();
+      for (const k of Object.keys(pageEls)) delete pageEls[k];
+      activeHighlights = [];
+      $('status').textContent = `Document ${doc.document_id}, run ${doc.run_id} (${doc.status}), ${doc.page_count} page(s)` +
+        (doc.reused ? ', file already parsed' : '');
+      for (let n = 1; n <= doc.page_count; n++) {
+        renderPage(await (await fetch(`/documents/${doc.document_id}/pages/${n}`)).json());
+      }
+      currentRun = doc.run_id;
+      const [steps, fields, obligations] = await Promise.all(
+        ['steps', 'fields', 'obligations'].map((k) => fetch(`/runs/${doc.run_id}/${k}`).then((r) => r.json()))
+      );
+      renderSteps(steps);
+      renderFields(fields);
+      renderObligations(obligations);
+      await loadActions();
+      $('panel').hidden = false;
+    }
+
+    // Links like /#run=7&page=3 (written into reminders) open that run and scroll to the page.
+    async function applyHash() {
+      const m = /^#run=(\d+)(?:&page=(\d+))?$/.exec(location.hash);
+      if (!m) return;
+      try {
+        if (Number(m[1]) !== currentRun) {
+          const res = await fetch(`/runs/${m[1]}`);
+          if (!res.ok) throw new Error('Run not found');
+          const run = await res.json();
+          await showRun({ document_id: run.document_id, run_id: run.id, status: run.status, page_count: run.page_count });
+        }
+        const target = pageEls[Number(m[2])];
+        if (target) target.wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        $('status').textContent = 'Error: ' + err.message;
+      }
+    }
+    window.addEventListener('hashchange', applyHash);
+    window.addEventListener('load', applyHash);
 
     function renderPage(page) {
       const wrap = document.createElement('div');
@@ -155,7 +196,8 @@
       return box;
     }
 
-    // Draws one box per matched line. Takes anything shaped like {page_no, bboxes}: a field or action sources.
+    // Draws one box per matched line and scrolls to the first one. Takes anything shaped like {page_no, bboxes}:
+    // a field, or ONE action source. Pass a list only to show several sources at once.
     function highlight(items) {
       activeHighlights.forEach((n) => n.remove());
       activeHighlights = [];
@@ -172,6 +214,33 @@
         first = first || target.wrap;
       }
       if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // One link per source: it highlights that source's own page and boxes, not the whole list.
+    function sourceLinks(sources, prefix) {
+      const wrap = el('div', 'why', prefix);
+      for (const src of sources) {
+        const link = el('button', 'src', `page ${src.page_no} (${src.name})`);
+        link.type = 'button';
+        link.addEventListener('click', (ev) => { ev.stopPropagation(); highlight(src); });
+        wrap.appendChild(link);
+      }
+      return wrap;
+    }
+
+    // Text with /#run=N&page=M links turned into anchors, built with DOM nodes, never innerHTML.
+    function linkify(text) {
+      const box = el('span');
+      let last = 0;
+      for (const m of text.matchAll(/\/#run=\d+&page=\d+/g)) {
+        box.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const a = el('a', '', m[0]);
+        a.href = m[0];
+        box.appendChild(a);
+        last = m.index + m[0].length;
+      }
+      box.appendChild(document.createTextNode(text.slice(last)));
+      return box;
     }
 
     function renderSteps(steps) {
@@ -224,7 +293,33 @@
       }
     }
 
+    async function loadBrief() {
+      const root = $('brief');
+      root.replaceChildren();
+      const brief = await (await fetch(`/runs/${currentRun}/brief`)).json();
+      if (!brief.lines.length) root.appendChild(el('div', 'empty', 'No numbers could be computed from grounded fields.'));
+      for (const ln of brief.lines) {
+        const row = el('div', 'brief-line');
+        row.appendChild(el('span', 'label', ln.label));
+        row.appendChild(el('span', 'num', ln.text));
+        if (ln.note) row.appendChild(el('span', 'note', ln.note));
+        const cites = sourceLinks(ln.sources, 'from ');
+        cites.classList.add('cites');
+        row.appendChild(cites);
+        row.addEventListener('click', () => {
+          document.querySelectorAll('.brief-line.active').forEach((n) => n.classList.remove('active'));
+          row.classList.add('active');
+          highlight(ln.sources);
+        });
+        root.appendChild(row);
+      }
+      if (brief.skipped.length) {
+        root.appendChild(el('div', 'brief-skipped', 'Not available: ' + brief.skipped.map((s) => `${s.key} (${s.reason})`).join('; ')));
+      }
+    }
+
     async function loadActions() {
+      await loadBrief();
       const actions = await (await fetch(`/runs/${currentRun}/actions`)).json();
       renderActions(actions);
       renderSandbox(actions);
@@ -234,10 +329,49 @@
       const dl = el('dl', 'args');
       for (const [k, v] of Object.entries(args)) {
         dl.appendChild(el('dt', '', k));
-        dl.appendChild(el('dd', '', typeof v === 'string' ? v : JSON.stringify(v)));
+        const dd = el('dd');
+        dd.appendChild(typeof v === 'string' ? linkify(v) : document.createTextNode(JSON.stringify(v)));
+        dl.appendChild(dd);
       }
       return dl;
     }
+
+    async function decide(id, verb) {
+      const res = await fetch(`/actions/${id}/${verb}`, { method: 'POST' });
+      if (!res.ok) $('status').textContent = 'Error: ' + ((await res.json()).detail || res.statusText);
+    }
+
+    function actionCard(a) {
+      const row = el('div', 'action');
+      const head = el('div', 'head');
+      head.appendChild(el('span', 'tool', a.tool));
+      head.appendChild(el('span', 'badge ' + a.status, a.status));
+      row.appendChild(head);
+      row.appendChild(renderArgs(a.args));
+      if (a.rationale) row.appendChild(el('div', 'why', a.rationale));
+      row.appendChild(sourceLinks(a.sources, 'because of '));
+      if (a.policy_reason) row.appendChild(el('div', 'policy', 'Policy: ' + a.policy_reason));
+      if (a.status === 'pending') {
+        const btns = el('div', 'btns');
+        for (const verb of ['approve', 'reject']) {
+          const b = el('button', verb, verb === 'approve' ? 'Approve' : 'Reject');
+          b.type = 'button';
+          b.addEventListener('click', async () => {
+            b.disabled = true;
+            await decide(a.id, verb);
+            await loadActions();
+          });
+          btns.appendChild(b);
+        }
+        row.appendChild(btns);
+      }
+      return row;
+    }
+
+    const GROUP_TITLES = {
+      reminders: ['Reminders', 'Staged reminders before the deadline. Approve them together or one by one.'],
+      notice_choice: ['Choose one notice', 'Approving one draft rejects the other. Nothing is ever sent.'],
+    };
 
     function renderActions(actions) {
       const root = $('actions');
@@ -246,39 +380,31 @@
         root.appendChild(el('div', 'empty', 'No actions proposed (see the planner step above for why).'));
         return;
       }
+      const seen = new Set();
       for (const a of actions) {
-        const row = el('div', 'action');
-        const head = el('div', 'head');
-        head.appendChild(el('span', 'tool', a.tool));
-        head.appendChild(el('span', 'badge ' + a.status, a.status));
-        row.appendChild(head);
-        row.appendChild(renderArgs(a.args));
-        if (a.rationale) row.appendChild(el('div', 'why', a.rationale));
-        const because = el('div', 'why', 'because of ');
-        for (const src of a.sources) {
-          const link = el('button', 'src', `page ${src.page_no} (${src.name})`);
-          link.type = 'button';
-          link.addEventListener('click', () => highlight(a.sources));
-          because.appendChild(link);
+        if (!a.group_key) { root.appendChild(actionCard(a)); continue; }
+        if (seen.has(a.group_key)) continue;
+        seen.add(a.group_key);
+        const members = actions.filter((x) => x.group_key === a.group_key);
+        const [title, note] = GROUP_TITLES[a.group_key] || [a.group_key, ''];
+        const group = el('div', 'group');
+        const ghead = el('div', 'ghead');
+        ghead.appendChild(el('span', '', `${title} (${members.length})`));
+        const pending = members.filter((x) => x.status === 'pending');
+        if (a.group_mode === 'bundle' && pending.length > 1) {
+          const all = el('button', 'approve', 'Approve all');
+          all.type = 'button';
+          all.addEventListener('click', async () => {
+            all.disabled = true;
+            for (const x of pending) await decide(x.id, 'approve');
+            await loadActions();
+          });
+          ghead.appendChild(all);
         }
-        row.appendChild(because);
-        if (a.policy_reason) row.appendChild(el('div', 'policy', 'Policy: ' + a.policy_reason));
-        if (a.status === 'pending') {
-          const btns = el('div', 'btns');
-          for (const verb of ['approve', 'reject']) {
-            const b = el('button', verb, verb === 'approve' ? 'Approve' : 'Reject');
-            b.type = 'button';
-            b.addEventListener('click', async () => {
-              b.disabled = true;
-              const res = await fetch(`/actions/${a.id}/${verb}`, { method: 'POST' });
-              if (!res.ok) $('status').textContent = 'Error: ' + ((await res.json()).detail || res.statusText);
-              await loadActions();
-            });
-            btns.appendChild(b);
-          }
-          row.appendChild(btns);
-        }
-        root.appendChild(row);
+        group.appendChild(ghead);
+        if (note) group.appendChild(el('div', 'gnote', note));
+        for (const m of members) group.appendChild(actionCard(m));
+        root.appendChild(group);
       }
     }
 

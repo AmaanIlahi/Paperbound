@@ -1,3 +1,4 @@
+from datetime import date
 from types import SimpleNamespace
 
 from paperbound.pipeline import extract
@@ -11,8 +12,8 @@ def test_system_prompt_treats_document_as_untrusted():
 
 def test_user_message_labels_pages():
     pages = [SimpleNamespace(page_no=1, text="alpha "), SimpleNamespace(page_no=2, text="beta")]
-    message = extract.build_user_message(pages)
-    assert message.startswith("PAGE 1\nalpha")
+    message = extract.build_user_message(pages, date(2026, 10, 22))
+    assert message.startswith("Today's date: 2026-10-22\n\nPAGE 1\nalpha")
     assert "PAGE 2\nbeta" in message
 
 

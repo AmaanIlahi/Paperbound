@@ -11,6 +11,15 @@
   "rent_period": "monthly",
   "rent_escalation_percent": 3,
   "notice_period_days": 90,
+  "holdover_rate_percent": 150,
+  "security_deposit": 17000.0,
+  "notice_method_contains": ["certified mail", "courier"],
+  "notice_section": "Section 11",
+  "rent_schedule": [
+    {"start": "2024-04-01", "end": "2025-03-31", "amount": 8500.0},
+    {"start": "2025-04-01", "end": "2026-03-31", "amount": 8755.0},
+    {"start": "2026-04-01", "end": "2027-03-31", "amount": 9017.65}
+  ],
   "obligations": [
     {
       "kind": "deadline",
@@ -22,21 +31,10 @@
       ]
     }
   ],
-  "actions": [
-    {
-      "tool": "create_calendar_event",
-      "date_before": "2026-12-31",
-      "description": "a calendar reminder before the notice deadline"
-    },
-    {
-      "tool": "draft_email",
-      "mentions_any": [
-        "renew",
-        "renewal",
-        "terminat",
-        "notice"
-      ],
-      "description": "a draft email about renewal / notice"
-    }
-  ]
+  "reminder_lead_days": [60, 30, 14],
+  "email_variants": {
+    "renew": ["renew"],
+    "terminate": ["terminat"]
+  },
+  "tracker_status": "decision needed"
 }
