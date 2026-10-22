@@ -14,9 +14,18 @@ to approve: staged reminders (60, 30 and 14 days out), a draft "renew" and a dra
 real names and numbers, and a tracker entry marked "decision needed". Nothing is sent or saved anywhere until a human
 approves it, and even then only to a sandbox for now.
 
-Status: working vertical slice for **commercial leases** and **certificates of liability insurance**. A classifier
-routes each upload; any other document type stops after classification with "document type not supported yet". OCR,
-more document types and a public demo are on the roadmap below.
+Status: a public app for **commercial leases** and **certificates of liability insurance**. Visitors upload their own
+PDF (it runs in a background worker and streams its progress) or click **Try a sample**. A classifier routes each
+upload; any other document type stops after classification with "document type not supported yet". OCR and more
+document types are on the roadmap below.
+
+<!-- Screenshots: add after the first deploy.
+![Landing: upload or try a sample](docs/screenshots/landing.png)
+![Run view: stepper, narration, summary cards](docs/screenshots/run-summary.png)
+![Actions tab: grouped reminders and notice choice](docs/screenshots/run-actions.png)
+![Trace tab: model vs code per step](docs/screenshots/run-trace.png)
+-->
+*Screenshots: placeholders for the first deploy (`docs/screenshots/landing.png`, `run-summary.png`, `run-actions.png`, `run-trace.png`).*
 
 For a certificate it computes the earliest expiration and days left, which policies expire within 60 days, and whether
 each policy's each-occurrence limit meets a configurable minimum, then proposes staged reminders (60, 30 and 14 days
@@ -28,7 +37,11 @@ certificate, and a tracker entry marked "renewal needed".
 ```mermaid
 flowchart LR
   UI[Web UI] -->|upload PDF| API[FastAPI]
-  API --> P[Parse<br/>PyMuPDF text layer]
+  API -->|queue a job| Q[(jobs table<br/>SKIP LOCKED)]
+  Q --> W[In-process worker]
+  W -->|run_events| API
+  API -.->|SSE| UI
+  W --> P[Parse<br/>PyMuPDF text layer]
   P --> C[Classify<br/>heuristics first, LLM only if unsure]
   C -->|lease or certificate| X[Extract<br/>LLM, structured output]
   C -->|other| STOP[Stop: type not supported yet]
@@ -39,10 +52,12 @@ flowchart LR
   PL --> G{Approval gate<br/>deterministic}
   G -->|human approves| AD[Sandbox adapters]
   API --> DB[(Postgres<br/>Supabase)]
-  API --> S[(Local file storage)]
+  API --> S[(File storage)]
 ```
 
-Every stage writes a `steps` row (what it did, why, model, tokens, cost, time), and the UI shows that timeline.
+An upload returns a run id at once. The worker runs the pipeline step by step; each step writes a `steps` row (what it
+did, why, model, tokens, cost, time) and the events the page shows (a narrated timeline, fields as they are found, the
+brief, the proposed actions). Reconnecting replays the stored events, then continues.
 
 ### Deterministic vs LLM: who decides what
 
@@ -150,49 +165,59 @@ cross-check only works when the document has a rent table. The instruction detec
 innocent text ("written instructions"). A determined attacker who controls the whole document, including its rent
 table, is not stopped by any of this; that is what the human approval step is for.
 
-## Run Demo
+## Using it
 
-Press **Run Demo** (top bar), pick *Lease* or *Insurance Certificate*, and watch a recorded real run replay step by
-step with narration: which parts were plain code and which used the model, and why. Fields appear one at a time and
-their source boxes light up on the page as code checks them, then the decision brief and the proposed actions
-appear. Approve or reject actions to see the sandbox calendar and inbox.
+**Upload** a PDF (button or drag and drop) or pick a **sample** (Lease, Insurance certificate) from *Try a sample*.
+Either way the run view looks the same:
 
-- **It is honest about what it is.** A badge says `Demo replay · recorded <date> · as of 2026-10-22 · model gpt-4o-mini`.
-  The snapshots in `fixtures/demo/<fixture>/` are real runs of the live pipeline, recorded by `scripts/record_demo.py`,
-  not hand-made data. Narration is drafted from each step's real data and then edited by hand.
-- **It costs nothing and needs nothing.** The demo never touches the database or OpenAI (a test imports the replay
-  code in a clean process and checks that neither is loaded), so it works with no `DATABASE_URL`, no `OPENAI_API_KEY`,
-  and a paused database.
-- **Approvals never leave your browser.** The sandbox calendar, inbox and tracker run in the page, with no server
-  calls. Refreshing the page resets the demo.
+- A stepper (Read, Extract, Verify, Decide, Act) with a status dot each, and one line of narration for the current step:
+  which parts are plain code and which use a model, and why. Click a step to see its details.
+- A document viewer on the left, and on the right four tabs: **Summary** (type, parties, 2 to 4 cards with big
+  numbers, each clickable to its source, and the next decision), **Actions** (reminders with Approve all, notice: choose
+  one, tracker record, each with a "Why: page N" link and an inline sandbox result once approved), **Fields** (a compact
+  table with confidence and flags; click a row to see its source) and **Trace** (the full narrated timeline with model vs
+  code per step, tokens, cost, latency, and a link to the [evals](/evals)).
 
-<!-- Screenshots: add after the first deploy.
-![Run Demo: timeline with narration](docs/screenshots/demo-timeline.png)
-![Run Demo: decision brief and grouped actions](docs/screenshots/demo-actions.png)
-![Run Demo: sandbox after approving](docs/screenshots/demo-sandbox.png)
--->
-*Screenshots: placeholders for the first deploy (`docs/screenshots/demo-timeline.png`, `demo-actions.png`, `demo-sandbox.png`).*
+**A sample is a recording, and says so.** Its badge reads `Sample run · recorded <date> · as of 2026-10-22`. The
+snapshots in `fixtures/demo/<fixture>/` are real runs of the live pipeline, recorded by `scripts/record_demo.py`,
+not hand-made data. A sample never touches the database or OpenAI (a test imports the replay code in a clean process
+and checks that neither is loaded), so it works with no `DATABASE_URL`, no `OPENAI_API_KEY`, a paused database, or
+an exhausted budget. Its approvals run in your browser only; refreshing resets them.
 
-Re-record after changing the pipeline (about 4 OpenAI calls; an existing `narration.json` is kept unless `--redraft`):
+**An upload is a live run.** It uses the real pipeline and costs a little (about $0.002 for the sample lease).
+Narration is written by code from what each step produced (`paperbound/narration.py`, the same templates that draft
+the samples' narration), not by a model.
+
+### Who can see my upload
+
+Only the browser that uploaded it. The first page load sets a signed, `HttpOnly`, `SameSite=Lax` session cookie; the
+database stores only a hash of its token. Every run, field, brief, action, page image and stored file, and
+approve/reject, answers 404 to any other session (tests cover every endpoint with another session, no cookie and a
+forged cookie). Rows saved before this existed belong to nobody. Files and everything derived from them are deleted
+**24 hours after upload**, and the page says: *Files are deleted after 24 hours. Don't upload sensitive documents.*
+Documents are sent to OpenAI for extraction.
+
+### Limits
+
+Per upload: 10 MB and 20 pages. Per address: 5 uploads an hour. Per day: a shared LLM budget (`DAILY_LLM_BUDGET_USD`,
+default 1.00, tracked in Postgres, resets at midnight UTC, with a small allowance for runs still in progress); when it is used up the page says *Daily limit reached,
+try a sample* and `GET /config` reports it. Uploads are available only when `DATABASE_URL` and `OPENAI_API_KEY` are
+both set; otherwise the page offers samples only, with a note. All limits are environment variables (see
+`.env.example`).
+
+### Deploying
+
+A `Dockerfile`, `.dockerignore` and `fly.toml` are included (one machine, a volume for files,
+`alembic upgrade head` as the release command, secrets `DATABASE_URL`, `OPENAI_API_KEY`, `SESSION_SECRET`). Nothing is
+deployed from the repo; the exact `fly` commands are in `MORNING_REPORT_5B.md`.
+
+Re-record the samples after changing the pipeline (about 4 OpenAI calls; an existing `narration.json` is kept unless
+`--redraft`):
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\record_demo.py                 # both fixtures, as of 2026-10-22
 .\.venv\Scripts\python.exe scripts\record_demo.py --only lease --redraft
 ```
-
-## Deploy modes
-
-| Mode | When | What works |
-|---|---|---|
-| **Demo only** (default) | `LIVE_UPLOADS_ENABLED` is not `true` | Run Demo. Upload is hidden and `POST /documents` returns 403. The app starts with no `OPENAI_API_KEY` and no `DATABASE_URL` |
-| **Live uploads** | `LIVE_UPLOADS_ENABLED=true` | Everything above, plus uploads behind an access code |
-
-Live uploads are limited for a public host: an `ACCESS_CODE` header is required (`X-Access-Code`; if the server has no
-code set it refuses every upload), files up to 10 MB and 20 pages, 5 uploads per IP per hour, a daily LLM budget
-(`DAILY_LLM_BUDGET_USD`, default 1.00, tracked in Postgres, resets at midnight UTC), and uploads are deleted after 24
-hours. Limits are environment variables (`MAX_UPLOAD_MB`, `MAX_PAGES`, `UPLOADS_PER_IP_PER_HOUR`, `UPLOAD_TTL_HOURS`).
-**Only uploading is gated by the access code, not reading results (run and page endpoints), and ids are sequential: keep live uploads for an audience you would trust with each other's documents until that is closed.** A `Dockerfile`, `.dockerignore` and `fly.toml` are included (nothing is deployed from the repo); the exact `fly`
-commands are in `MORNING_REPORT_5.md`.
 
 ## Run it locally
 
@@ -204,25 +229,22 @@ cd Paperbound
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 
-copy .env.example .env      # then fill in DATABASE_URL and OPENAI_API_KEY
+copy .env.example .env      # then fill in DATABASE_URL, OPENAI_API_KEY and SESSION_SECRET
 .\.venv\Scripts\alembic.exe upgrade head
 
 .\.venv\Scripts\python.exe -m uvicorn paperbound.api.main:app --reload
 ```
 
-Open http://127.0.0.1:8000/ and upload `fixtures/demo/lease.pdf` or `fixtures/demo/insurance_certificate.pdf`. You get the run timeline, fields with confidence and
-flags (click one to see its source highlighted on the page, one box per line), the obligation, a decision brief
-(click a number to see where it came from), the proposed actions with Approve / Reject (reminders as one group, the two
-notice drafts as a "choose one" pair), and a sandbox panel showing what approved actions "did".
+Open http://127.0.0.1:8000/ and upload `fixtures/demo/lease.pdf` or `fixtures/demo/insurance_certificate.pdf`
+(or pick a sample). The worker runs inside the same process; there is nothing else to start.
 
-Without secrets, the demo still runs: `$env:PAPERBOUND_SKIP_DOTENV = "1"` ignores your `.env`, and leaving
-`LIVE_UPLOADS_ENABLED` unset serves only the demo. To enable uploads locally set `LIVE_UPLOADS_ENABLED=true` and an
-`ACCESS_CODE` in `.env` (the page then shows an access-code box).
+Without secrets, the samples still run: `$env:PAPERBOUND_SKIP_DOTENV = "1"` ignores your `.env`, and with no
+`DATABASE_URL` or `OPENAI_API_KEY` the page offers samples only.
 
 Tests and evals:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest -q                       # unit tests, no network (UI link test needs node)
+.\.venv\Scripts\python.exe -m pytest -q                       # unit tests, no network (the UI tests need node)
 .\.venv\Scripts\python.exe scripts\eval_fixtures.py                    # all four fixtures, ~2 OpenAI calls each, one table per doc type
 .\.venv\Scripts\python.exe scripts\eval_fixtures.py --only insurance   # just the certificate
 .\.venv\Scripts\python.exe scripts\eval_fixtures.py --as-of 2026-11-20 # replay as of another day
@@ -240,7 +262,5 @@ Design details live in [docs/architecture.md](docs/architecture.md), which is th
 - **OCR and vision routes** for scanned pages (Tesseract, then a vision model) so non-text PDFs work.
 - **More document types**: contracts, invoices, permits (the classifier and `doctypes.py` are the extension points).
 - **Public evals**: field-level F1 on CORD and SROIE, clause evals on CUAD, and ~20 hand-labeled documents.
-- **Demo mode**: a Run Demo button that replays a recorded real run from local snapshots (no database, no API cost).
-- **Background worker and live progress**: job queue on Postgres and SSE streaming instead of a synchronous upload.
 - **Live adapters** for Google Calendar and Gmail drafts (sandbox only today).
-- **Deploy** to Fly.io, with Langfuse traces.
+- **Deploy** to Fly.io (config is in the repo), with Langfuse traces.

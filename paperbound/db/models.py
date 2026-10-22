@@ -40,6 +40,9 @@ class Document(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     # Set only for uploads made while live uploads are enabled; the cleanup job deletes only rows that have one.
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # sha256 of the uploader's session token. Documents and runs from before sessions existed have none and are
+    # visible to nobody.
+    session_hash: Mapped[str | None] = mapped_column(String(64), index=True)
 
     pages: Mapped[list["Page"]] = relationship(back_populates="document", order_by="Page.page_no")
 
@@ -71,6 +74,37 @@ class Run(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    session_hash: Mapped[str | None] = mapped_column(String(64), index=True)
+
+
+class Job(Base):
+    """Work queue for runs: the in-process worker claims one queued row at a time with FOR UPDATE SKIP LOCKED."""
+
+    __tablename__ = "jobs"
+    __table_args__ = (Index("ix_jobs_status_id", "status", "id"),)
+
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
+    run_id: Mapped[int] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), unique=True)
+    status: Mapped[str] = mapped_column(String, default="queued")  # queued | running | done | failed
+    payload: Mapped[dict] = mapped_column(Json, default=dict)  # parse_ms, reused
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class RunEvent(Base):
+    """Every event a run streamed, in order. A reconnecting client is replayed from here, then follows live."""
+
+    __tablename__ = "run_events"
+    __table_args__ = (UniqueConstraint("run_id", "seq"),)
+
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
+    run_id: Mapped[int] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
+    seq: Mapped[int] = mapped_column(Integer)
+    name: Mapped[str] = mapped_column(String)
+    data: Mapped[dict] = mapped_column(Json)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class Step(Base):

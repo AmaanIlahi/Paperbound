@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
-from paperbound.db.models import Document, UsageLedger
+from paperbound.db.models import Document, Job, UsageLedger
 from paperbound.storage import Storage
 
 log = logging.getLogger(__name__)
@@ -46,6 +46,13 @@ def spent_today(session: Session, now: datetime) -> float:
         )
         or 0.0
     )
+
+
+def committed_today(session: Session, now: datetime, estimate_per_job: float) -> float:
+    """Spend so far plus an allowance for runs that have not finished. Runs are asynchronous, so without the allowance a
+    burst of uploads would all pass the budget check before the first one recorded its cost."""
+    unfinished = session.scalar(select(func.count()).select_from(Job).where(Job.status.in_(("queued", "running")))) or 0
+    return spent_today(session, now) + unfinished * estimate_per_job
 
 
 def record_spend(session: Session, usd: float, now: datetime) -> None:

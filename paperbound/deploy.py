@@ -1,29 +1,34 @@
-"""Deployment mode and limits, read from the environment on every call (so tests and `fly secrets set` take effect).
+"""Limits and availability of public uploads, read from the environment on every call (so tests and `fly secrets set`
+take effect).
 
-Live uploads are off unless LIVE_UPLOADS_ENABLED is "true". When on, uploads need ACCESS_CODE and are limited by size,
-page count, uploads per IP per hour and a daily LLM budget. Uploaded documents expire after UPLOAD_TTL_HOURS.
+There is one app, not two modes: uploads are on whenever a database and an OpenAI key are configured, and samples
+always work. Uploads are limited by size, page count, uploads per IP per hour and a daily LLM budget, and uploaded
+documents expire after UPLOAD_TTL_HOURS.
 """
 
-import hmac
 import os
 
+from paperbound import config
 
-def live_enabled() -> bool:
-    return os.environ.get("LIVE_UPLOADS_ENABLED", "").strip().lower() == "true"
-
-
-def access_code() -> str:
-    return os.environ.get("ACCESS_CODE", "")
-
-
-def check_access_code(provided: str | None) -> bool:
-    expected = access_code()
-    return bool(expected) and provided is not None and hmac.compare_digest(provided.encode(), expected.encode())
+NOTE = "Files are deleted after 24 hours. Don't upload sensitive documents."
 
 
 def _number(name: str, default: float) -> float:
     raw = os.environ.get(name, "").strip()
     return float(raw) if raw else default
+
+
+def unavailable_reason() -> str | None:
+    """Why uploads are off, or None when they are on. Samples work either way."""
+    if not config.DATABASE_URL:
+        return "No database is configured on this deployment."
+    if not config.OPENAI_API_KEY:
+        return "No OpenAI key is configured on this deployment."
+    return None
+
+
+def uploads_enabled() -> bool:
+    return unavailable_reason() is None
 
 
 def max_upload_bytes() -> int:
@@ -42,18 +47,25 @@ def daily_llm_budget_usd() -> float:
     return _number("DAILY_LLM_BUDGET_USD", 1.00)
 
 
+def run_cost_estimate_usd() -> float:
+    """What a queued or running job is assumed to cost until it finishes and records its real cost."""
+    return _number("RUN_COST_ESTIMATE_USD", 0.02)
+
+
 def upload_ttl_hours() -> float:
     return _number("UPLOAD_TTL_HOURS", 24)
 
 
-def public_settings() -> dict:
-    """What the UI may know. Never includes the access code itself."""
-    live = live_enabled()
+def public_settings(budget_exhausted: bool = False) -> dict:
+    """What the UI may know. `budget_exhausted` comes from the usage ledger, which only the caller can query."""
+    reason = unavailable_reason()
     return {
-        "live_uploads_enabled": live,
-        "access_code_required": live,
+        "uploads_enabled": reason is None,
+        "unavailable_reason": reason,
+        "budget_exhausted": reason is None and budget_exhausted,
         "max_upload_mb": max_upload_bytes() / (1024 * 1024),
         "max_pages": max_pages(),
         "uploads_per_ip_per_hour": uploads_per_ip_per_hour(),
         "upload_ttl_hours": upload_ttl_hours(),
+        "note": NOTE,
     }

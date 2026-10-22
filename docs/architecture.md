@@ -13,7 +13,7 @@ This doc is the source of truth. Update it before changing behavior.
 - Detect obligations (deadlines, renewals, expirations, payments) and propose actions.
 - Use deterministic code wherever it works; use LLMs only where rules cannot decide.
 - Make every decision traceable and every quality claim measurable (eval harness).
-- Ship a public demo with a **Run Demo** button that needs no upload and costs nothing per click.
+- Ship one public app where anyone can upload a PDF or try a sample that needs no upload and costs nothing per click.
 
 **Non-goals (v1)**
 - Multi-tenant auth, billing, teams.
@@ -24,13 +24,19 @@ This doc is the source of truth. Update it before changing behavior.
 
 ## 2. Run modes
 
-| Mode | Trigger | Pipeline | Actions | LLM cost |
-|---|---|---|---|---|
-| `live` | User uploads a PDF | Real, end to end | Approval gate, then real adapters (if connected) or sandbox | Yes |
-| `demo` | **Run Demo** button | Replays a recorded real run from a local snapshot, with narration | Sandbox adapters only (in-browser) | Zero, and no database calls |
+One public app, no deploy modes and no access code. A visitor either uploads their own PDF or tries a sample.
 
-**Demo mode design**
-- Demo mode **never touches Supabase or OpenAI**. It reads a local snapshot committed to the repo, so it works even when the database is paused or the API key is out of credit.
+| Run | Trigger | Pipeline | Actions | LLM cost |
+|---|---|---|---|---|
+| `live` | **Upload** (button or drag and drop) | Real, end to end, in a background worker | Approval gate, then sandbox adapters on the server | Yes, within the daily budget |
+| `sample` | **Try a sample** (Lease, Insurance certificate) | Replays a recorded real run from a local snapshot, with narration | Sandbox adapters only (in the browser) | Zero, and no database calls |
+
+Uploads are on whenever `DATABASE_URL` and `OPENAI_API_KEY` are both set. If either is missing the page shows samples only, with a short note saying why. Samples always work, even with a paused database or an exhausted budget.
+
+Both kinds of run stream **the same events** (`meta`, `step` with narration, `field`, `obligations`, `brief`, `action`, `done`), so the page has one renderer. The only differences are where the events come from (`/demo/<fixture>/events` or `/runs/<id>/events`) and where approvals go (browser sandbox or server).
+
+**Sample (demo) design**
+- Samples **never touch Supabase or OpenAI**. It reads a local snapshot committed to the repo, so it works even when the database is paused or the API key is out of credit.
 - Snapshots are **real recorded runs**, not hand-made data. `scripts/record_demo.py` runs the live pipeline once on a curated sample PDF and exports the full run to `fixtures/demo/<fixture>/`:
 
 ```
@@ -49,13 +55,20 @@ fixtures/demo/lease/
   - gate: "Calendar events are reversible, so this one only needs a single approval."
   `record_demo.py` drafts narration from each step's `reason` field; it is then edited by hand and committed.
 - **Progressive reveal**: fields appear one at a time as the extract step streams, and bbox highlights animate in, so the run feels live.
-- The UI shows a badge: `Demo replay · recorded <date> · model <name>`. This keeps it honest when an interviewer asks "is this real?"
-- **Approvals in demo mode** run against sandbox adapters implemented **in the browser** (Sandbox Calendar, Sandbox Inbox, Webhook log panels). Nothing is sent to the server or persisted; refreshing the page resets the demo.
+- The UI shows a badge: `Sample run · recorded <date> · as of <AS_OF>`. This keeps it honest when an interviewer asks "is this real?" A live run's badge reads `Your document · live run · as of <date>`.
+- **Approvals in a sample** run against sandbox adapters implemented **in the browser** (Sandbox Calendar, Sandbox Inbox, Webhook log panels). Nothing is sent to the server or persisted; refreshing the page resets the demo.
 
 **Implementation status (demo mode)**
 - `scripts/record_demo.py` runs the live pipeline (no database) as of `AS_OF` (default 2026-10-22) on `lease.pdf` and `insurance_certificate.pdf` and writes `fixtures/demo/lease/` and `fixtures/demo/insurance_certificate/`: `source.pdf`, `pages/<n>.png`, `snapshot.json` (document and classification, pages with words and boxes, steps with timings, fields with boxes, obligations, brief, proposed actions with groups, totals, `recorded_at`, `as_of`, `model`) and `narration.json` (`intro`, `steps` by stage plus `gate`, `actions` by group key or `tool:<name>`, `outro`). Narration is drafted from the recorded data and then edited by hand; re-recording never overwrites an existing `narration.json` unless `--redraft`. Links inside recorded reminders are written as `/#demo=<fixture>&page=<n>`.
 - `paperbound/demo/replay.py` builds the whole replay as a list of (wait, event, data) and streams it as SSE. Events: `meta` (badge, narration intro), `step` (a `running` event, then the finished one with narration), `field` (phase `extracted` while the extract step streams, then phase `validated` with confidence, flags and boxes while validate streams), `obligations`, `brief`, `action` (one per proposal), a synthesized `gate` step, and `done`. Each step is replayed in its recorded duration capped at 1.5 s, with a 0.3 s floor so a step that took no time stays readable (`?speed=0` sends everything at once, used by tests). The module imports no database, no OpenAI and no pipeline code; a test imports it in a clean process and asserts that.
 - The page cannot tell a replay from a live run except for the badge: it reuses the same renderers.
+
+**Implementation status (public uploads)**
+- `POST /documents` saves the file, creates a `queued` run and a job, writes the first `meta` event and returns at once. `paperbound/jobs.py` holds the queue, the worker and the event writer: one worker task, started in the FastAPI lifespan, claims the oldest queued job with `SELECT ... FOR UPDATE SKIP LOCKED` and runs the pipeline in a thread. `run_pipeline` takes an `observer` that is told when each stage starts and ends; the worker turns those into stored rows (steps, fields, obligations, actions) and `run_events` rows.
+- Narration for live runs comes from `paperbound/narration.py`, the same templates `scripts/record_demo.py` uses to draft `narration.json`. It is code, not an LLM.
+- `GET /runs/{id}/events` replays stored events from the database and then follows new ones (polling every 0.4 s, a heartbeat every 15 s). Each frame has an `id:` (its sequence number), so a reconnecting `EventSource` sends `Last-Event-ID` and receives only what it missed; `?after=<seq>` does the same. Replayed `action` events are refreshed with the action's current status, so a reopened run shows what was already approved. The stream ends after `done`, or when the run is finished and has nothing left to send.
+- A job interrupted by a restart is ended at the next start: its run becomes `failed` and its stream receives a final `done`.
+- Live `meta` arrives twice: at upload (document id, page count, no type yet) and again after classification (type and classification). The renderer merges them.
 
 ---
 
@@ -83,9 +96,8 @@ flowchart LR
 ```
 
 **Process layout**
-- `api`: FastAPI, serves the UI, REST, SSE, and the replay engine.
-- `worker`: pulls jobs from the Postgres queue and runs pipeline stages.
-- Both are deployed on Fly.io.
+- One process on Fly.io: FastAPI serves the UI, REST, SSE and the sample replay, and a single background worker task (started in the lifespan) runs queued jobs. A second task deletes expired uploads every 15 minutes. Both start only when uploads are available (`DATABASE_URL` and `OPENAI_API_KEY` set).
+- The queue is the `jobs` table; more workers could be added later without code changes because jobs are claimed with `FOR UPDATE SKIP LOCKED`.
 
 **Database: Supabase (dev and prod)**
 - Supabase Postgres is used from day one, including local development. No local Docker database.
@@ -95,18 +107,19 @@ flowchart LR
 - Keep the connection pool small (`pool_size=5`, `max_overflow=0`) to stay within free-tier limits.
 - Free-tier projects pause after about a week of inactivity; demo mode does not depend on the database, so it keeps working regardless.
 
-**Deploy modes** (`paperbound/deploy.py`, read from the environment on each request)
-- `LIVE_UPLOADS_ENABLED` not `true` (the default): demo only. `POST /documents` returns 403 before it touches the database, the upload control is hidden, and the app starts with no `OPENAI_API_KEY` and no `DATABASE_URL` (the SQLAlchemy engine is created on first use; a request that needs the database answers 503).
-- `LIVE_UPLOADS_ENABLED=true`: uploads require the `X-Access-Code` header to equal `ACCESS_CODE` (constant-time compare; no code configured means every upload is refused with 503), then, in order: per-IP rate limit (5 per hour, keyed on a hash of `Fly-Client-IP`, else the socket address; every request that passed the code counts, even if the file is later rejected), the daily LLM budget (`DAILY_LLM_BUDGET_USD`, default 1.00, summed from the ledger since midnight UTC), the size limit (10 MB, read bounded), the PDF check, and the page limit (20 pages, checked after parsing and before anything is saved or any model is called).
-- `usage_ledger` (migration `0005`): one `upload` row per counted request (IP hash only) and one `llm` row per run (its cost). It survives the deletion of uploads, so limits cannot be reset by expiry.
-- `documents.expires_at` (migration `0005`) is set to now + 24 h only for uploads made in live mode; a re-upload of an expiring file extends it, a document without one is never touched. Expired documents are deleted (files first, then the row; runs, fields, actions cascade) on each upload and by a background task every 15 minutes while live uploads and a database are configured.
-- `GET /config` tells the page which mode it is in (never the access code); `GET /healthz` is for the platform.
-- `Dockerfile` (python slim, `requirements-prod.txt`), `.dockerignore` and `fly.toml` are provided; nothing is deployed from the repo.
+**Public uploads: sessions, limits, privacy** (`paperbound/deploy.py`, `sessions.py`, `usage.py`, read from the environment on each request)
+- **Availability**: uploads need `DATABASE_URL` and `OPENAI_API_KEY`. Without them `POST /documents` answers 503 (before touching the database), `GET /config` says why, and the page offers samples only. The app starts with neither (the SQLAlchemy engine is created on first use).
+- **Session ownership**: the first page load issues a signed (HMAC-SHA256 with `SESSION_SECRET`), `HttpOnly`, `SameSite=Lax` cookie (`Secure` over https, 7 days). It holds a random token; only the sha256 of the token (the session hash) is stored, on `documents.session_hash` and `runs.session_hash`. Every non-sample read endpoint (run, steps, fields, obligations, brief, actions, events, pages, stored files) and approve/reject answers **404, the same as for an id that does not exist**, unless the run belongs to the caller's session. A document is reachable only through a run of the caller's session. Rows from before sessions existed have no hash and are visible to nobody. Without `SESSION_SECRET` a random per-process secret is used (everything works, but visitors lose their runs when the process restarts), so set it in production.
+- **Guardrails**, in order, for each upload: delete expired uploads, per-IP rate limit (5 per hour, keyed on a hash of `Fly-Client-IP`, else the socket address; every request counts, even if the file is later rejected), the daily LLM budget (`DAILY_LLM_BUDGET_USD`, default 1.00: the ledger's spend since midnight UTC plus an allowance of `RUN_COST_ESTIMATE_USD`, default 0.02, for every queued or running job, because runs are asynchronous and a burst of uploads would otherwise all pass before the first recorded its cost), the size limit (10 MB, read bounded), the PDF check, the page limit (20, checked after parsing and before anything is saved or any model is called). When the budget is used up `GET /config` reports `budget_exhausted` and the page replaces Upload with "Daily limit reached, try a sample".
+- **Privacy**: files and everything derived from them are deleted 24 hours after upload (`documents.expires_at`, extended if the same file is uploaded again; rows without one are never touched). The page says so under the Upload button: "Files are deleted after 24 hours. Don't upload sensitive documents."
+- `usage_ledger`: one `upload` row per counted request (IP hash only) and one `llm` row per run (its cost). It survives the deletion of uploads, so limits cannot be reset by expiry.
+- `GET /config` tells the page what is available and the limits; `GET /healthz` is for the platform.
+- `Dockerfile` (python slim, `requirements-prod.txt`), `.dockerignore` and `fly.toml` are provided (live uploads with a volume, `alembic upgrade head` as the release command); nothing is deployed from the repo.
 
 **File storage**
 - Local `STORAGE_DIR` in development; Supabase Storage in production, behind one `Storage` interface (`save`, `open`, `url`).
 
-No Redis in v1. The queue is a `jobs` table with `SELECT ... FOR UPDATE SKIP LOCKED`, and run events are pushed via Postgres `LISTEN/NOTIFY` to the API, which fans out over SSE.
+No Redis in v1. The queue is a `jobs` table with `SELECT ... FOR UPDATE SKIP LOCKED`. Run events are rows in `run_events`; the API streams them over SSE by polling that table (simple and reconnect-safe; `LISTEN/NOTIFY` could replace the polling later).
 
 ---
 
@@ -253,10 +266,10 @@ Every proposed action stores `source_refs[]` (field ids → page + bbox) so the 
 ## 6. Data model
 
 ```
-documents        id, filename, storage_key, sha256, page_count, doc_type, created_at, expires_at (set only for uploads made in live mode; the cleanup job deletes only rows that have one)
+documents        id, filename, storage_key, sha256, page_count, doc_type, created_at, expires_at (the cleanup job deletes only rows that have one), session_hash (uploader)
 pages            id, document_id, page_no, route, text, words_json, quality_score, image_key, width_pt, height_pt  (bboxes are PDF points; width/height let the UI scale them)
 chunks           id, document_id, page_no, text, embedding vector(1536)
-runs             id, document_id, status, started_at, finished_at, cost_usd
+runs             id, document_id, status (queued|running|done|partial|failed), started_at, finished_at, cost_usd, session_hash (owner)
 steps            id, run_id, seq, stage, status, input_summary, output_summary, reason, model, tokens, cost_usd, duration_ms, ts_offset_ms
 fields           id, run_id, name, value_json, source_quote, page_no, bbox, bboxes (one box per matched line; bbox is their union), confidence, flags[]
 obligations      id, run_id, kind, due_date, description, source_field_ids[]
@@ -265,61 +278,79 @@ usage_ledger     id, kind (upload|llm), ip_hash (sha256 of the client address), 
 action_results   id, action_id, adapter (live|sandbox), response_json, executed_at
 sandbox_actions  id, run_id, action_id, tool, args_json, response_json, created_at   (what sandbox adapters "did": full args + fake response)
 entities         id, name, kind, aliases[], attrs_json
-jobs             id, run_id, stage, status, attempts, locked_at, error
+jobs             id, run_id (unique), status (queued|running|done|failed), payload (parse_ms, reused), error, created_at, started_at, finished_at
+run_events       id, run_id, seq, name, data  (every event a run streamed, in order; unique on (run_id, seq))
 eval_runs        id, dataset, config_json, metrics_json, created_at
 ```
 
-`steps` also has an `error` column (text, set when a stage fails) and a unique constraint on `(run_id, seq)`. `status` is `done`, `failed` or `skipped` (stages after a failed extract are recorded as `skipped`). `input_summary`/`output_summary` are short human-readable strings; the API exposes `output_summary` as `summary`. `runs.status` is `running`, `done`, or `partial` (parse succeeded but a later stage failed).
+`steps` also has an `error` column (text, set when a stage fails) and a unique constraint on `(run_id, seq)`. `status` is `done`, `failed` or `skipped` (stages after a failed extract are recorded as `skipped`). `input_summary`/`output_summary` are short human-readable strings; the API exposes `output_summary` as `summary`. `runs.status` is `queued`, `running`, `done`, `partial` (parse succeeded but a later stage failed) or `failed` (the run crashed or was interrupted).
 
-`sha256` on documents gives idempotency: the same file uploaded twice reuses parse results (a new run is still created and extraction runs again).
+`sha256` on documents gives idempotency: the same file uploaded twice reuses parse results (a new run is still created for each upload and extraction runs again). Two visitors uploading the same file share the stored document but each owns their own run.
 
-Only live runs are stored in the database. Demo runs exist only as files in `fixtures/demo/`.
+Only live runs are stored in the database. Samples exist only as files in `fixtures/demo/`.
 
 ---
 
 ## 7. API
 
 ```
-POST   /documents                 upload PDF → {document_id, run_id, status, doc_type, message}; 403 unless live uploads are on, then X-Access-Code, 413/429 limits
-GET    /runs/{id}                 run summary (page_count, doc_type, classification summary and reason, message for unsupported types)
-GET    /runs/{id}/events          SSE stream of step events
+POST   /documents                 upload PDF → {document_id, run_id, status: "queued", page_count, reused} at once; 503 if uploads are unavailable, 413/429 limits, 400 not a PDF
+GET    /runs/{id}                 run summary (status, page_count, doc_type, classification, message for unsupported types)
+GET    /runs/{id}/events          SSE: stored events, then live ones; Last-Event-ID or ?after=<seq> to resume
 GET    /runs/{id}/fields          extracted fields with provenance
 GET    /runs/{id}/steps           pipeline steps (timeline), ordered by seq
 GET    /runs/{id}/obligations     derived obligations
-GET    /documents/{id}/pages/{n}  page image + word boxes
+GET    /documents/{id}/pages/{n}  page image URL + word boxes
+GET    /files/{key}               a stored page image or PDF
 GET    /runs/{id}/brief           decision brief: numbers with their source fields (recomputed, no LLM)
 GET    /runs/{id}/actions         proposed actions (with group_key / group_mode)
-POST   /actions/{id}/approve      execute via adapter
+POST   /actions/{id}/approve      execute via the sandbox adapter (exclusive groups reject their siblings)
 POST   /actions/{id}/reject
-GET    /demo/fixtures             available demo snapshots (from fixtures/demo/<fixture>/)
+GET    /demo/fixtures             available samples (from fixtures/demo/<fixture>/)
 GET    /demo/{fixture}/events     SSE replay of the snapshot with narration (no DB); ?speed=0 for no waiting
 GET    /demo/{fixture}/pages/{n}  snapshot page: word boxes + image_url
 GET    /demo/{fixture}/pages/{n}/image.png   the recorded page image
-GET    /config                    deploy mode and limits for the UI (live uploads on/off, limits)
+GET    /config                    uploads on/off and why, budget_exhausted, limits, the privacy note
 GET    /healthz                   platform health check
-GET    /evals/latest              latest metrics for the README and UI
+GET    /evals                     the newest saved result of each eval fixture (HTML)
 ```
 
-SSE event shape:
+Everything under `/runs`, `/documents`, `/files` and `/actions` is checked against the caller's session cookie and answers 404 to anyone else. `/demo`, `/config`, `/healthz` and `/evals` are public.
 
-```json
-{"seq": 4, "stage": "validate", "status": "done", "summary": "11/12 fields grounded", "duration_ms": 182,
- "narration": "11 of 12 fields were found on the page; rent amount was not, so its confidence drops.",
- "payload": {"fields": ["..."]}}
-```
+SSE events (identical for samples and live runs; each live frame also carries `id: <seq>`):
+
+| event | data |
+|---|---|
+| `meta` | `badge`, `narration` (intro), `filename`, `page_count`, `doc_type`, `classification`, `as_of`, `model`; samples add `fixture`, `label`, `recorded_at`; live runs add `live`, `document_id`, `run_id`. May arrive twice (type known after classify); fields merge |
+| `step` | `seq`, `stage`, `status` (`running`, then `done`, `failed` or `skipped`), `summary`, `reason`, `error`, `model`, `tokens`, `cost_usd`, `duration_ms`, `narration`. Stages: parse, classify, extract, validate, obligations, impact, planner, then a synthesized `gate` |
+| `field` | `phase: extracted` (name, value, page_no, source_quote), then `phase: validated` (adds id, bboxes, confidence, flags) |
+| `obligations` | `{obligations: [{kind, due_date, description, source_field_ids}]}` |
+| `brief` | `{lines: [{key, label, value, text, note, sources}], skipped}` |
+| `action` | one proposed action with sources, group, status, `result` and a `narration` |
+| `done` | `status`, `doc_type`, `message` (set for unsupported types or a failed run), `tokens`, `cost_usd`, `narration` (closing line) |
 
 ---
 
-## 8. UI (minimal, plain HTML/CSS/JS)
+## 8. UI (plain HTML, CSS and JS; no framework)
 
-Single page, three panes:
-1. **Left**: document viewer (page images with bbox highlights).
-2. **Middle**: run timeline (live SSE steps) and extracted fields. Clicking a field highlights its source on the page, one box per line.
-3. **Right**: a **Document type** card (detected type, how it was decided and why, and the "not supported yet" message for `other`), obligations, a **Decision brief** card (each number clickable: it highlights its source fields, with one link per source) and proposed actions with Approve / Reject. Each "because of page N" link highlights only its own source on its own page. Reminders appear as one group (Approve all), the two notice drafts as a "choose one" group. Reminder links `/#run=N&page=M` open that run and scroll to the page; a sandbox panel showing executed actions (Calendar, Inbox drafts). Webhook log panel comes with demo mode.
+Files: `web/index.html` (structure), `web/style.css` (design), `web/app.js` (the one renderer). The page is tested under node on a small DOM stub (`tests/ui/`) and by reading the HTML and CSS.
 
-Today the timeline, fields, obligations, actions and sandbox sit in one right-hand column, loaded after the synchronous upload response (no SSE yet).
+**Landing.** Header (Paperbound, How it works, Evals, GitHub), the line "Drop in any PDF. See what you owe, and by when.", an **Upload** button (drag and drop onto the card works too), a **Try a sample** dropdown (Lease, Insurance certificate), "Supports leases and insurance certificates", the privacy note under Upload, and a five-step strip: Read (code), Extract (LLM), Verify (code), Decide (code), Act (LLM drafts, you approve), each with a one-line explanation on hover or focus. If uploads are unavailable the button is replaced by a short note; if the daily budget is used up it reads "Daily limit reached, try a sample".
 
-Top bar: **Upload** (hidden when live uploads are off; an access-code box appears when they need one) and **Run Demo** (dropdown of the recorded fixtures: Lease, Insurance Certificate today; more as they are recorded). In demo mode the badge `Demo replay · recorded <date> · as of <AS_OF> · model <name>` is shown, the timeline fills as steps stream with their narration, fields appear one at a time (pending, then checked with a confidence and an animated box), the brief and grouped actions appear, and approvals run in browser-side sandbox adapters with no server calls.
+**Run view.** A compact horizontal stepper (the five steps above, mapped onto the pipeline stages: Read = parse + classify, Extract = extract, Verify = validate, Decide = obligations + impact, Act = planner + gate) with a status dot each, and the current step's narration as one line under it (click to expand). Clicking a step opens its details in the Trace tab. Below it, two columns: a document viewer on the left (each column scrolls inside itself, so the Summary needs no page scroll on a desktop) and a tabbed panel on the right:
+
+- **Summary** (default): document type, file, parties, 2 to 4 cards with a large number and a small label (each clickable: it highlights its source on the page), and one **Next decision** line that links to the Actions tab.
+- **Actions**: grouped cards, each with a "Why: page N" link per page of evidence and Approve / Reject: Reminders (Approve all), "Notice: choose one", Tracker record. An approved action shows its sandbox result in place (calendar entry, draft email, record). The tab shows how many actions wait.
+- **Fields**: a compact table (field, value, confidence chip, flags); a row highlights its source. Rows appear as the model returns them (`checking`) and settle once code has verified them.
+- **Trace**: the full narrated timeline, a model or code tag per step, tokens, cost, latency, and a link to `/evals`.
+
+**Unsupported types** get a friendly card ("This looks like a document type Paperbound doesn't recognize. Paperbound supports leases and insurance certificates today.") with a Try a sample dropdown.
+
+**Routing** is by URL hash: `#run=<id>` opens a run (a reloaded or shared tab replays it from the database, if it is the same browser), `#demo=<fixture>` opens a sample, and `#run=<id>&page=<n>` / `#demo=<fixture>&page=<n>` (written into reminders) scroll to a page.
+
+**Approvals**: a sample's approvals run in browser-side sandbox adapters with no server calls (a refresh resets them); a live run's go to `POST /actions/{id}/approve|reject`, after which the page re-reads the run's actions to pick up what the server did to the rest of the group.
+
+**Design.** CSS variables for a neutral palette and one accent (plus green, amber and red for status only); Inter from Google Fonts; an 8px spacing scale; rounded cards with subtle borders; light and dark by `prefers-color-scheme`; responsive down to 375px (the tabs stack under the viewer and the page scrolls); subtle animation only, and none with `prefers-reduced-motion`.
 
 ---
 
@@ -358,19 +389,20 @@ Run via `python -m paperbound.evals --dataset <name>`; results stored in `eval_r
 
 ```
 paperbound/
-  api/            FastAPI app, routes
+  api/            FastAPI app (main.py), routes (uploads, runs, events, actions, files)
   demo/           replay.py (SSE replay engine), routes.py (no database, no OpenAI)
-  deploy.py       deploy mode and limits;  usage.py  rate limit, LLM budget, expiry
-  worker/         job loop, stage runner
+  deploy.py       availability and limits;  usage.py  rate limit, LLM budget, expiry;  sessions.py  signed session cookie
+  jobs.py         job queue, the in-process worker, and the writer of the run event stream
+  narration.py    per-step narration templates (used by record_demo.py and by live runs)
+  presenters.py   JSON shapes shared by REST and the event stream;  evals_page.py  the /evals page
   clock.py        the single source of "today" (AS_OF override)
   doctypes.py     per-type wiring: extract, validate, obligations, brief
   pipeline/       parse.py classify.py extract.py validate.py obligations.py impact.py runner.py types.py
   agent/          planner.py profiles.py policy.py executor.py tools/ (one file per tool, live + sandbox adapters)
   schemas/        Pydantic field schemas per doc type (lease.py, insurance.py)
-  demo/           replay.py, session sandbox store
   evals/          datasets/, runners, metrics
   db/             models, migrations (Alembic)
-web/              index.html, app.js, styles.css
+web/              index.html, style.css, app.js
 fixtures/demo/    <fixture>/ source.pdf, pages/*.png, snapshot.json, narration.json  (plus the source PDFs and *.expected.json used by the evals)
 fixtures/labeled/ hand-labeled docs + ground truth JSON
 scripts/          record_demo.py (live run → snapshot export), load_eval_data.py, make_sample_lease.py, make_sample_coi.py, eval_fixtures.py (record_demo.py is implemented)

@@ -1,6 +1,10 @@
-# Paperbound on Fly.io. Demo-only by default: no secrets needed, no database, no OpenAI key.
-# Change `app` (names are global on Fly), then: fly launch --no-deploy --copy-config
-app = "paperbound-demo"
+# Paperbound on Fly.io: one public app. Samples always work; uploads turn on when the secrets below are set.
+# Change `app` (names are global on Fly), then follow MORNING_REPORT_5B.md:
+#   fly launch --no-deploy --copy-config
+#   fly volumes create paperbound_data --size 1 --region ewr
+#   fly secrets set DATABASE_URL=... OPENAI_API_KEY=... SESSION_SECRET=$(openssl rand -hex 32)
+#   fly deploy
+app = "paperbound"
 primary_region = "ewr"
 
 [build]
@@ -8,27 +12,32 @@ primary_region = "ewr"
 
 [env]
   PORT = "8080"
-  LIVE_UPLOADS_ENABLED = "false"
-  # Live uploads (see MORNING_REPORT_5.md before turning on): LIVE_UPLOADS_ENABLED = "true", then
-  #   fly secrets set ACCESS_CODE=... DATABASE_URL=... OPENAI_API_KEY=...
+  STORAGE_DIR = "/data/storage"
   # Limits (defaults shown): MAX_UPLOAD_MB=10, MAX_PAGES=20, UPLOADS_PER_IP_PER_HOUR=5, DAILY_LLM_BUDGET_USD=1.00,
-  # UPLOAD_TTL_HOURS=24.
+  # UPLOAD_TTL_HOURS=24. Add any of them here to change it.
 
-# Live uploads also need a volume, so uploaded files survive restarts. Create it first:
-#   fly volumes create paperbound_data --size 1 --region ewr
-# [mounts]
-#   source = "paperbound_data"
-#   destination = "/data"
+# Secrets (never put these in this file): DATABASE_URL, OPENAI_API_KEY, SESSION_SECRET.
+# Without DATABASE_URL or OPENAI_API_KEY the app still starts and serves the samples; uploads switch themselves off.
+
+# Run the database migrations before each new version starts. This runs in a temporary machine that can read the secrets.
+[deploy]
+  release_command = "alembic upgrade head"
+
+# Uploaded files live on a volume so they survive restarts (they are deleted after 24 hours anyway).
+# A volume attaches to one machine, so run exactly one: the in-process worker and the cleanup task live in it.
+[mounts]
+  source = "paperbound_data"
+  destination = "/data"
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = "off"   # the background worker must stay up to finish runs
   auto_start_machines = true
-  min_machines_running = 0
+  min_machines_running = 1
 
   [[http_service.checks]]
-    grace_period = "10s"
+    grace_period = "15s"
     interval = "30s"
     method = "GET"
     timeout = "5s"

@@ -1,5 +1,5 @@
-# Paperbound: demo mode always, live uploads when LIVE_UPLOADS_ENABLED=true.
-# Not built or deployed from this repo's CI; see MORNING_REPORT_5.md for the fly commands.
+# Paperbound: one public app. Samples always work; uploads are on when DATABASE_URL and OPENAI_API_KEY are set.
+# Not built or deployed from this repo's CI; see MORNING_REPORT_5B.md for the fly commands.
 FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
@@ -21,9 +21,10 @@ COPY alembic.ini .
 COPY paperbound ./paperbound
 COPY web ./web
 COPY fixtures/demo ./fixtures/demo
+COPY evals ./evals
 
 # A local .env is never copied (.dockerignore) and never read: configuration comes from fly.toml and `fly secrets`.
-# STORAGE_DIR is where live uploads go; mount a Fly volume at /data if live uploads are on.
+# STORAGE_DIR is where uploads go; fly.toml mounts a volume at /data. /evals reads the saved results copied above.
 ENV PORT=8080 \
     STORAGE_DIR=/data/storage \
     PAPERBOUND_SKIP_DOTENV=1

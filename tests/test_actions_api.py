@@ -15,6 +15,10 @@ from paperbound.db.models import (
     SandboxAction,
 )
 from paperbound.db.session import get_session
+from tests.helpers import log_in, new_visitor
+
+
+COOKIE, HASH = new_visitor()
 
 
 @pytest.fixture()
@@ -24,8 +28,8 @@ def env():
     Session = sessionmaker(engine, expire_on_commit=False)
 
     with Session() as s:
-        s.add(Document(id=1, filename="lease.pdf", storage_key="k", sha256="a" * 64, page_count=4))
-        s.add(Run(id=1, document_id=1, status="done"))
+        s.add(Document(id=1, filename="lease.pdf", storage_key="k", sha256="a" * 64, page_count=4, session_hash=HASH))
+        s.add(Run(id=1, document_id=1, status="done", session_hash=HASH))
         s.add(Field(id=10, run_id=1, name="end_date", value_json="2027-03-31", page_no=2,
                     bbox=[1, 2, 3, 4], bboxes=[[1, 2, 3, 4]], confidence=0.99, flags=[]))
         s.add(Field(id=11, run_id=1, name="notice_period_days", value_json=90, page_no=3,
@@ -44,7 +48,9 @@ def env():
             yield session
 
     app.dependency_overrides[get_session] = override
-    yield TestClient(app), Session
+    client = TestClient(app)
+    log_in(client, COOKIE)
+    yield client, Session
     app.dependency_overrides.clear()
 
 

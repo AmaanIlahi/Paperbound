@@ -50,9 +50,7 @@ def load_snapshot(name: str, demo_dir: Path | None = None) -> dict:
 
 
 def badge(snapshot: dict) -> str:
-    return (
-        f"Demo replay · recorded {snapshot['recorded_at'][:10]} · as of {snapshot['as_of']} · model {snapshot['model']}"
-    )
+    return f"Sample run · recorded {snapshot['recorded_at'][:10]} · as of {snapshot['as_of']}"
 
 
 def list_fixtures(demo_dir: Path | None = None) -> list[dict]:
@@ -160,7 +158,7 @@ def build_events(snapshot: dict) -> list[tuple[float, str, dict]]:
             "input_summary": "", "reason": "", "error": None, "model": None, "tokens": 0, "cost_usd": 0.0,
             "duration_ms": 0, "ts_offset_ms": 0, "narration": step_text["gate"],
         }))
-    events.append((0.2, "done", {"status": snapshot["status"], "message": snapshot.get("message"),
+    events.append((0.2, "done", {"status": snapshot["status"], "doc_type": snapshot["doc_type"], "message": snapshot.get("message"),
                                  "cost_usd": snapshot.get("cost_usd"), "tokens": snapshot.get("tokens"),
                                  "narration": narration.get("outro", "")}))
     return events

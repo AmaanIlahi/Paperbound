@@ -39,7 +39,7 @@ def test_both_demo_fixtures_are_listed_with_their_badge():
     assert set(listed) == set(FIXTURES)
     lease = listed["lease"]
     assert lease["label"] == "Lease" and listed["insurance_certificate"]["label"] == "Insurance Certificate"
-    assert lease["badge"] == f"Demo replay · recorded {lease['recorded_at'][:10]} · as of 2026-10-22 · model gpt-4o-mini"
+    assert lease["badge"] == f"Sample run · recorded {lease['recorded_at'][:10]} · as of 2026-10-22"
     assert date.fromisoformat(lease["recorded_at"][:10])
 
 
@@ -158,7 +158,7 @@ def test_event_sequence_reveals_fields_progressively(snap):
 def test_meta_carries_the_badge_and_done_carries_the_totals(snap):
     events = replay.build_events(snap)
     meta, done = events[0][2], events[-1][2]
-    assert meta["badge"].startswith("Demo replay · recorded ") and meta["as_of"] == "2026-10-22" and meta["model"] == "gpt-4o-mini"
+    assert meta["badge"].startswith("Sample run · recorded ") and meta["as_of"] == "2026-10-22" and meta["model"] == "gpt-4o-mini"
     assert done["status"] == "done" and done["tokens"] == snap["tokens"] and done["cost_usd"] == snap["cost_usd"]
 
 
@@ -238,7 +238,7 @@ def test_demo_endpoints_work_when_the_database_and_openai_would_explode(monkeypa
         app.dependency_overrides.pop(get_session, None)
 
 
-# ---- the app starts with no secrets at all ----
+# ---- the app starts with no secrets at all: samples work, uploads say why they are off ----
 
 def test_app_starts_and_serves_the_demo_with_no_secrets_and_no_database():
     code = (
@@ -251,11 +251,12 @@ def test_app_starts_and_serves_the_demo_with_no_secrets_and_no_database():
         "with TestClient(app) as c:\n"
         "    assert c.get('/').status_code == 200 and c.get('/healthz').json() == {'ok': True}\n"
         "    cfg = c.get('/config').json()\n"
-        "    assert cfg['live_uploads_enabled'] is False, cfg\n"
+        "    assert cfg['uploads_enabled'] is False and 'database' in cfg['unavailable_reason'], cfg\n"
         "    assert len(c.get('/demo/fixtures').json()) == 2\n"
         "    assert c.get('/demo/lease/events', params={'speed': 0}).status_code == 200\n"
         "    up = c.post('/documents', files={'file': ('a.pdf', b'%PDF-1.4', 'application/pdf')})\n"
-        "    assert up.status_code == 403, up.text\n"
+        "    assert up.status_code == 503 and 'sample' in up.text.lower(), up.text\n"
+        "    assert c.get('/evals').status_code == 200\n"
         "    assert c.get('/runs/1').status_code == 503\n"
         "assert session._engine is None  # no engine was ever created\n"
         "print('ok')\n"

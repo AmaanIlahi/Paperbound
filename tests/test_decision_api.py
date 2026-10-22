@@ -7,6 +7,7 @@ from sqlalchemy.pool import StaticPool
 from paperbound.api.main import app
 from paperbound.db.models import Base, Document, Field, ProposedAction, Run, SandboxAction
 from paperbound.db.session import get_session
+from tests.helpers import log_in, new_visitor
 
 FIELDS = [
     # id, name, value, page, flags
@@ -21,15 +22,18 @@ FIELDS = [
 ]
 
 
+COOKIE, HASH = new_visitor()
+
+
 @pytest.fixture()
 def env():
     engine = create_engine("sqlite://", poolclass=StaticPool, connect_args={"check_same_thread": False})
     Base.metadata.create_all(engine)
     Session = sessionmaker(engine, expire_on_commit=False)
     with Session() as s:
-        s.add(Document(id=1, filename="lease.pdf", storage_key="k", sha256="a" * 64, page_count=4))
-        s.add(Run(id=1, document_id=1, status="done"))
-        s.add(Run(id=2, document_id=1, status="done"))
+        s.add(Document(id=1, filename="lease.pdf", storage_key="k", sha256="a" * 64, page_count=4, session_hash=HASH))
+        s.add(Run(id=1, document_id=1, status="done", session_hash=HASH))
+        s.add(Run(id=2, document_id=1, status="done", session_hash=HASH))
         for fid, name, value, page, flags in FIELDS:
             s.add(Field(id=fid, run_id=1, name=name, value_json=value, page_no=page, bbox=[1, 2, 3, 4],
                         bboxes=[[1, 2, 3, 4], [1, 5, 3, 8]], confidence=0.99, flags=flags))
@@ -55,7 +59,9 @@ def env():
             yield session
 
     app.dependency_overrides[get_session] = override
-    yield TestClient(app), Session
+    client = TestClient(app)
+    log_in(client, COOKIE)
+    yield client, Session
     app.dependency_overrides.clear()
 
 

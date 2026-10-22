@@ -29,3 +29,8 @@ def new_session():
     """A session outside a request (background jobs)."""
     get_engine()
     return _sessionmaker()
+
+
+def session_factory():
+    """Dependency: a callable that opens sessions on demand, for streams that outlive a request's own session."""
+    return new_session

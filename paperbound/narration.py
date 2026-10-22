@@ -1,0 +1,158 @@
+"""Narration templates: one plain-language paragraph per pipeline step, written by code from what the step produced.
+
+Used twice, so a live run reads exactly like a recorded one:
+  - scripts/record_demo.py drafts narration.json for a recorded sample (then a human edits it);
+  - the job worker narrates a live run step by step as each step finishes.
+There is no LLM here. Inputs are plain dicts shaped like the snapshot (fields, steps, brief lines, actions).
+"""
+
+from dataclasses import dataclass
+
+DEFAULT_ACTION_TEXT = {
+    "reminders": "Staged reminders before the deadline. Code chose the dates and filled in every number; the model only wrote the intro line. Approve them together or one by one.",
+    "notice_choice": "Two drafts of one decision: approving one rejects the other. Drafts only: nothing is sent, and the recipient stays a placeholder.",
+    "tool:draft_email": "A draft email. Approving it only saves a draft in the sandbox inbox: it is never sent.",
+    "tool:upsert_record": "A tracker record built entirely by code from the brief: no model wrote any of it.",
+    "default": "A proposed action. It stays pending until you approve or reject it.",
+}
+
+
+@dataclass
+class Narrator:
+    kind: str  # lower-case document kind, e.g. "lease"
+    filename: str
+    pages: int
+    as_of: str
+
+    # ---- framing ----
+
+    def intro(self, live: bool = False) -> str:
+        if live:
+            return (
+                f"This is a live run of the real pipeline on your {self.kind} ({self.filename}, {self.pages} page(s)), as of "
+                f"{self.as_of}. Each step is narrated as it finishes: which parts are plain code and which use a model."
+            )
+        return (
+            f"This is a recorded run of the real pipeline on a {self.kind} ({self.filename}, {self.pages} page(s)), replayed as of "
+            f"{self.as_of}. No model is called while you watch, and nothing leaves your browser."
+        )
+
+    def outro(self, calls: int, tokens: int, cost_usd: float, live: bool = False) -> str:
+        tail = (
+            "Approve or reject actions to see the sandbox result."
+            if live else "Approve or reject actions to see the sandbox panel."
+        )
+        return f"That was the whole run: {calls} model call(s), {tokens} tokens, ${cost_usd:.4f}. Everything else was code. {tail}"
+
+    # ---- steps ----
+
+    def parse(self) -> str:
+        return (
+            f"The PDF has a text layer on all {self.pages} page(s), so no OCR was needed. This step is deterministic: PyMuPDF reads "
+            "every word and its exact position straight from the file. No model is involved."
+        )
+
+    def classify(self, cls: dict | None, doc_type: str | None = None) -> str:
+        cls = cls or {}
+        if doc_type == "other":
+            return (
+                "Keyword and layout heuristics did not recognise a lease or an insurance certificate. " + cls.get("reason", "")
+                + " Paperbound stops here instead of guessing."
+            ).strip()
+        if cls.get("method") == "llm":
+            return "The keyword and layout heuristics were not sure what this document is, so a small LLM call decided. " + cls.get("reason", "")
+        scores = cls.get("scores", {})
+        top = sorted(scores.values(), reverse=True)
+        lead = f" (top score {top[0]:g}, runner-up {top[1]:g})" if len(top) > 1 else ""
+        return (
+            f"Keyword and layout heuristics recognised a {self.kind}{lead}, so no model was called. Code decides whenever it "
+            "can: it is free and gives the same answer every time. An LLM is only the fallback when the heuristics are unsure."
+        )
+
+    def extract(self, n_present: int, step: dict) -> str:
+        return (
+            f"This is the first place a model is used. gpt-4o-mini read the {self.pages} page(s) and returned {n_present} fields, each "
+            "with the exact quote it relied on and the page it found it on. Rules cannot read free-form clauses, so an LLM does. "
+            f"Nothing it says is trusted yet ({step.get('tokens', 0)} tokens, ${step.get('cost_usd', 0.0):.4f})."
+        )
+
+    def validate(self, fields: list[dict]) -> str:
+        present = [f for f in fields if f["value"] is not None]
+        grounded = [f for f in present if "ungrounded" not in f["flags"]]
+        flagged = [f for f in fields if f["flags"]]
+        flag_text = (
+            "No field was flagged." if not flagged
+            else "Flagged: " + "; ".join(f"{f['name']} ({', '.join(f['flags'])})" for f in flagged) + "."
+        )
+        return (
+            f"Now code checks the model. {len(grounded)} of {len(present)} fields were found word for word on the page, and each "
+            "got a box around its source (click a field to see it). Dates, amounts and ranges are checked, the value must appear "
+            "in its quote, and a quote that reads like an instruction is blocked. Confidence is 0.6 x grounding + 0.3 x checks "
+            f"+ 0.1 x page quality; the model's own confidence is never used. {flag_text}"
+        )
+
+    def obligations(self, obligations: list[dict]) -> str:
+        first = obligations[0]["description"] if obligations else "none"
+        return (
+            f"Code turned the checked fields into {len(obligations)} obligation(s): {first}"
+            + (" (and others below)." if len(obligations) > 1 else ".")
+            + " This is plain date arithmetic, with no model, and it only uses fields that passed validation."
+        )
+
+    def impact(self, lines: list[dict]) -> str:
+        shown = [f"{ln['label']}: {ln['text']}" for ln in lines[:4]]
+        return (
+            f"The decision brief, as of {self.as_of}: " + "; ".join(shown)
+            + ". Every number is computed by code from fields that passed validation, and each one cites the fields it came "
+            "from (click a number to see them). A line is skipped, with a reason, if its inputs are missing or blocked."
+        )
+
+    def planner(self, n_actions: int, step_reason: str = "") -> str:
+        return (
+            f"The second model step. The LLM proposes {n_actions} action(s) with tool calls, but it only writes the wording: code "
+            "supplies every number, date and name, chooses the reminder dates, and rejects any proposal whose numbers do not match "
+            f"the brief. {step_reason}"
+        ).strip()
+
+    def gate(self, group_keys: set[str], live: bool = False) -> str:
+        return (
+            "The approval gate is deterministic code, not the model: every action starts pending, an email is always only a draft "
+            "(never sent), and the recipient stays a placeholder."
+            + (" Approving one notice rejects the other, because they are one decision." if "notice_choice" in group_keys else "")
+            + (
+                " Try approving in the Actions tab. Approvals run in a sandbox: nothing is ever sent anywhere."
+                if live else " Try approving below. In this demo, approvals run in a sandbox inside your browser: nothing is sent to a server."
+            )
+        )
+
+    def skipped(self, stage: str, reason: str) -> str:
+        return f"This step did not run. {reason}".strip()
+
+    def failed(self, stage: str, error: str) -> str:
+        return f"This step failed ({error}). The run keeps whatever finished before it and stops here, rather than guessing."
+
+    def no_planner(self) -> str:
+        return "There were no obligations, so there was nothing for the model to plan and it was not called."
+
+
+def draft_narration(snap: dict) -> dict:
+    """The full narration.json for a recorded snapshot."""
+    steps = {s["stage"]: s for s in snap["steps"]}
+    n = Narrator(snap["label"].lower(), snap["filename"], snap["page_count"], snap["as_of"])
+    groups = {a["group_key"] for a in snap["actions"] if a["group_key"]}
+    text = {
+        "parse": n.parse(),
+        "classify": n.classify(snap["classification"], snap["doc_type"]),
+        "extract": n.extract(sum(1 for f in snap["fields"] if f["value"] is not None), steps["extract"]),
+        "validate": n.validate(snap["fields"]),
+        "obligations": n.obligations(snap["obligations"]),
+        "impact": n.impact(snap["brief"]["lines"]),
+        "planner": n.planner(len(snap["actions"]), steps.get("planner", {}).get("reason", "")),
+        "gate": n.gate(groups),
+    }
+    return {
+        "intro": n.intro(),
+        "steps": text,
+        "actions": dict(DEFAULT_ACTION_TEXT),
+        "outro": n.outro(snap["openai_calls"], snap["tokens"], snap["cost_usd"]),
+    }

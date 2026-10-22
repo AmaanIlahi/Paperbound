@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from paperbound.agent.tools import get_tool  # noqa: E402
+from paperbound.narration import draft_narration  # noqa: E402
 from paperbound.pipeline.extract import MODEL  # noqa: E402
 from paperbound.pipeline.parse import parse_pdf  # noqa: E402
 from paperbound.pipeline.runner import make_parse_step, run_pipeline  # noqa: E402
@@ -105,96 +106,6 @@ def build_snapshot(name: str, label: str, filename: str, pages, result, as_of: d
             }
             for i, a in enumerate(plan.actions if plan else [], start=1)
         ],
-    }
-
-
-# ---------------------------------------------------------------------------------------------------------------
-# narration: drafted from the recorded data, then hand-edited
-# ---------------------------------------------------------------------------------------------------------------
-
-def draft_narration(snap: dict) -> dict:
-    steps = {s["stage"]: s for s in snap["steps"]}
-    fields = snap["fields"]
-    present = [f for f in fields if f["value"] is not None]
-    grounded = [f for f in present if "ungrounded" not in f["flags"]]
-    flagged = [f for f in fields if f["flags"]]
-    pages = snap["page_count"]
-    cls = snap["classification"] or {}
-    kind = snap["label"].lower()
-    brief = {ln["key"]: ln for ln in snap["brief"]["lines"]}
-    n_actions = len(snap["actions"])
-    groups = {a["group_key"] for a in snap["actions"] if a["group_key"]}
-
-    text = {}
-    text["parse"] = (
-        f"The PDF has a text layer on all {pages} page(s), so no OCR was needed. This step is deterministic: PyMuPDF reads "
-        "every word and its exact position straight from the file. No model is involved."
-    )
-    if cls.get("method") == "llm":
-        text["classify"] = "The keyword and layout heuristics were not sure what this document is, so a small LLM call decided. " + cls.get("reason", "")
-    else:
-        scores = cls.get("scores", {})
-        top = sorted(scores.values(), reverse=True)
-        lead = f" (top score {top[0]:g}, runner-up {top[1]:g})" if len(top) > 1 else ""
-        text["classify"] = (
-            f"Keyword and layout heuristics recognised a {kind}{lead}, so no model was called. Code decides whenever it "
-            "can: it is free and gives the same answer every time. An LLM is only the fallback when the heuristics are unsure."
-        )
-    text["extract"] = (
-        f"This is the first place a model is used. gpt-4o-mini read the {pages} page(s) and returned {len(present)} fields, each "
-        "with the exact quote it relied on and the page it found it on. Rules cannot read free-form clauses, so an LLM does. "
-        f"Nothing it says is trusted yet ({steps['extract']['tokens']} tokens, ${steps['extract']['cost_usd']:.4f})."
-    )
-    flag_text = "No field was flagged." if not flagged else "Flagged: " + "; ".join(f"{f['name']} ({', '.join(f['flags'])})" for f in flagged) + "."
-    text["validate"] = (
-        f"Now code checks the model. {len(grounded)} of {len(present)} fields were found word for word on the page, and each "
-        "got a box around its source (click a field to see it). Dates, amounts and ranges are checked, the value must appear "
-        "in its quote, and a quote that reads like an instruction is blocked. Confidence is 0.6 x grounding + 0.3 x checks "
-        f"+ 0.1 x page quality; the model's own confidence is never used. {flag_text}"
-    )
-    obs = snap["obligations"]
-    first = obs[0]["description"] if obs else "none"
-    text["obligations"] = (
-        f"Code turned the checked fields into {len(obs)} obligation(s): {first}"
-        + (" (and others below)." if len(obs) > 1 else ".")
-        + " This is plain date arithmetic, with no model, and it only uses fields that passed validation."
-    )
-    shown = [f"{brief[k]['label']}: {brief[k]['text']}" for k in list(brief)[:4]]
-    text["impact"] = (
-        f"The decision brief, as of {snap['as_of']}: " + "; ".join(shown)
-        + ". Every number is computed by code from fields that passed validation, and each one cites the fields it came "
-        "from (click a number to see them). A line is skipped, with a reason, if its inputs are missing or blocked."
-    )
-    planner = steps.get("planner", {})
-    text["planner"] = (
-        f"The second model step. The LLM proposes {n_actions} action(s) with tool calls, but it only writes the wording: code "
-        "supplies every number, date and name, chooses the reminder dates, and rejects any proposal whose numbers do not match "
-        f"the brief. {planner.get('reason', '')}"
-    ).strip()
-    exclusive = "notice_choice" in groups
-    text["gate"] = (
-        "The approval gate is deterministic code, not the model: every action starts pending, an email is always only a draft "
-        "(never sent), and the recipient stays a placeholder."
-        + (" Approving one notice rejects the other, because they are one decision." if exclusive else "")
-        + " Try approving below. In this demo, approvals run in a sandbox inside your browser: nothing is sent to a server."
-    )
-    return {
-        "intro": (
-            f"This is a recorded run of the real pipeline on a {kind} ({snap['filename']}, {pages} page(s)), replayed as of "
-            f"{snap['as_of']}. No model is called while you watch, and nothing leaves your browser."
-        ),
-        "steps": text,
-        "actions": {
-            "reminders": "Staged reminders before the deadline. Code chose the dates and filled in every number; the model only wrote the intro line. Approve them together or one by one.",
-            "notice_choice": "Two drafts of one decision: approving one rejects the other. Drafts only: nothing is sent, and the recipient stays a placeholder.",
-            "tool:draft_email": "A draft email. Approving it only saves a draft in the sandbox inbox: it is never sent.",
-            "tool:upsert_record": "A tracker record built entirely by code from the brief: no model wrote any of it.",
-            "default": "A proposed action. It stays pending until you approve or reject it.",
-        },
-        "outro": (
-            f"That was the whole run: {snap['openai_calls']} model call(s), {snap['tokens']} tokens, ${snap['cost_usd']:.4f}. Everything "
-            "else was code. Approve or reject actions to see the sandbox panel."
-        ),
     }
 
 

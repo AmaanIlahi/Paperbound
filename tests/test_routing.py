@@ -1,31 +1,21 @@
-"""POST /documents classifies first, then runs the matching schema, brief and planner. Unsupported types stop early."""
+"""A queued upload is classified first, then runs the matching schema, brief and planner. Unsupported types stop early."""
 
 import io
-from datetime import date
 
 import pytest
-from fastapi.testclient import TestClient
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
+from sqlalchemy import select
 
 from paperbound.agent.planner import plan_actions
-from paperbound.api import routes
-from paperbound.api.main import app
-from paperbound.db.models import Base, Document, Field, ProposedAction
-from paperbound.db.session import get_session
+from paperbound.db.models import Document, Field, ProposedAction
 from paperbound.pipeline.classify import Classification, classify_document
-from paperbound.pipeline.runner import make_parse_step, run_pipeline
-from paperbound.storage import LocalStorage, get_storage
 from tests.coi_fixture import DEMO, fake_coi_extractor
+from tests.lease_fakes import TODAY, fake_extractor, fake_planner
+from tests.live import live  # noqa: F401
 from tests.test_classify import FakeLLM, NoLLM
 from tests.test_coi import full_response, plan_inputs
 from tests.test_planner import FakeClient
-from tests.test_upload_flow import fake_extractor, fake_planner
-
-TODAY = date(2026, 10, 22)
 
 
 def recipe_pdf() -> bytes:
@@ -41,45 +31,25 @@ def must_not_extract(pages):
     raise AssertionError("an unsupported document must not reach extraction")
 
 
-@pytest.fixture()
-def env(tmp_path, monkeypatch):
-    engine = create_engine("sqlite://", poolclass=StaticPool, connect_args={"check_same_thread": False})
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(engine, expire_on_commit=False)
-
-    def override():
-        with Session() as session:
-            yield session
-
-    monkeypatch.setenv("LIVE_UPLOADS_ENABLED", "true")
-    monkeypatch.setenv("ACCESS_CODE", "test-code")
-    app.dependency_overrides[get_session] = override
-    app.dependency_overrides[get_storage] = lambda: LocalStorage(tmp_path)
-    yield TestClient(app, headers={"X-Access-Code": "test-code"}), Session, monkeypatch
-    app.dependency_overrides.clear()
+def use_pipeline(live, **kwargs):
+    live.use_pipeline(lambda: {"today": TODAY, **kwargs})
 
 
-def use_pipeline(monkeypatch, **kwargs):
-    monkeypatch.setattr(
-        routes, "run_pipeline",
-        lambda pages, step, existing_obligations=None: run_pipeline(
-            pages, step, existing_obligations=existing_obligations, today=TODAY, **kwargs
-        ),
-    )
-
-
-def upload(client, data: bytes, name="doc.pdf"):
-    return client.post("/documents", files={"file": (name, data, "application/pdf")}).json()
+def upload(live, data: bytes, name="doc.pdf"):
+    """Upload, let the worker run it, and return what the run endpoint says about it (plus the ids)."""
+    body = live.upload_and_run(data, name)
+    run = live.client.get(f"/runs/{body['run_id']}").json()
+    return {**body, **{k: run[k] for k in ("status", "doc_type", "message")}}
 
 
 # ---- "other" stops after classify ----
 
-def test_other_stops_after_classify_with_status_done_and_the_message(env):
-    http, Session, monkeypatch = env
+def test_other_stops_after_classify_with_status_done_and_the_message(live):
+    http, Session = live.client, live.Session
     llm = FakeLLM("other", "A pancake recipe.")
-    use_pipeline(monkeypatch, classifier=lambda pages: classify_document(pages, client=llm),
+    use_pipeline(live, classifier=lambda pages: classify_document(pages, client=llm),
                  extractor=must_not_extract, planner=lambda *a, **k: pytest.fail("planner must not run"))
-    doc = upload(http, recipe_pdf())
+    doc = upload(live, recipe_pdf())
     assert doc["status"] == "done" and doc["doc_type"] == "other" and doc["message"] == "document type not supported yet"
     run_id = doc["run_id"]
     assert [s["stage"] for s in http.get(f"/runs/{run_id}/steps").json()] == ["parse", "classify"]
@@ -97,22 +67,22 @@ def test_other_stops_after_classify_with_status_done_and_the_message(env):
         assert s.scalars(select(Field)).all() == [] and s.scalars(select(ProposedAction)).all() == []
 
 
-def test_the_pages_of_an_unsupported_document_are_still_viewable(env):
-    http, _, monkeypatch = env
-    use_pipeline(monkeypatch, classifier=lambda pages: Classification("other", "llm", "x"), extractor=must_not_extract)
-    doc = upload(http, recipe_pdf())
+def test_the_pages_of_an_unsupported_document_are_still_viewable(live):
+    http, Session = live.client, live.Session
+    use_pipeline(live, classifier=lambda pages: Classification("other", "llm", "x"), extractor=must_not_extract)
+    doc = upload(live, recipe_pdf())
     page = http.get(f"/documents/{doc['document_id']}/pages/1").json()
     assert page["words"] and page["image_url"]
 
 
-def test_a_failed_classifier_gives_a_partial_run_and_skips_everything_else(env):
-    http, _, monkeypatch = env
+def test_a_failed_classifier_gives_a_partial_run_and_skips_everything_else(live):
+    http, Session = live.client, live.Session
 
     def boom(pages):
         raise RuntimeError("openai is down")
 
-    use_pipeline(monkeypatch, classifier=boom, extractor=must_not_extract)
-    doc = upload(http, recipe_pdf())
+    use_pipeline(live, classifier=boom, extractor=must_not_extract)
+    doc = upload(live, recipe_pdf())
     assert doc["status"] == "partial" and doc["doc_type"] is None
     steps = http.get(f"/runs/{doc['run_id']}/steps").json()
     assert [(s["stage"], s["status"]) for s in steps] == [
@@ -124,15 +94,15 @@ def test_a_failed_classifier_gives_a_partial_run_and_skips_everything_else(env):
 
 # ---- certificates take the certificate path ----
 
-def test_a_certificate_is_classified_extracted_briefed_and_planned(env):
-    http, Session, monkeypatch = env
+def test_a_certificate_is_classified_extracted_briefed_and_planned(live):
+    http, Session = live.client, live.Session
     ids = plan_inputs()[2]
     planner_fn = lambda fields, obligations, existing, **kw: plan_actions(  # noqa: E731
         fields, obligations, existing, client=FakeClient(full_response(ids)), **kw
     )
-    use_pipeline(monkeypatch, classifier=lambda pages: classify_document(pages, client=NoLLM()),
+    use_pipeline(live, classifier=lambda pages: classify_document(pages, client=NoLLM()),
                  extractor=fake_coi_extractor, planner=planner_fn)
-    doc = upload(http, (DEMO / "insurance_certificate.pdf").read_bytes(), "coi.pdf")
+    doc = upload(live, (DEMO / "insurance_certificate.pdf").read_bytes(), "coi.pdf")
     assert doc["status"] == "done" and doc["doc_type"] == "insurance_certificate" and doc["message"] is None
     run_id = doc["run_id"]
     steps = http.get(f"/runs/{run_id}/steps").json()
@@ -162,19 +132,19 @@ def test_a_certificate_is_classified_extracted_briefed_and_planned(env):
         assert s.scalar(select(Document)).doc_type == "insurance_certificate"
 
 
-def test_a_lease_still_takes_the_lease_path(env):
-    http, _, monkeypatch = env
-    use_pipeline(monkeypatch, classifier=lambda pages: classify_document(pages, client=NoLLM()),
+def test_a_lease_still_takes_the_lease_path(live):
+    http, Session = live.client, live.Session
+    use_pipeline(live, classifier=lambda pages: classify_document(pages, client=NoLLM()),
                  extractor=fake_extractor, planner=fake_planner)
-    doc = upload(http, (DEMO / "lease.pdf").read_bytes(), "lease.pdf")
+    doc = upload(live, (DEMO / "lease.pdf").read_bytes(), "lease.pdf")
     assert doc["doc_type"] == "lease" and http.get(f"/runs/{doc['run_id']}").json()["doc_type"] == "lease"
 
 
-def test_old_runs_without_a_stored_type_are_treated_as_leases(env):
-    http, Session, monkeypatch = env
-    use_pipeline(monkeypatch, classifier=lambda pages: Classification("lease", "heuristic", "x"),
+def test_old_runs_without_a_stored_type_are_treated_as_leases(live):
+    http, Session = live.client, live.Session
+    use_pipeline(live, classifier=lambda pages: Classification("lease", "heuristic", "x"),
                  extractor=fake_extractor, planner=fake_planner)
-    doc = upload(http, (DEMO / "lease.pdf").read_bytes())
+    doc = upload(live, (DEMO / "lease.pdf").read_bytes())
     with Session() as s:
         s.scalar(select(Document)).doc_type = None  # what runs from before classification look like
         s.commit()
