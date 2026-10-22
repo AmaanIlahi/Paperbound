@@ -6,3 +6,5 @@ __pycache__/
 .pytest_cache/
 .vscode/
 *.log
+
+MORNING_REPORT*.md
