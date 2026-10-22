@@ -220,7 +220,7 @@ activity; re-enable it in the Actions tab if that happens.
 
 A `Dockerfile`, `.dockerignore` and `fly.toml` are included (one machine, a volume for files,
 `alembic upgrade head` as the release command, secrets `DATABASE_URL`, `OPENAI_API_KEY`, `SESSION_SECRET`). Nothing is
-deployed from the repo; the exact `fly` commands are in `MORNING_REPORT_5B.md`.
+deployed from the repo. First deploy: `fly launch --no-deploy --copy-config`, `fly volumes create paperbound_data --size 1 --region ewr`, `fly secrets import` for the three secrets, then `fly deploy`.
 
 Re-record the samples after changing the pipeline (about 4 OpenAI calls; an existing `narration.json` is kept unless
 `--redraft`):
