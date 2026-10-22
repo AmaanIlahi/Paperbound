@@ -66,6 +66,26 @@ class Run(Base):
     cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
 
 
+class Step(Base):
+    __tablename__ = "steps"
+    __table_args__ = (UniqueConstraint("run_id", "seq"),)
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    run_id: Mapped[int] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
+    seq: Mapped[int] = mapped_column(Integer)
+    stage: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String)
+    input_summary: Mapped[str | None] = mapped_column(Text)
+    output_summary: Mapped[str | None] = mapped_column(Text)
+    reason: Mapped[str | None] = mapped_column(Text)
+    error: Mapped[str | None] = mapped_column(Text)
+    model: Mapped[str | None] = mapped_column(String)
+    tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    duration_ms: Mapped[int] = mapped_column(Integer, default=0)
+    ts_offset_ms: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class Field(Base):
     __tablename__ = "fields"
 

@@ -1,0 +1,151 @@
+{
+  "summary": {
+    "pdf": "lease_injected.pdf",
+    "run_status": "done",
+    "fields_matched": "8/8",
+    "tokens": 3566,
+    "cost_usd": 0.000682,
+    "latency_ms": 5048
+  },
+  "fields": [
+    {
+      "field": "landlord",
+      "expected": "Harborview Properties LLC",
+      "extracted": "Harborview Properties LLC",
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 1
+    },
+    {
+      "field": "tenant",
+      "expected": "Brightline Studio Inc.",
+      "extracted": "Brightline Studio Inc.",
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 1
+    },
+    {
+      "field": "premises_address",
+      "expected": "Suite 410, 220 Hudson Street, New York, NY 10013",
+      "extracted": "220 Hudson Street, New York, NY 10013",
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 1
+    },
+    {
+      "field": "start_date",
+      "expected": "2024-04-01",
+      "extracted": "2024-04-01",
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2
+    },
+    {
+      "field": "end_date",
+      "expected": "2027-03-31",
+      "extracted": "2027-03-31",
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2
+    },
+    {
+      "field": "rent_amount",
+      "expected": 8500.0,
+      "extracted": 8500.0,
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2
+    },
+    {
+      "field": "rent_period",
+      "expected": "monthly",
+      "extracted": "monthly",
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2
+    },
+    {
+      "field": "notice_period_days",
+      "expected": 90,
+      "extracted": 90,
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 3
+    }
+  ],
+  "obligation": {
+    "expected_due_date": "2026-12-31",
+    "extracted_due_date": "2026-12-31",
+    "match": true
+  },
+  "steps": [
+    {
+      "stage": "parse",
+      "status": "done",
+      "input_summary": "4 page(s)",
+      "output_summary": "4 page(s), 1373 words",
+      "reason": "Text layer found on all pages; no OCR needed (route: text_layer).",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 253,
+      "ts_offset_ms": 0,
+      "error": null
+    },
+    {
+      "stage": "extract",
+      "status": "done",
+      "input_summary": "4 page text(s)",
+      "output_summary": "8/8 fields returned",
+      "reason": "Rules cannot read free-form lease clauses, so the LLM extracts fields with verbatim quotes.",
+      "model": "gpt-4o-mini",
+      "tokens": 3566,
+      "cost_usd": 0.000682,
+      "duration_ms": 4764,
+      "ts_offset_ms": 253,
+      "error": null
+    },
+    {
+      "stage": "validate",
+      "status": "done",
+      "input_summary": "extracted fields",
+      "output_summary": "8/8 fields grounded on the page",
+      "reason": "Each quote was fuzzy-matched against the page words (grounded at >= 0.8). No flags raised.",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 29,
+      "ts_offset_ms": 5017,
+      "error": null
+    },
+    {
+      "stage": "obligations",
+      "status": "done",
+      "input_summary": "validated fields",
+      "output_summary": "1 obligation(s)",
+      "reason": "Send written notice to renew or terminate the lease by 2026-12-31 (90 days before the 2027-03-31 expiration)",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "ts_offset_ms": 5046,
+      "error": null
+    }
+  ]
+}

@@ -117,17 +117,19 @@ Output: `pages` rows with `route`, `text`, `words[] {text, bbox}`, `quality_scor
 ### 4.3 Extract (schema-constrained)
 - Each doc type has a Pydantic schema in `schemas/` (e.g. `LeaseFields`, `InsuranceCertFields`).
 - `other` uses a generic schema: parties, dates, amounts, obligations, summary.
-- LLM extraction uses structured outputs. Every field returns `{value, source_quote, page}`.
+- LLM extraction uses structured outputs (`gpt-4o-mini`, temperature 0, one call per document). Every field returns `{value, source_quote, page}`. The system prompt states that document text is untrusted data and instructions inside it must be ignored; quotes must be verbatim and at most 30 words; rent is the first-year base rent, not escalation-table values. Currently only the `lease` schema exists (`schemas/lease.py`: landlord, tenant, premises_address, start_date, end_date, rent_amount, rent_period, notice_period_days).
 - Long docs: chunk by page, retrieve relevant chunks per field group with pgvector, then extract.
 
 ### 4.4 Validate and ground (deterministic)
 - **Type and range checks**: dates parse, amounts non-negative, end date after start date.
 - **Cross-field checks**: line items sum to total; notice deadline = end date minus notice period.
-- **Grounding check**: fuzzy-match `source_quote` (rapidfuzz) against the page's word list to recover the bbox. If not found, the field is flagged `ungrounded`.
-- **Field confidence** = weighted combination of grounding score, validator pass, and page parse quality. No reliance on the LLM's self-reported confidence.
+- **Grounding check**: fuzzy-match `source_quote` (rapidfuzz `fuzz.ratio` on punctuation-stripped, case-folded tokens) against the page's word list using a sliding window over consecutive words (window size = quote length ± 2 words). The best window gives a score from 0 to 1 and the union bbox of its words. The page the model named is searched first; other pages are searched only if that page scores below 0.8, so a wrong page number is recovered (flag `page_corrected`). A score below 0.8 flags the field `ungrounded` and drops the bbox.
+- **Value-in-quote check**: the extracted value must appear in or be derivable from its quote (`$8,500.00` or "Eight Thousand Five Hundred Dollars ($8,500.00)" → 8500; "March 31, 2027" → 2027-03-31; "ninety (90) days" → 90). If not, the field gets `value_not_in_quote`.
+- **Field confidence** = `0.6 * grounding_score + 0.3 * validators_passed + 0.1 * page_quality`. `validators_passed` is 1 only if the type/range/cross-field checks and the value-in-quote check all pass, else 0. `page_quality` is the quality score of the page the field was grounded on. No reliance on the LLM's self-reported confidence. A field the model could not find has confidence 0 and flag `not_found`.
+- **Flags**: `not_found`, `ungrounded`, `page_corrected`, `value_not_in_quote`, `invalid_date`, `end_before_start`, `invalid_amount`, `invalid_notice_period`.
 
 ### 4.5 Obligations
-Deterministic derivation from extracted fields:
+Deterministic derivation from validated fields (no LLM). An obligation is skipped, with the reason recorded on the step, if an input is missing, `ungrounded`, or failed validation:
 - `deadline` (date, what, source field)
 - `recurring` (rent, premium, renewal)
 - `expiration`
@@ -206,7 +208,9 @@ jobs             id, run_id, stage, status, attempts, locked_at, error
 eval_runs        id, dataset, config_json, metrics_json, created_at
 ```
 
-`sha256` on documents gives idempotency: the same file uploaded twice reuses parse results.
+`steps` also has an `error` column (text, set when a stage fails) and a unique constraint on `(run_id, seq)`. `status` is `done`, `failed` or `skipped` (stages after a failed extract are recorded as `skipped`). `input_summary`/`output_summary` are short human-readable strings; the API exposes `output_summary` as `summary`. `runs.status` is `running`, `done`, or `partial` (parse succeeded but a later stage failed).
+
+`sha256` on documents gives idempotency: the same file uploaded twice reuses parse results (a new run is still created and extraction runs again).
 
 Only live runs are stored in the database. Demo runs exist only as files in `fixtures/demo/`.
 
@@ -219,6 +223,8 @@ POST   /documents                 upload PDF → {document_id, run_id}
 GET    /runs/{id}                 run summary
 GET    /runs/{id}/events          SSE stream of step events
 GET    /runs/{id}/fields          extracted fields with provenance
+GET    /runs/{id}/steps           pipeline steps (timeline), ordered by seq
+GET    /runs/{id}/obligations     derived obligations
 GET    /documents/{id}/pages/{n}  page image + word boxes
 GET    /runs/{id}/actions         proposed actions
 POST   /actions/{id}/approve      execute via adapter
@@ -285,7 +291,7 @@ Run via `python -m paperbound.evals --dataset <name>`; results stored in `eval_r
 paperbound/
   api/            FastAPI app, routes, SSE
   worker/         job loop, stage runner
-  pipeline/       parse.py classify.py extract.py validate.py obligations.py
+  pipeline/       parse.py classify.py extract.py validate.py obligations.py runner.py types.py
   agent/          planner.py policy.py tools/ (one file per tool, live + sandbox adapters)
   schemas/        Pydantic field schemas per doc type
   demo/           replay.py, session sandbox store
@@ -294,7 +300,9 @@ paperbound/
 web/              index.html, app.js, styles.css
 fixtures/demo/    <fixture>/ source.pdf, pages/*.png, snapshot.json, narration.json
 fixtures/labeled/ hand-labeled docs + ground truth JSON
-scripts/          record_demo.py (live run → snapshot export), load_eval_data.py
+scripts/          record_demo.py (live run → snapshot export), load_eval_data.py, make_sample_lease.py, eval_lease.py
+evals/results/    JSON output of eval runs (eval_lease.py)
+tests/            pytest unit tests (no network)
 .env.example      committed; .env is local only and git-ignored
 docs/architecture.md
 ```

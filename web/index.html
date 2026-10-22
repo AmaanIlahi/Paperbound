@@ -5,17 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Paperbound</title>
   <style>
+    :root { --ok: #15803d; --warn: #b45309; --bad: #b91c1c; --muted: #52525b; }
     body { font-family: system-ui, sans-serif; margin: 0; background: #f4f4f5; color: #18181b; }
-    header { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: #fff; border-bottom: 1px solid #e4e4e7; }
+    header { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: #fff; border-bottom: 1px solid #e4e4e7; position: sticky; top: 0; z-index: 5; }
     header h1 { font-size: 1.1rem; margin: 0; }
-    #status { color: #52525b; font-size: .9rem; }
-    #pages { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 1rem; }
+    #status { color: var(--muted); font-size: .9rem; }
+    main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 1rem; padding: 1rem; align-items: start; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+    #pages { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
     .page { position: relative; box-shadow: 0 1px 4px rgba(0,0,0,.2); background: #fff; max-width: 100%; }
     .page img { display: block; width: 100%; height: auto; }
     .word { position: absolute; box-sizing: border-box; border: 1px solid transparent; }
     .word:hover { background: rgba(59,130,246,.25); border-color: #2563eb; }
-    #tip { position: fixed; pointer-events: none; background: #18181b; color: #fff; padding: 2px 6px;
-           border-radius: 4px; font-size: .8rem; display: none; z-index: 10; }
+    .hl { position: absolute; box-sizing: border-box; border: 2px solid #ea580c; background: rgba(251,146,60,.3); pointer-events: none; border-radius: 2px; }
+    #tip { position: fixed; pointer-events: none; background: #18181b; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: .8rem; display: none; z-index: 10; }
+    aside { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 56px; max-height: calc(100vh - 72px); overflow-y: auto; }
+    section.card { background: #fff; border: 1px solid #e4e4e7; border-radius: 8px; padding: .75rem; }
+    section.card h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 .5rem; }
+    .step { display: grid; grid-template-columns: 1.2rem 1fr auto; gap: .4rem; font-size: .88rem; padding: .3rem 0; border-top: 1px solid #f0f0f2; }
+    .step:first-of-type { border-top: 0; }
+    .step .reason { grid-column: 2 / 4; color: var(--muted); font-size: .8rem; }
+    .step .error { grid-column: 2 / 4; color: var(--bad); font-size: .8rem; }
+    .dot { width: .7rem; height: .7rem; border-radius: 50%; margin-top: .25rem; background: var(--ok); }
+    .dot.failed { background: var(--bad); } .dot.skipped { background: #a1a1aa; }
+    .meta { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .8rem; }
+    .field { padding: .4rem .3rem; border-radius: 6px; cursor: pointer; border-top: 1px solid #f0f0f2; }
+    .field:hover, .field.active { background: #fff7ed; }
+    .field .name { font-size: .75rem; color: var(--muted); }
+    .field .value { font-weight: 600; word-break: break-word; }
+    .conf { float: right; font-size: .78rem; font-weight: 600; padding: 0 .4rem; border-radius: 999px; color: #fff; }
+    .conf.hi { background: var(--ok); } .conf.mid { background: var(--warn); } .conf.lo { background: var(--bad); }
+    .flag { display: inline-block; font-size: .7rem; background: #fee2e2; color: var(--bad); border-radius: 4px; padding: 0 .3rem; margin: .2rem .2rem 0 0; }
+    .obligation { font-size: .92rem; }
+    .obligation .due { font-weight: 700; font-size: 1.05rem; }
+    .empty { color: var(--muted); font-size: .85rem; }
   </style>
 </head>
 <body>
@@ -24,33 +47,48 @@
     <input type="file" id="file" accept="application/pdf">
     <span id="status"></span>
   </header>
-  <div id="pages"></div>
+  <main>
+    <div id="pages"></div>
+    <aside id="panel" hidden>
+      <section class="card"><h2>Run timeline</h2><div id="steps"></div></section>
+      <section class="card"><h2>Fields</h2><div id="fields"></div></section>
+      <section class="card"><h2>Obligations</h2><div id="obligations"></div></section>
+    </aside>
+  </main>
   <div id="tip"></div>
 
   <script>
-    const statusEl = document.getElementById('status');
-    const pagesEl = document.getElementById('pages');
-    const tip = document.getElementById('tip');
+    const $ = (id) => document.getElementById(id);
+    const tip = $('tip');
+    const pageEls = {};    // page_no -> {wrap, meta}
+    let activeHighlight = null;
 
-    document.getElementById('file').addEventListener('change', async (e) => {
+    $('file').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      pagesEl.replaceChildren();
-      statusEl.textContent = 'Uploading and parsing...';
+      $('pages').replaceChildren();
+      $('panel').hidden = true;
+      $('status').textContent = 'Uploading, parsing and extracting...';
       try {
         const form = new FormData();
         form.append('file', file);
         const res = await fetch('/documents', { method: 'POST', body: form });
         if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
         const doc = await res.json();
-        statusEl.textContent = `Document ${doc.document_id}, run ${doc.run_id}, ${doc.page_count} page(s)` +
-          (doc.reused ? ' (already parsed, reused)' : '');
+        $('status').textContent = `Document ${doc.document_id}, run ${doc.run_id} (${doc.status}), ${doc.page_count} page(s)` +
+          (doc.reused ? ', file already parsed' : '');
         for (let n = 1; n <= doc.page_count; n++) {
-          const pageRes = await fetch(`/documents/${doc.document_id}/pages/${n}`);
-          renderPage(await pageRes.json());
+          renderPage(await (await fetch(`/documents/${doc.document_id}/pages/${n}`)).json());
         }
+        const [steps, fields, obligations] = await Promise.all(
+          ['steps', 'fields', 'obligations'].map((k) => fetch(`/runs/${doc.run_id}/${k}`).then((r) => r.json()))
+        );
+        renderSteps(steps);
+        renderFields(fields);
+        renderObligations(obligations);
+        $('panel').hidden = false;
       } catch (err) {
-        statusEl.textContent = 'Error: ' + err.message;
+        $('status').textContent = 'Error: ' + err.message;
       }
     });
 
@@ -62,19 +100,96 @@
       img.src = page.image_url;
       wrap.appendChild(img);
       for (const w of page.words) {
-        const [x0, y0, x1, y1] = w.bbox;
-        const box = document.createElement('div');
-        box.className = 'word';
-        box.style.left = (x0 / page.width_pt * 100) + '%';
-        box.style.top = (y0 / page.height_pt * 100) + '%';
-        box.style.width = ((x1 - x0) / page.width_pt * 100) + '%';
-        box.style.height = ((y1 - y0) / page.height_pt * 100) + '%';
+        const box = placeBox(wrap, page, w.bbox, 'word');
         box.addEventListener('mouseenter', () => { tip.textContent = w.text; tip.style.display = 'block'; });
         box.addEventListener('mousemove', (ev) => { tip.style.left = ev.clientX + 12 + 'px'; tip.style.top = ev.clientY + 12 + 'px'; });
         box.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
-        wrap.appendChild(box);
       }
-      pagesEl.appendChild(wrap);
+      $('pages').appendChild(wrap);
+      pageEls[page.page_no] = { wrap, page };
+    }
+
+    function placeBox(wrap, page, bbox, cls) {
+      const [x0, y0, x1, y1] = bbox;
+      const box = document.createElement('div');
+      box.className = cls;
+      box.style.left = (x0 / page.width_pt * 100) + '%';
+      box.style.top = (y0 / page.height_pt * 100) + '%';
+      box.style.width = ((x1 - x0) / page.width_pt * 100) + '%';
+      box.style.height = ((y1 - y0) / page.height_pt * 100) + '%';
+      wrap.appendChild(box);
+      return box;
+    }
+
+    function el(tag, cls, text) {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined) n.textContent = text;
+      return n;
+    }
+
+    function renderSteps(steps) {
+      const root = $('steps');
+      root.replaceChildren();
+      for (const s of steps) {
+        const row = el('div', 'step');
+        row.appendChild(el('span', 'dot ' + s.status));
+        row.appendChild(el('span', '', `${s.stage}${s.summary ? ': ' + s.summary : ''}`));
+        const cost = s.cost_usd ? ` · ${s.tokens} tok · $${s.cost_usd.toFixed(5)}` : '';
+        row.appendChild(el('span', 'meta', `${s.duration_ms} ms${cost}`));
+        if (s.reason) row.appendChild(el('span', 'reason', s.reason));
+        if (s.error) row.appendChild(el('span', 'error', s.error));
+        root.appendChild(row);
+      }
+    }
+
+    function confClass(c) { return c >= 0.9 ? 'hi' : c >= 0.7 ? 'mid' : 'lo'; }
+
+    function renderFields(fields) {
+      const root = $('fields');
+      root.replaceChildren();
+      for (const f of fields) {
+        const row = el('div', 'field');
+        const conf = el('span', 'conf ' + confClass(f.confidence ?? 0), (f.confidence ?? 0).toFixed(2));
+        row.appendChild(conf);
+        row.appendChild(el('div', 'name', f.name + (f.page_no ? ` · page ${f.page_no}` : '')));
+        row.appendChild(el('div', 'value', f.value === null ? '(not found)' : String(f.value)));
+        for (const flag of f.flags) row.appendChild(el('span', 'flag', flag));
+        row.addEventListener('click', () => {
+          document.querySelectorAll('.field.active').forEach((n) => n.classList.remove('active'));
+          row.classList.add('active');
+          highlight(f);
+        });
+        root.appendChild(row);
+      }
+    }
+
+    function highlight(f) {
+      if (activeHighlight) activeHighlight.remove();
+      activeHighlight = null;
+      const target = pageEls[f.page_no];
+      if (!target) return;
+      if (f.bbox) {
+        activeHighlight = placeBox(target.wrap, target.page, f.bbox, 'hl');
+        activeHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        target.wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function renderObligations(obligations) {
+      const root = $('obligations');
+      root.replaceChildren();
+      if (!obligations.length) {
+        root.appendChild(el('div', 'empty', 'No obligations derived (see the obligations step above for why).'));
+        return;
+      }
+      for (const o of obligations) {
+        const row = el('div', 'obligation');
+        row.appendChild(el('div', 'due', o.due_date));
+        row.appendChild(el('div', '', o.description));
+        root.appendChild(row);
+      }
     }
   </script>
 </body>
