@@ -1,0 +1,21 @@
+{
+  "intro": "This is a recorded run of the real pipeline on a lease (lease.pdf, 4 page(s)), replayed as of 2026-10-22. No model is called while you watch, and nothing leaves your browser.",
+  "steps": {
+    "parse": "The PDF has a text layer on all 4 page(s), so no OCR was needed. This step is deterministic: PyMuPDF reads every word and its exact position straight from the file. No model is involved.",
+    "classify": "Keyword and layout heuristics recognised a lease (top score 24, runner-up 1), so no model was called. Code decides whenever it can: it is free and gives the same answer every time. An LLM is only the fallback when the heuristics are unsure.",
+    "extract": "This is the first place a model is used. gpt-4o-mini read the 4 page(s) and returned 14 fields, each with the exact quote it relied on and the page it found it on. Rules cannot read free-form clauses, so an LLM does. Nothing it says is trusted yet (5036 tokens, $0.0010).",
+    "validate": "Now code checks the model. 14 of 14 fields were found word for word on the page, and each got a box around its source (click a field to see it). Dates, amounts and ranges are checked, the value must appear in its quote, and a quote that reads like an instruction is blocked. Confidence is 0.6 x grounding + 0.3 x checks + 0.1 x page quality; the model's own confidence is never used. And it caught something real in this run: for rent_period the model quoted the escalation sentence (\"increase by three percent\"), which never says \"month\", so the field is flagged value_not_in_quote, its confidence drops to 0.70, and it is kept away from the obligations and the action planner. Click it to see the quote the model chose.",
+    "obligations": "Code turned the checked fields into 1 obligation(s): Send written notice to renew or terminate the lease by 2026-12-31 (90 days before the 2027-03-31 expiration). This is plain date arithmetic, with no model, and it only uses fields that passed validation.",
+    "impact": "The decision brief, as of 2026-10-22: Notice deadline: December 31, 2026; Days remaining: 70 days left; Current monthly rent: $9,017.65 / month; Rent after one more 3% step: $9,288.18 / month. Every number is computed by code from fields that passed validation, and each one cites the fields it came from (click a number to see them). A line is skipped, with a reason, if its inputs are missing or blocked.",
+    "planner": "The second model step. The LLM proposes 6 action(s) with tool calls, but it only writes the wording: code supplies every number, date and name, chooses the reminder dates, and rejects any proposal whose numbers do not match the brief. It took 1 model call and 6 tool calls, and it can only propose: nothing runs yet.",
+    "gate": "The approval gate is deterministic code, not the model: every action starts pending, an email is always only a draft (never sent), and the recipient stays a placeholder. Approving one notice rejects the other, because they are one decision. Try approving below. In this demo, approvals run in a sandbox inside your browser: nothing is sent to a server."
+  },
+  "actions": {
+    "reminders": "Staged reminders before the deadline. Code chose the dates and filled in every number; the model only wrote the intro line. Approve them together or one by one.",
+    "notice_choice": "Two drafts of one decision: approving one rejects the other. Drafts only: nothing is sent, and the recipient stays a placeholder.",
+    "tool:draft_email": "A draft email. Approving it only saves a draft in the sandbox inbox: it is never sent.",
+    "tool:upsert_record": "A tracker record built entirely by code from the brief: no model wrote any of it.",
+    "default": "A proposed action. It stays pending until you approve or reject it."
+  },
+  "outro": "That was the whole run: 2 model call(s), 7860 tokens, $0.0016. Everything else was code. Approve or reject actions to see the sandbox panel."
+}

@@ -1,0 +1,39 @@
+# Paperbound on Fly.io. Demo-only by default: no secrets needed, no database, no OpenAI key.
+# Change `app` (names are global on Fly), then: fly launch --no-deploy --copy-config
+app = "paperbound-demo"
+primary_region = "ewr"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  LIVE_UPLOADS_ENABLED = "false"
+  # Live uploads (see MORNING_REPORT_5.md before turning on): LIVE_UPLOADS_ENABLED = "true", then
+  #   fly secrets set ACCESS_CODE=... DATABASE_URL=... OPENAI_API_KEY=...
+  # Limits (defaults shown): MAX_UPLOAD_MB=10, MAX_PAGES=20, UPLOADS_PER_IP_PER_HOUR=5, DAILY_LLM_BUDGET_USD=1.00,
+  # UPLOAD_TTL_HOURS=24.
+
+# Live uploads also need a volume, so uploaded files survive restarts. Create it first:
+#   fly volumes create paperbound_data --size 1 --region ewr
+# [mounts]
+#   source = "paperbound_data"
+#   destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/healthz"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

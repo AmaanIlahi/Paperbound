@@ -1,0 +1,21 @@
+{
+  "intro": "This is a recorded run of the real pipeline on a insurance certificate (insurance_certificate.pdf, 1 page(s)), replayed as of 2026-10-22. No model is called while you watch, and nothing leaves your browser.",
+  "steps": {
+    "parse": "The PDF has a text layer on all 1 page(s), so no OCR was needed. This step is deterministic: PyMuPDF reads every word and its exact position straight from the file. No model is involved.",
+    "classify": "Keyword and layout heuristics recognised a insurance certificate (top score 28, runner-up 2), so no model was called. Code decides whenever it can: it is free and gives the same answer every time. An LLM is only the fallback when the heuristics are unsure.",
+    "extract": "This is the first place a model is used. gpt-4o-mini read the 1 page(s) and returned 17 fields, each with the exact quote it relied on and the page it found it on. Rules cannot read free-form clauses, so an LLM does. Nothing it says is trusted yet (3263 tokens, $0.0007).",
+    "validate": "Now code checks the model. 17 of 17 fields were found word for word on the page, and each got a box around its source (click a field to see it). Dates, amounts and ranges are checked, the value must appear in its quote, and a quote that reads like an instruction is blocked. Confidence is 0.6 x grounding + 0.3 x checks + 0.1 x page quality; the model's own confidence is never used. No field was flagged.",
+    "obligations": "Code turned the checked fields into 2 obligation(s): Commercial General Liability GL-5521904 expires 2027-01-15: request a renewed certificate of insurance before then (one per policy, so the umbrella policy gets its own). This is plain date arithmetic, with no model, and it only uses fields that passed validation.",
+    "impact": "The decision brief, as of 2026-10-22: Earliest policy expiration: January 15, 2027; Days until it expires: 85 days left; Policies expiring within 60 days: None; Commercial General Liability GL-5521904: each-occurrence limit: $1,000,000, meets the $1,000,000 minimum. Every number is computed by code from fields that passed validation, and each one cites the fields it came from (click a number to see them). A line is skipped, with a reason, if its inputs are missing or blocked.",
+    "planner": "The second model step. The LLM proposes 5 action(s) with tool calls, but it only writes the wording: code supplies every number, date and name, chooses the reminder dates, and rejects any proposal whose numbers do not match the brief. It took 1 model call and 5 tool calls, and it can only propose: nothing runs yet.",
+    "gate": "The approval gate is deterministic code, not the model: every action starts pending, an email is always only a draft (never sent), and the recipient stays a placeholder. Try approving below. In this demo, approvals run in a sandbox inside your browser: nothing is sent to a server."
+  },
+  "actions": {
+    "reminders": "Staged reminders before the deadline. Code chose the dates and filled in every number; the model only wrote the intro line. Approve them together or one by one.",
+    "notice_choice": "Two drafts of one decision: approving one rejects the other. Drafts only: nothing is sent, and the recipient stays a placeholder.",
+    "tool:draft_email": "A draft email. Approving it only saves a draft in the sandbox inbox: it is never sent.",
+    "tool:upsert_record": "A tracker record built entirely by code from the brief: no model wrote any of it.",
+    "default": "A proposed action. It stays pending until you approve or reject it."
+  },
+  "outro": "That was the whole run: 2 model call(s), 6103 tokens, $0.0013. Everything else was code. Approve or reject actions to see the sandbox panel."
+}

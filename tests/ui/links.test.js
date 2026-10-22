@@ -1,45 +1,11 @@
 // Runs the real inline script of web/index.html against a tiny DOM stub and clicks the "because of" links.
 // Usage: node tests/ui/links.test.js   (exit code 1 on failure)
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
 const assert = require('assert');
+const { loadApp } = require('./dom_stub');
 
-class Node {
-  constructor(tag) {
-    this.tagName = tag; this.children = []; this.listeners = {}; this.style = {}; this.className = '';
-    this.textContent = ''; this.scrolled = 0; this.parent = null; this.hidden = false; this.disabled = false;
-    this.classList = {
-      add: (c) => { if (!this.className.split(' ').includes(c)) this.className = (this.className + ' ' + c).trim(); },
-      remove: (c) => { this.className = this.className.split(' ').filter((x) => x !== c).join(' '); },
-    };
-  }
-  appendChild(n) { n.parent = this; this.children.push(n); return n; }
-  replaceChildren(...n) { this.children = []; n.forEach((x) => this.appendChild(x)); }
-  remove() { if (this.parent) this.parent.children = this.parent.children.filter((c) => c !== this); this.removed = true; }
-  addEventListener(type, fn) { (this.listeners[type] = this.listeners[type] || []).push(fn); }
-  click() { (this.listeners.click || []).forEach((fn) => fn({ stopPropagation() {} })); }
-  scrollIntoView() { this.scrolled += 1; scrollLog.push(this); }
-  walk(fn) { fn(this); this.children.forEach((c) => c.walk(fn)); }
-  find(pred) { const out = []; this.walk((n) => pred(n) && out.push(n)); return out; }
-  pageOf() { let n = this; while (n && !n.pageNo) n = n.parent; return n ? n.pageNo : null; }
-}
-
-const scrollLog = [];
-const byId = {};
-const document = {
-  getElementById: (id) => (byId[id] = byId[id] || new Node('div')),
-  createElement: (tag) => new Node(tag),
-  createTextNode: (t) => { const n = new Node('#text'); n.textContent = t; return n; },
-  querySelectorAll: () => [],
-};
-const context = { document, window: { addEventListener() {} }, location: { hash: '' }, fetch: async () => ({ ok: true, json: async () => ({}) }), console };
-vm.createContext(context);
-
-const html = fs.readFileSync(path.join(__dirname, '..', '..', 'web', 'index.html'), 'utf8');
-const script = /<script>([\s\S]*)<\/script>/.exec(html)[1];
-vm.runInContext(script + '\nthis.__t = { renderPage, renderActions, loadBrief: null, pageEls, highlight };', context);
-const { renderPage, renderActions, pageEls } = context.__t;
+const { app, env } = loadApp(['renderPage', 'renderActions', 'pageEls', 'highlight']);
+const { renderPage, renderActions, pageEls } = app;
+const { byId, scrollLog } = env;
 
 // Four pages, each 600x800 points.
 for (let n = 1; n <= 4; n++) {
@@ -76,15 +42,14 @@ for (const [i, page, count] of expectations) {
 }
 
 // The old behaviour (passing every source) is still available on purpose for the brief card.
-context.__t.highlight(action.sources);
+app.highlight(action.sources);
 assert.strictEqual(boxes().length, 4);
 
-// Text links in descriptions become anchors, not HTML.
-const group = { ...action, id: 2, args: { description: 'see /#run=7&page=3 now <b>x</b>' } };
+// Text links in descriptions become anchors, not HTML. Both run links and demo links are recognised.
+const group = { ...action, id: 2, args: { description: 'see /#run=7&page=3 now <b>x</b> or /#demo=lease&page=2 too' } };
 renderActions([group]);
 const anchors = byId.actions.find((n) => n.tagName === 'a');
-assert.strictEqual(anchors.length, 1);
-assert.strictEqual(anchors[0].href, '/#run=7&page=3');
-assert.ok(byId.actions.find((n) => n.textContent === ' now <b>x</b>').length === 1, 'markup stays text');
+assert.deepStrictEqual(anchors.map((a) => a.href), ['/#run=7&page=3', '/#demo=lease&page=2']);
+assert.ok(byId.actions.find((n) => n.textContent === ' now <b>x</b> or ').length === 1, 'markup stays text');
 
 console.log('ui link tests passed');

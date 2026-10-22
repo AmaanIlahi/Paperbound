@@ -1,0 +1,30 @@
+# Keep the image to what the app needs: code, web, recorded demos.
+.git
+.gitignore
+.gitattributes
+.venv
+.env
+.env.*
+!.env.example
+storage
+__pycache__
+*.pyc
+.pytest_cache
+.vscode
+*.log
+
+tests
+scripts
+evals
+docs
+MORNING_REPORT*.md
+README.md
+requirements.txt
+Dockerfile
+.dockerignore
+fly.toml
+
+# the demo needs only each fixture's snapshot, narration and page images
+fixtures/demo/*.pdf
+fixtures/demo/*.expected.json
+fixtures/demo/*/source.pdf

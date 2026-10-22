@@ -150,6 +150,50 @@ cross-check only works when the document has a rent table. The instruction detec
 innocent text ("written instructions"). A determined attacker who controls the whole document, including its rent
 table, is not stopped by any of this; that is what the human approval step is for.
 
+## Run Demo
+
+Press **Run Demo** (top bar), pick *Lease* or *Insurance Certificate*, and watch a recorded real run replay step by
+step with narration: which parts were plain code and which used the model, and why. Fields appear one at a time and
+their source boxes light up on the page as code checks them, then the decision brief and the proposed actions
+appear. Approve or reject actions to see the sandbox calendar and inbox.
+
+- **It is honest about what it is.** A badge says `Demo replay · recorded <date> · as of 2026-10-22 · model gpt-4o-mini`.
+  The snapshots in `fixtures/demo/<fixture>/` are real runs of the live pipeline, recorded by `scripts/record_demo.py`,
+  not hand-made data. Narration is drafted from each step's real data and then edited by hand.
+- **It costs nothing and needs nothing.** The demo never touches the database or OpenAI (a test imports the replay
+  code in a clean process and checks that neither is loaded), so it works with no `DATABASE_URL`, no `OPENAI_API_KEY`,
+  and a paused database.
+- **Approvals never leave your browser.** The sandbox calendar, inbox and tracker run in the page, with no server
+  calls. Refreshing the page resets the demo.
+
+<!-- Screenshots: add after the first deploy.
+![Run Demo: timeline with narration](docs/screenshots/demo-timeline.png)
+![Run Demo: decision brief and grouped actions](docs/screenshots/demo-actions.png)
+![Run Demo: sandbox after approving](docs/screenshots/demo-sandbox.png)
+-->
+*Screenshots: placeholders for the first deploy (`docs/screenshots/demo-timeline.png`, `demo-actions.png`, `demo-sandbox.png`).*
+
+Re-record after changing the pipeline (about 4 OpenAI calls; an existing `narration.json` is kept unless `--redraft`):
+
+```powershell
+.\.venv\Scripts\python.exe scripts\record_demo.py                 # both fixtures, as of 2026-10-22
+.\.venv\Scripts\python.exe scripts\record_demo.py --only lease --redraft
+```
+
+## Deploy modes
+
+| Mode | When | What works |
+|---|---|---|
+| **Demo only** (default) | `LIVE_UPLOADS_ENABLED` is not `true` | Run Demo. Upload is hidden and `POST /documents` returns 403. The app starts with no `OPENAI_API_KEY` and no `DATABASE_URL` |
+| **Live uploads** | `LIVE_UPLOADS_ENABLED=true` | Everything above, plus uploads behind an access code |
+
+Live uploads are limited for a public host: an `ACCESS_CODE` header is required (`X-Access-Code`; if the server has no
+code set it refuses every upload), files up to 10 MB and 20 pages, 5 uploads per IP per hour, a daily LLM budget
+(`DAILY_LLM_BUDGET_USD`, default 1.00, tracked in Postgres, resets at midnight UTC), and uploads are deleted after 24
+hours. Limits are environment variables (`MAX_UPLOAD_MB`, `MAX_PAGES`, `UPLOADS_PER_IP_PER_HOUR`, `UPLOAD_TTL_HOURS`).
+**Only uploading is gated by the access code, not reading results (run and page endpoints), and ids are sequential: keep live uploads for an audience you would trust with each other's documents until that is closed.** A `Dockerfile`, `.dockerignore` and `fly.toml` are included (nothing is deployed from the repo); the exact `fly`
+commands are in `MORNING_REPORT_5.md`.
+
 ## Run it locally
 
 Requirements: Python 3.11, a Supabase project (use the **session pooler**, port 5432), an OpenAI API key.
@@ -170,6 +214,10 @@ Open http://127.0.0.1:8000/ and upload `fixtures/demo/lease.pdf` or `fixtures/de
 flags (click one to see its source highlighted on the page, one box per line), the obligation, a decision brief
 (click a number to see where it came from), the proposed actions with Approve / Reject (reminders as one group, the two
 notice drafts as a "choose one" pair), and a sandbox panel showing what approved actions "did".
+
+Without secrets, the demo still runs: `$env:PAPERBOUND_SKIP_DOTENV = "1"` ignores your `.env`, and leaving
+`LIVE_UPLOADS_ENABLED` unset serves only the demo. To enable uploads locally set `LIVE_UPLOADS_ENABLED=true` and an
+`ACCESS_CODE` in `.env` (the page then shows an access-code box).
 
 Tests and evals:
 

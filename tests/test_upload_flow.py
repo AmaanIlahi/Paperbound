@@ -81,9 +81,11 @@ def client(tmp_path, monkeypatch):
             classifier=lambda pages: Classification("lease", "heuristic", "test"),
         ),
     )
+    monkeypatch.setenv("LIVE_UPLOADS_ENABLED", "true")
+    monkeypatch.setenv("ACCESS_CODE", "test-code")
     app.dependency_overrides[get_session] = override
     app.dependency_overrides[get_storage] = lambda: LocalStorage(tmp_path)
-    yield TestClient(app), Session
+    yield TestClient(app, headers={"X-Access-Code": "test-code"}), Session
     app.dependency_overrides.clear()
 
 

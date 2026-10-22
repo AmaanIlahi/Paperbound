@@ -1,13 +1,13 @@
 import hashlib
 import time
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from paperbound import config
+from paperbound import config, deploy, usage
 from paperbound.agent.executor import execute_action
 from paperbound.agent.planner import resolve_placeholders
 from paperbound.agent.tools import get_tool
@@ -47,13 +47,54 @@ def _pages_from_db(document: Document) -> list[ParsedPage]:
     ]
 
 
-@router.post("/documents")
+def client_ip(request: Request) -> str:
+    """The address the rate limit is keyed on. Fly's proxy sets Fly-Client-IP; otherwise the socket peer."""
+    return request.headers.get("fly-client-ip") or (request.client.host if request.client else "unknown")
+
+
+def guard_live_upload(request: Request, session: Session, storage: Storage, now: datetime) -> None:
+    """Everything a public upload must pass before any work is done. Raises HTTPException."""
+    require_live_uploads()
+    if not deploy.access_code():
+        raise HTTPException(503, "ACCESS_CODE is not configured on the server, so uploads are refused.")
+    if not deploy.check_access_code(request.headers.get("x-access-code")):
+        raise HTTPException(401, "A valid access code is required (X-Access-Code header).")
+    usage.cleanup_expired(session, storage, now)
+    hashed = usage.ip_hash(client_ip(request))
+    limit = deploy.uploads_per_ip_per_hour()
+    if usage.uploads_last_hour(session, hashed, now) >= limit:
+        raise HTTPException(429, f"Upload limit reached: {limit} per hour per address. Try again later.")
+    usage.record_upload(session, hashed, now)  # counted even if the file is rejected below
+    session.commit()
+    budget = deploy.daily_llm_budget_usd()
+    if usage.spent_today(session, now) >= budget:
+        raise HTTPException(429, f"The daily LLM budget (${budget:.2f}) is used up. Try again tomorrow (UTC), or use Run Demo.")
+
+
+@router.get("/config", include_in_schema=False)
+def public_config():
+    return deploy.public_settings()
+
+
+def require_live_uploads() -> None:
+    """First dependency of the upload route, so a demo-only deployment answers 403 without touching the database."""
+    if not deploy.live_enabled():
+        raise HTTPException(403, "Live uploads are disabled on this deployment. Use Run Demo instead.")
+
+
+@router.post("/documents", dependencies=[Depends(require_live_uploads)])
 def upload_document(
+    request: Request,
     file: UploadFile,
     session: Session = Depends(get_session),
     storage: Storage = Depends(get_storage),
 ):
-    data = file.file.read()
+    now = datetime.now(timezone.utc)
+    guard_live_upload(request, session, storage, now)
+    limit = deploy.max_upload_bytes()
+    data = file.file.read(limit + 1)
+    if len(data) > limit:
+        raise HTTPException(413, f"File is larger than {limit // (1024 * 1024)} MB.")
     if not data.startswith(b"%PDF"):
         raise HTTPException(400, "Not a PDF file")
 
@@ -67,6 +108,8 @@ def upload_document(
             pages = parse_pdf(data)
         except Exception as exc:
             raise HTTPException(400, f"Could not parse PDF: {exc}") from exc
+        if len(pages) > deploy.max_pages():
+            raise HTTPException(413, f"Document has {len(pages)} pages; the limit is {deploy.max_pages()}.")
 
         storage_key = f"documents/{sha256}/source.pdf"
         storage.save(storage_key, data)
@@ -75,6 +118,7 @@ def upload_document(
             storage_key=storage_key,
             sha256=sha256,
             page_count=len(pages),
+            expires_at=now + timedelta(hours=deploy.upload_ttl_hours()),
         )
         for p in pages:
             image_key = f"documents/{sha256}/pages/{p.page_no}.png"
@@ -95,6 +139,8 @@ def upload_document(
         session.flush()
     else:
         pages = _pages_from_db(document)
+        if document.expires_at is not None:  # a re-upload keeps an expiring document alive; permanent ones stay permanent
+            document.expires_at = now + timedelta(hours=deploy.upload_ttl_hours())
     parse_ms = int((time.perf_counter() - started) * 1000)
 
     run = Run(document_id=document.id, status="running")
@@ -163,6 +209,7 @@ def upload_document(
             execute_action(session, action)
     run.status = result.status
     run.cost_usd = result.cost_usd
+    usage.record_spend(session, result.cost_usd, now)
     run.finished_at = datetime.now(timezone.utc)
     session.commit()
     return {

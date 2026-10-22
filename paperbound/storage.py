@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from typing import BinaryIO, Protocol
 
@@ -8,6 +9,7 @@ class Storage(Protocol):
     def save(self, key: str, data: bytes) -> None: ...
     def open(self, key: str) -> BinaryIO: ...
     def url(self, key: str) -> str: ...
+    def delete_prefix(self, prefix: str) -> None: ...
 
 
 class LocalStorage:
@@ -31,6 +33,12 @@ class LocalStorage:
 
     def url(self, key: str) -> str:
         return f"/files/{key}"
+
+    def delete_prefix(self, prefix: str) -> None:
+        """Remove a directory of files (everything stored for one document)."""
+        path = self._path(prefix)
+        if path != self.base_dir and path.is_dir():
+            shutil.rmtree(path)
 
 
 def get_storage() -> Storage:

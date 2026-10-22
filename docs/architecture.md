@@ -52,6 +52,11 @@ fixtures/demo/lease/
 - The UI shows a badge: `Demo replay · recorded <date> · model <name>`. This keeps it honest when an interviewer asks "is this real?"
 - **Approvals in demo mode** run against sandbox adapters implemented **in the browser** (Sandbox Calendar, Sandbox Inbox, Webhook log panels). Nothing is sent to the server or persisted; refreshing the page resets the demo.
 
+**Implementation status (demo mode)**
+- `scripts/record_demo.py` runs the live pipeline (no database) as of `AS_OF` (default 2026-10-22) on `lease.pdf` and `insurance_certificate.pdf` and writes `fixtures/demo/lease/` and `fixtures/demo/insurance_certificate/`: `source.pdf`, `pages/<n>.png`, `snapshot.json` (document and classification, pages with words and boxes, steps with timings, fields with boxes, obligations, brief, proposed actions with groups, totals, `recorded_at`, `as_of`, `model`) and `narration.json` (`intro`, `steps` by stage plus `gate`, `actions` by group key or `tool:<name>`, `outro`). Narration is drafted from the recorded data and then edited by hand; re-recording never overwrites an existing `narration.json` unless `--redraft`. Links inside recorded reminders are written as `/#demo=<fixture>&page=<n>`.
+- `paperbound/demo/replay.py` builds the whole replay as a list of (wait, event, data) and streams it as SSE. Events: `meta` (badge, narration intro), `step` (a `running` event, then the finished one with narration), `field` (phase `extracted` while the extract step streams, then phase `validated` with confidence, flags and boxes while validate streams), `obligations`, `brief`, `action` (one per proposal), a synthesized `gate` step, and `done`. Each step is replayed in its recorded duration capped at 1.5 s, with a 0.3 s floor so a step that took no time stays readable (`?speed=0` sends everything at once, used by tests). The module imports no database, no OpenAI and no pipeline code; a test imports it in a clean process and asserts that.
+- The page cannot tell a replay from a live run except for the badge: it reuses the same renderers.
+
 ---
 
 ## 3. System overview
@@ -89,6 +94,14 @@ flowchart LR
 - Schema managed with Alembic migrations against `DATABASE_URL`.
 - Keep the connection pool small (`pool_size=5`, `max_overflow=0`) to stay within free-tier limits.
 - Free-tier projects pause after about a week of inactivity; demo mode does not depend on the database, so it keeps working regardless.
+
+**Deploy modes** (`paperbound/deploy.py`, read from the environment on each request)
+- `LIVE_UPLOADS_ENABLED` not `true` (the default): demo only. `POST /documents` returns 403 before it touches the database, the upload control is hidden, and the app starts with no `OPENAI_API_KEY` and no `DATABASE_URL` (the SQLAlchemy engine is created on first use; a request that needs the database answers 503).
+- `LIVE_UPLOADS_ENABLED=true`: uploads require the `X-Access-Code` header to equal `ACCESS_CODE` (constant-time compare; no code configured means every upload is refused with 503), then, in order: per-IP rate limit (5 per hour, keyed on a hash of `Fly-Client-IP`, else the socket address; every request that passed the code counts, even if the file is later rejected), the daily LLM budget (`DAILY_LLM_BUDGET_USD`, default 1.00, summed from the ledger since midnight UTC), the size limit (10 MB, read bounded), the PDF check, and the page limit (20 pages, checked after parsing and before anything is saved or any model is called).
+- `usage_ledger` (migration `0005`): one `upload` row per counted request (IP hash only) and one `llm` row per run (its cost). It survives the deletion of uploads, so limits cannot be reset by expiry.
+- `documents.expires_at` (migration `0005`) is set to now + 24 h only for uploads made in live mode; a re-upload of an expiring file extends it, a document without one is never touched. Expired documents are deleted (files first, then the row; runs, fields, actions cascade) on each upload and by a background task every 15 minutes while live uploads and a database are configured.
+- `GET /config` tells the page which mode it is in (never the access code); `GET /healthz` is for the platform.
+- `Dockerfile` (python slim, `requirements-prod.txt`), `.dockerignore` and `fly.toml` are provided; nothing is deployed from the repo.
 
 **File storage**
 - Local `STORAGE_DIR` in development; Supabase Storage in production, behind one `Storage` interface (`save`, `open`, `url`).
@@ -240,7 +253,7 @@ Every proposed action stores `source_refs[]` (field ids → page + bbox) so the 
 ## 6. Data model
 
 ```
-documents        id, filename, storage_key, sha256, page_count, doc_type, created_at
+documents        id, filename, storage_key, sha256, page_count, doc_type, created_at, expires_at (set only for uploads made in live mode; the cleanup job deletes only rows that have one)
 pages            id, document_id, page_no, route, text, words_json, quality_score, image_key, width_pt, height_pt  (bboxes are PDF points; width/height let the UI scale them)
 chunks           id, document_id, page_no, text, embedding vector(1536)
 runs             id, document_id, status, started_at, finished_at, cost_usd
@@ -248,6 +261,7 @@ steps            id, run_id, seq, stage, status, input_summary, output_summary, 
 fields           id, run_id, name, value_json, source_quote, page_no, bbox, bboxes (one box per matched line; bbox is their union), confidence, flags[]
 obligations      id, run_id, kind, due_date, description, source_field_ids[]
 proposed_actions id, run_id, tool, args_json, source_field_ids[], rationale, status (pending|approved|rejected|executed|failed), policy_reason, group_key, group_mode (bundle|exclusive), created_at
+usage_ledger     id, kind (upload|llm), ip_hash (sha256 of the client address), usd, created_at  (rate limit and daily LLM budget; kept after uploads expire)
 action_results   id, action_id, adapter (live|sandbox), response_json, executed_at
 sandbox_actions  id, run_id, action_id, tool, args_json, response_json, created_at   (what sandbox adapters "did": full args + fake response)
 entities         id, name, kind, aliases[], attrs_json
@@ -266,7 +280,7 @@ Only live runs are stored in the database. Demo runs exist only as files in `fix
 ## 7. API
 
 ```
-POST   /documents                 upload PDF → {document_id, run_id, status, doc_type, message}
+POST   /documents                 upload PDF → {document_id, run_id, status, doc_type, message}; 403 unless live uploads are on, then X-Access-Code, 413/429 limits
 GET    /runs/{id}                 run summary (page_count, doc_type, classification summary and reason, message for unsupported types)
 GET    /runs/{id}/events          SSE stream of step events
 GET    /runs/{id}/fields          extracted fields with provenance
@@ -277,9 +291,12 @@ GET    /runs/{id}/brief           decision brief: numbers with their source fiel
 GET    /runs/{id}/actions         proposed actions (with group_key / group_mode)
 POST   /actions/{id}/approve      execute via adapter
 POST   /actions/{id}/reject
-GET    /demo/fixtures             available demo snapshots (from fixtures/demo/)
-GET    /demo/{fixture}/events     SSE replay of the snapshot with narration (no DB)
-GET    /demo/{fixture}/pages/{n}  snapshot page image + word boxes
+GET    /demo/fixtures             available demo snapshots (from fixtures/demo/<fixture>/)
+GET    /demo/{fixture}/events     SSE replay of the snapshot with narration (no DB); ?speed=0 for no waiting
+GET    /demo/{fixture}/pages/{n}  snapshot page: word boxes + image_url
+GET    /demo/{fixture}/pages/{n}/image.png   the recorded page image
+GET    /config                    deploy mode and limits for the UI (live uploads on/off, limits)
+GET    /healthz                   platform health check
 GET    /evals/latest              latest metrics for the README and UI
 ```
 
@@ -302,7 +319,7 @@ Single page, three panes:
 
 Today the timeline, fields, obligations, actions and sandbox sit in one right-hand column, loaded after the synchronous upload response (no SSE yet).
 
-Top bar: **Upload** and **Run Demo** (dropdown of fixtures: Lease, Insurance Certificate, Vendor Contract, Invoice).
+Top bar: **Upload** (hidden when live uploads are off; an access-code box appears when they need one) and **Run Demo** (dropdown of the recorded fixtures: Lease, Insurance Certificate today; more as they are recorded). In demo mode the badge `Demo replay · recorded <date> · as of <AS_OF> · model <name>` is shown, the timeline fills as steps stream with their narration, fields appear one at a time (pending, then checked with a confidence and an animated box), the brief and grouped actions appear, and approvals run in browser-side sandbox adapters with no server calls.
 
 ---
 
@@ -341,7 +358,9 @@ Run via `python -m paperbound.evals --dataset <name>`; results stored in `eval_r
 
 ```
 paperbound/
-  api/            FastAPI app, routes, SSE
+  api/            FastAPI app, routes
+  demo/           replay.py (SSE replay engine), routes.py (no database, no OpenAI)
+  deploy.py       deploy mode and limits;  usage.py  rate limit, LLM budget, expiry
   worker/         job loop, stage runner
   clock.py        the single source of "today" (AS_OF override)
   doctypes.py     per-type wiring: extract, validate, obligations, brief
@@ -352,9 +371,9 @@ paperbound/
   evals/          datasets/, runners, metrics
   db/             models, migrations (Alembic)
 web/              index.html, app.js, styles.css
-fixtures/demo/    <fixture>/ source.pdf, pages/*.png, snapshot.json, narration.json
+fixtures/demo/    <fixture>/ source.pdf, pages/*.png, snapshot.json, narration.json  (plus the source PDFs and *.expected.json used by the evals)
 fixtures/labeled/ hand-labeled docs + ground truth JSON
-scripts/          record_demo.py (live run → snapshot export), load_eval_data.py, make_sample_lease.py, make_sample_coi.py, eval_fixtures.py
+scripts/          record_demo.py (live run → snapshot export), load_eval_data.py, make_sample_lease.py, make_sample_coi.py, eval_fixtures.py (record_demo.py is implemented)
 evals/results/    JSON output of eval runs (eval_fixtures.py)
 tests/            pytest unit tests (no network)
 .env.example      committed; .env is local only and git-ignored

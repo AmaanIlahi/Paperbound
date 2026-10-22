@@ -51,9 +51,11 @@ def env(tmp_path, monkeypatch):
         with Session() as session:
             yield session
 
+    monkeypatch.setenv("LIVE_UPLOADS_ENABLED", "true")
+    monkeypatch.setenv("ACCESS_CODE", "test-code")
     app.dependency_overrides[get_session] = override
     app.dependency_overrides[get_storage] = lambda: LocalStorage(tmp_path)
-    yield TestClient(app), Session, monkeypatch
+    yield TestClient(app, headers={"X-Access-Code": "test-code"}), Session, monkeypatch
     app.dependency_overrides.clear()
 
 

@@ -7,6 +7,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -37,6 +38,8 @@ class Document(Base):
     page_count: Mapped[int] = mapped_column(Integer, default=0)
     doc_type: Mapped[str | None] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    # Set only for uploads made while live uploads are enabled; the cleanup job deletes only rows that have one.
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     pages: Mapped[list["Page"]] = relationship(back_populates="document", order_by="Page.page_no")
 
@@ -153,4 +156,17 @@ class SandboxAction(Base):
     tool: Mapped[str] = mapped_column(String)
     args_json: Mapped[dict] = mapped_column(Json)
     response_json: Mapped[dict] = mapped_column(Json)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class UsageLedger(Base):
+    """Rate limit and budget bookkeeping: one row per accepted upload (kind 'upload') and per run's LLM spend ('llm')."""
+
+    __tablename__ = "usage_ledger"
+    __table_args__ = (Index("ix_usage_ledger_kind_created_at", "kind", "created_at"),)
+
+    id: Mapped[int] = mapped_column(BigPK, primary_key=True)
+    kind: Mapped[str] = mapped_column(String)  # upload | llm
+    ip_hash: Mapped[str | None] = mapped_column(String(64))  # sha256 of the client IP; never the IP itself
+    usd: Mapped[float] = mapped_column(Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
