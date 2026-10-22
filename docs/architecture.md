@@ -193,7 +193,7 @@ Every proposed action stores `source_refs[]` (field ids → page + bbox) so the 
 
 ```
 documents        id, filename, storage_key, sha256, page_count, doc_type, created_at
-pages            id, document_id, page_no, route, text, words_json, quality_score, image_key
+pages            id, document_id, page_no, route, text, words_json, quality_score, image_key, width_pt, height_pt  (bboxes are PDF points; width/height let the UI scale them)
 chunks           id, document_id, page_no, text, embedding vector(1536)
 runs             id, document_id, status, started_at, finished_at, cost_usd
 steps            id, run_id, seq, stage, status, input_summary, output_summary, reason, model, tokens, cost_usd, duration_ms, ts_offset_ms

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paperbound</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f4f4f5; color: #18181b; }
+    header { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: #fff; border-bottom: 1px solid #e4e4e7; }
+    header h1 { font-size: 1.1rem; margin: 0; }
+    #status { color: #52525b; font-size: .9rem; }
+    #pages { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 1rem; }
+    .page { position: relative; box-shadow: 0 1px 4px rgba(0,0,0,.2); background: #fff; max-width: 100%; }
+    .page img { display: block; width: 100%; height: auto; }
+    .word { position: absolute; box-sizing: border-box; border: 1px solid transparent; }
+    .word:hover { background: rgba(59,130,246,.25); border-color: #2563eb; }
+    #tip { position: fixed; pointer-events: none; background: #18181b; color: #fff; padding: 2px 6px;
+           border-radius: 4px; font-size: .8rem; display: none; z-index: 10; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Paperbound</h1>
+    <input type="file" id="file" accept="application/pdf">
+    <span id="status"></span>
+  </header>
+  <div id="pages"></div>
+  <div id="tip"></div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const pagesEl = document.getElementById('pages');
+    const tip = document.getElementById('tip');
+
+    document.getElementById('file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      pagesEl.replaceChildren();
+      statusEl.textContent = 'Uploading and parsing...';
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        const res = await fetch('/documents', { method: 'POST', body: form });
+        if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
+        const doc = await res.json();
+        statusEl.textContent = `Document ${doc.document_id}, run ${doc.run_id}, ${doc.page_count} page(s)` +
+          (doc.reused ? ' (already parsed, reused)' : '');
+        for (let n = 1; n <= doc.page_count; n++) {
+          const pageRes = await fetch(`/documents/${doc.document_id}/pages/${n}`);
+          renderPage(await pageRes.json());
+        }
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+      }
+    });
+
+    function renderPage(page) {
+      const wrap = document.createElement('div');
+      wrap.className = 'page';
+      wrap.style.width = Math.round(page.width_pt * 1.33) + 'px';
+      const img = document.createElement('img');
+      img.src = page.image_url;
+      wrap.appendChild(img);
+      for (const w of page.words) {
+        const [x0, y0, x1, y1] = w.bbox;
+        const box = document.createElement('div');
+        box.className = 'word';
+        box.style.left = (x0 / page.width_pt * 100) + '%';
+        box.style.top = (y0 / page.height_pt * 100) + '%';
+        box.style.width = ((x1 - x0) / page.width_pt * 100) + '%';
+        box.style.height = ((y1 - y0) / page.height_pt * 100) + '%';
+        box.addEventListener('mouseenter', () => { tip.textContent = w.text; tip.style.display = 'block'; });
+        box.addEventListener('mousemove', (ev) => { tip.style.left = ev.clientX + 12 + 'px'; tip.style.top = ev.clientY + 12 + 'px'; });
+        box.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+        wrap.appendChild(box);
+      }
+      pagesEl.appendChild(wrap);
+    }
+  </script>
+</body>
+</html>
