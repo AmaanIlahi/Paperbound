@@ -1,0 +1,20 @@
+# Calls /healthz/db once a day. The request reaches Supabase, so a free-tier project does not pause for inactivity,
+# and the run fails (GitHub emails the repo owner) if the app or its database is down.
+# GitHub disables scheduled workflows after 60 days without repository activity; re-enable it in the Actions tab.
+name: keepalive
+
+on:
+  schedule:
+    - cron: "0 14 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the database through the app
+        run: |
+          app=$(sed -n "s/^app *= *['\"]\([^'\"]*\)['\"].*/\1/p" fly.toml | head -n 1)
+          test -n "$app"
+          curl -fsS --retry 3 --retry-delay 10 --max-time 30 "https://${app}.fly.dev/healthz/db"

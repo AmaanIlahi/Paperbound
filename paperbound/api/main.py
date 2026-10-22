@@ -3,16 +3,19 @@ import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, HTMLResponse
+from typing import Callable
+
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 
 from paperbound import config, deploy, evals_page, jobs, sessions
 from paperbound.api import routes
+from paperbound.db.session import session_factory
 from paperbound.demo import routes as demo_routes
 
 log = logging.getLogger(__name__)
-CLEANUP_INTERVAL_SECONDS = 15 * 60
 
 
 def _cleanup_once() -> None:
@@ -30,7 +33,7 @@ async def _cleanup_loop():
             await asyncio.to_thread(_cleanup_once)
         except Exception:
             log.exception("expired-upload cleanup failed")
-        await asyncio.sleep(CLEANUP_INTERVAL_SECONDS)
+        await asyncio.sleep(deploy.cleanup_interval_seconds())
 
 
 @asynccontextmanager
@@ -51,6 +54,19 @@ app.include_router(routes.router)
 @app.get("/healthz", include_in_schema=False)
 def healthz():
     return {"ok": True}
+
+
+@app.get("/healthz/db", include_in_schema=False)
+def healthz_db(factory: Callable = Depends(session_factory)):
+    """Runs SELECT 1 against the database: 200 if it answers, 503 if not. Used by the daily keep-alive, which also stops
+    a free-tier project from pausing for inactivity. `/healthz` stays database-free."""
+    try:
+        with factory() as session:
+            session.execute(text("SELECT 1"))
+    except Exception:
+        log.exception("database health check failed")
+        return JSONResponse({"ok": False, "database": "unreachable"}, status_code=503)
+    return {"ok": True, "database": "up"}
 
 
 @app.get("/", include_in_schema=False)

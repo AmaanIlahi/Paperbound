@@ -10,7 +10,7 @@ from typing import Callable
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from paperbound import config, deploy, jobs, usage
@@ -94,7 +94,11 @@ def require_uploads() -> None:
 
 def guard_upload(request: Request, session: Session, storage: Storage, now: datetime) -> None:
     """Everything a public upload must pass before any work is done. Raises HTTPException."""
-    usage.cleanup_expired(session, storage, now)
+    try:
+        usage.cleanup_expired(session, storage, now)
+    except OperationalError as exc:  # the database is unreachable: say so politely instead of a 500
+        log.error("database unreachable at upload time: %s", exc.__class__.__name__)
+        raise HTTPException(503, f"{deploy.DB_DOWN}.") from exc
     hashed = usage.ip_hash(client_ip(request))
     limit = deploy.uploads_per_ip_per_hour()
     if usage.uploads_last_hour(session, hashed, now) >= limit:
@@ -108,16 +112,17 @@ def guard_upload(request: Request, session: Session, storage: Storage, now: date
 
 @router.get("/config", include_in_schema=False)
 def public_config(factory: Callable = Depends(session_factory)):
-    exhausted = False
+    exhausted = database_down = False
     if deploy.uploads_enabled():
         try:
             with factory() as session:
                 exhausted = usage.committed_today(
                     session, datetime.now(timezone.utc), deploy.run_cost_estimate_usd()
                 ) >= deploy.daily_llm_budget_usd()
-        except Exception:  # the page must still load, with uploads shown, if the database hiccups
-            log.exception("could not read the daily budget")
-    return deploy.public_settings(exhausted)
+        except Exception:  # the page must still load; it offers samples only while the database is unreachable
+            log.exception("could not reach the database for /config")
+            database_down = True
+    return deploy.public_settings(exhausted, database_down)
 
 
 # ---------------------------------------------------------------------------------------------------------------

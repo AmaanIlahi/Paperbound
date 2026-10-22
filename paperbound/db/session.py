@@ -12,7 +12,8 @@ def get_engine():
     """Created on first use, so the app can start (and serve the demo) with no DATABASE_URL at all."""
     global _engine, _sessionmaker
     if _engine is None:
-        _engine = create_engine(config.DATABASE_URL, pool_size=5, max_overflow=0, pool_pre_ping=True)
+        options = {"connect_args": {"connect_timeout": 5}} if config.DATABASE_URL.startswith("postgres") else {}
+        _engine = create_engine(config.DATABASE_URL, pool_size=5, max_overflow=0, pool_pre_ping=True, **options)
         _sessionmaker = sessionmaker(_engine, expire_on_commit=False)
     return _engine
 

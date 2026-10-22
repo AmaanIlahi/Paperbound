@@ -9,12 +9,15 @@ import pytest
 from fastapi.testclient import TestClient
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
-from sqlalchemy import select
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from paperbound import config, deploy, usage
 from paperbound.api.main import app
 from paperbound.db.models import Document, Field, Job, Page, Run, RunEvent, UsageLedger
-from paperbound.db.session import get_session
+from paperbound.db.models import Base
+from paperbound.db.session import get_session, session_factory
 from paperbound.pipeline.extract import ExtractionResult
 from paperbound.storage import LocalStorage
 from tests.lease_fakes import fake_extractor
@@ -57,6 +60,9 @@ def test_uploads_need_a_database_and_an_openai_key(monkeypatch):
             assert body["uploads_enabled"] is False and body["unavailable_reason"] and body["budget_exhausted"] is False
         monkeypatch.setattr(config, "DATABASE_URL", "sqlite://")
         monkeypatch.setattr(config, "OPENAI_API_KEY", "k")
+        engine = create_engine("sqlite://", poolclass=StaticPool, connect_args={"check_same_thread": False})
+        Base.metadata.create_all(engine)
+        app.dependency_overrides[session_factory] = lambda: sessionmaker(engine)  # a reachable database
         assert client.get("/config").json()["uploads_enabled"] is True
     finally:
         app.dependency_overrides.clear()

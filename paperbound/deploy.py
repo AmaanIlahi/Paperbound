@@ -11,6 +11,7 @@ import os
 from paperbound import config
 
 NOTE = "Files are deleted after 24 hours. Don't upload sensitive documents."
+DB_DOWN = "Uploads are temporarily unavailable, try a sample"
 
 
 def _number(name: str, default: float) -> float:
@@ -52,16 +53,30 @@ def run_cost_estimate_usd() -> float:
     return _number("RUN_COST_ESTIMATE_USD", 0.02)
 
 
+def cleanup_interval_seconds() -> float:
+    """How often the background task deletes expired uploads. A missing, malformed or non-positive value means 60 minutes."""
+    try:
+        minutes = _number("CLEANUP_INTERVAL_MINUTES", 60)
+    except ValueError:
+        return 60 * 60
+    return (minutes if minutes > 0 else 60) * 60
+
+
 def upload_ttl_hours() -> float:
     return _number("UPLOAD_TTL_HOURS", 24)
 
 
-def public_settings(budget_exhausted: bool = False) -> dict:
-    """What the UI may know. `budget_exhausted` comes from the usage ledger, which only the caller can query."""
+def public_settings(budget_exhausted: bool = False, database_down: bool = False) -> dict:
+    """What the UI may know. `budget_exhausted` comes from the usage ledger and `database_down` from a probe of the
+    database; only the caller can do either. A database that is configured but unreachable turns uploads off."""
     reason = unavailable_reason()
+    temporarily = reason is None and database_down
+    if temporarily:
+        reason = DB_DOWN
     return {
         "uploads_enabled": reason is None,
         "unavailable_reason": reason,
+        "temporarily_unavailable": temporarily,
         "budget_exhausted": reason is None and budget_exhausted,
         "max_upload_mb": max_upload_bytes() / (1024 * 1024),
         "max_pages": max_pages(),

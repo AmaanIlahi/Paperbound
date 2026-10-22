@@ -811,7 +811,10 @@ function applyConfig() {
   $('uploadNote').hidden = !cfg.uploads_enabled || cfg.budget_exhausted;
   $('dropHint').hidden = !can;
   $('uploadOff').hidden = can;
-  if (!cfg.uploads_enabled) {
+  if (cfg.temporarily_unavailable) {
+    $('uploadOff').textContent = cfg.unavailable_reason;
+    uploadMessage('');
+  } else if (!cfg.uploads_enabled) {
     $('uploadOff').textContent = 'Uploads are off here';
     uploadMessage(`${cfg.unavailable_reason || 'Uploads are unavailable.'} The samples still work.`, true);
   } else if (cfg.budget_exhausted) {

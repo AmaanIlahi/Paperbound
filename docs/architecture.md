@@ -96,7 +96,7 @@ flowchart LR
 ```
 
 **Process layout**
-- One process on Fly.io: FastAPI serves the UI, REST, SSE and the sample replay, and a single background worker task (started in the lifespan) runs queued jobs. A second task deletes expired uploads every 15 minutes. Both start only when uploads are available (`DATABASE_URL` and `OPENAI_API_KEY` set).
+- One process on Fly.io: FastAPI serves the UI, REST, SSE and the sample replay, and a single background worker task (started in the lifespan) runs queued jobs. A second task deletes expired uploads every `CLEANUP_INTERVAL_MINUTES` (default 60; each upload also cleans up first). Both start only when uploads are available (`DATABASE_URL` and `OPENAI_API_KEY` set).
 - The queue is the `jobs` table; more workers could be added later without code changes because jobs are claimed with `FOR UPDATE SKIP LOCKED`.
 
 **Database: Supabase (dev and prod)**
@@ -113,7 +113,8 @@ flowchart LR
 - **Guardrails**, in order, for each upload: delete expired uploads, per-IP rate limit (5 per hour, keyed on a hash of `Fly-Client-IP`, else the socket address; every request counts, even if the file is later rejected), the daily LLM budget (`DAILY_LLM_BUDGET_USD`, default 1.00: the ledger's spend since midnight UTC plus an allowance of `RUN_COST_ESTIMATE_USD`, default 0.02, for every queued or running job, because runs are asynchronous and a burst of uploads would otherwise all pass before the first recorded its cost), the size limit (10 MB, read bounded), the PDF check, the page limit (20, checked after parsing and before anything is saved or any model is called). When the budget is used up `GET /config` reports `budget_exhausted` and the page replaces Upload with "Daily limit reached, try a sample".
 - **Privacy**: files and everything derived from them are deleted 24 hours after upload (`documents.expires_at`, extended if the same file is uploaded again; rows without one are never touched). The page says so under the Upload button: "Files are deleted after 24 hours. Don't upload sensitive documents."
 - `usage_ledger`: one `upload` row per counted request (IP hash only) and one `llm` row per run (its cost). It survives the deletion of uploads, so limits cannot be reset by expiry.
-- `GET /config` tells the page what is available and the limits; `GET /healthz` is for the platform.
+- `GET /config` tells the page what is available and the limits. If the database is configured but unreachable it answers `uploads_enabled: false`, `temporarily_unavailable: true` and the reason "Uploads are temporarily unavailable, try a sample", and `POST /documents` answers 503 with the same sentence; the page shows samples only, not an error.
+- `GET /healthz` is for the platform and is database-free; `GET /healthz/db` runs `SELECT 1` (200, or 503 if unreachable). A GitHub Actions workflow (`.github/workflows/keepalive.yml`, daily 14:00 UTC and on demand) calls it, which keeps a free-tier Supabase project from pausing and fails visibly if the app or database is down. The Postgres engine uses a 5 second connect timeout so these checks fail fast.
 - `Dockerfile` (python slim, `requirements-prod.txt`), `.dockerignore` and `fly.toml` are provided (live uploads with a volume, `alembic upgrade head` as the release command); nothing is deployed from the repo.
 
 **File storage**
@@ -311,11 +312,12 @@ GET    /demo/{fixture}/events     SSE replay of the snapshot with narration (no 
 GET    /demo/{fixture}/pages/{n}  snapshot page: word boxes + image_url
 GET    /demo/{fixture}/pages/{n}/image.png   the recorded page image
 GET    /config                    uploads on/off and why, budget_exhausted, limits, the privacy note
-GET    /healthz                   platform health check
+GET    /healthz                   platform health check (no database)
+GET    /healthz/db                SELECT 1 against the database: 200, or 503 if unreachable
 GET    /evals                     the newest saved result of each eval fixture (HTML)
 ```
 
-Everything under `/runs`, `/documents`, `/files` and `/actions` is checked against the caller's session cookie and answers 404 to anyone else. `/demo`, `/config`, `/healthz` and `/evals` are public.
+Everything under `/runs`, `/documents`, `/files` and `/actions` is checked against the caller's session cookie and answers 404 to anyone else. `/demo`, `/config`, `/healthz`, `/healthz/db` and `/evals` are public.
 
 SSE events (identical for samples and live runs; each live frame also carries `id: <seq>`):
 

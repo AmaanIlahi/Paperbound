@@ -108,6 +108,15 @@ function boot(config, postResponse) {
   assert.strictEqual(t.env.sources.at(-1).url, '/demo/lease/events', 'a sample still runs');
   assert.strictEqual(t.location.hash, '#demo=lease');
 
+  // ---- configured but the database is unreachable: samples only, no error
+  t = boot({ ...BASE_CONFIG, uploads_enabled: false, temporarily_unavailable: true, unavailable_reason: 'Uploads are temporarily unavailable, try a sample' });
+  await t.app.init();
+  byId = t.env.byId;
+  assert.strictEqual(byId.uploadBtn.hidden, true); assert.strictEqual(byId.uploadOff.hidden, false);
+  assert.strictEqual(byId.uploadOff.textContent, 'Uploads are temporarily unavailable, try a sample');
+  assert.strictEqual(byId.uploadMsg.textContent, '', 'no error text, no duplicate message');
+  assert.strictEqual(byId.sampleSelect.hidden, false);
+
   // ---- an unsupported document: a friendly card with a sample dropdown, and nothing else claims success
   t = boot(BASE_CONFIG);
   await t.app.init();

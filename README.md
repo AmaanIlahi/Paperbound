@@ -202,8 +202,19 @@ Documents are sent to OpenAI for extraction.
 Per upload: 10 MB and 20 pages. Per address: 5 uploads an hour. Per day: a shared LLM budget (`DAILY_LLM_BUDGET_USD`,
 default 1.00, tracked in Postgres, resets at midnight UTC, with a small allowance for runs still in progress); when it is used up the page says *Daily limit reached,
 try a sample* and `GET /config` reports it. Uploads are available only when `DATABASE_URL` and `OPENAI_API_KEY` are
-both set; otherwise the page offers samples only, with a note. All limits are environment variables (see
+both set; otherwise the page offers samples only, with a note. If the database is configured but unreachable (for
+example a paused free-tier project), `GET /config` says so and the page shows *Uploads are temporarily unavailable, try a
+sample* instead of an error; samples never need the database. Expired uploads are deleted on every upload and by a
+background task every `CLEANUP_INTERVAL_MINUTES` (default 60). All limits are environment variables (see
 `.env.example`).
+
+### Health checks and keep-alive
+
+`GET /healthz` is for the platform and never touches the database. `GET /healthz/db` runs `SELECT 1` and answers 200, or
+503 if the database is unreachable. `.github/workflows/keepalive.yml` calls it every day at 14:00 UTC (and on demand from
+the Actions tab) using the app name in `fly.toml`; the query keeps a free-tier Supabase project from pausing, and the
+run fails if the app or database is down. GitHub turns scheduled workflows off after 60 days without repository
+activity; re-enable it in the Actions tab if that happens.
 
 ### Deploying
 
