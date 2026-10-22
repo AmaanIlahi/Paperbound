@@ -1,0 +1,534 @@
+{
+  "summary": {
+    "pdf": "insurance_certificate.pdf",
+    "doc_type": "insurance_certificate",
+    "as_of": "2026-10-22",
+    "run_status": "done",
+    "classified": "insurance_certificate (heuristic)",
+    "classification_match": true,
+    "fields_matched": "18/18",
+    "obligation_match": true,
+    "brief_match": true,
+    "brief_lines": "5/5",
+    "actions_match": true,
+    "action_checks": "5/5",
+    "actions_proposed": 5,
+    "openai_calls": 4,
+    "tokens": 12425,
+    "cost_usd": 0.002407,
+    "latency_ms": 24646
+  },
+  "classification": {
+    "expected": "insurance_certificate",
+    "got": "insurance_certificate",
+    "method": "heuristic",
+    "reason": "Keyword and layout heuristics are clear (insurance_certificate scored 28 vs 2): insurance_certificate: title matches; insurance_certificate: 1 page(s), certificates are short; insurance_certificate: certificate of liability insurance, certificate holder, insurers affording coverage, policy number, policy eff; lease: premises, expiration date.",
+    "match": true
+  },
+  "fields": [
+    {
+      "field": "insured",
+      "expected": "Brightline Studio Inc.",
+      "extracted": "Brightline Studio Inc.",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "Brightline Studio Inc."
+    },
+    {
+      "field": "certificate_holder",
+      "expected": "Harborview Properties LLC",
+      "extracted": "Harborview Properties LLC",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "Harborview Properties LLC"
+    },
+    {
+      "field": "producer",
+      "expected": "Northgate Risk Partners LLC",
+      "extracted": "Northgate Risk Partners LLC",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "Northgate Risk Partners LLC"
+    },
+    {
+      "field": "policies (count)",
+      "expected": 2,
+      "extracted": 2,
+      "match": true,
+      "confidence": null,
+      "grounded": true,
+      "flags": [],
+      "page": null,
+      "quote": null
+    },
+    {
+      "field": "GL-5521904.type",
+      "expected": {
+        "contains": [
+          "general"
+        ]
+      },
+      "extracted": "Commercial General Liability",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "COMMERCIAL GENERAL LIABILITY"
+    },
+    {
+      "field": "GL-5521904.insurer",
+      "expected": "Meridian Mutual Insurance Company",
+      "extracted": "Meridian Mutual Insurance Company",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "Meridian Mutual Insurance Company"
+    },
+    {
+      "field": "GL-5521904.number",
+      "expected": "GL-5521904",
+      "extracted": "GL-5521904",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "GL-5521904"
+    },
+    {
+      "field": "GL-5521904.effective_date",
+      "expected": "2026-01-15",
+      "extracted": "2026-01-15",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "01/15/2026"
+    },
+    {
+      "field": "GL-5521904.expiration_date",
+      "expected": "2027-01-15",
+      "extracted": "2027-01-15",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "01/15/2027"
+    },
+    {
+      "field": "GL-5521904.each_occurrence_limit",
+      "expected": 1000000.0,
+      "extracted": 1000000.0,
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "EACH OCCURRENCE   $1,000,000"
+    },
+    {
+      "field": "GL-5521904.aggregate_limit",
+      "expected": 2000000.0,
+      "extracted": 2000000.0,
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "GENERAL AGGREGATE   $2,000,000"
+    },
+    {
+      "field": "UM-7730418.type",
+      "expected": {
+        "contains": [
+          "umbrella"
+        ]
+      },
+      "extracted": "Umbrella Liab",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "UMBRELLA LIAB"
+    },
+    {
+      "field": "UM-7730418.insurer",
+      "expected": "Pinecrest Casualty Company",
+      "extracted": "Pinecrest Casualty Company",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "Pinecrest Casualty Company"
+    },
+    {
+      "field": "UM-7730418.number",
+      "expected": "UM-7730418",
+      "extracted": "UM-7730418",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "UM-7730418"
+    },
+    {
+      "field": "UM-7730418.effective_date",
+      "expected": "2026-03-01",
+      "extracted": "2026-03-01",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "03/01/2026"
+    },
+    {
+      "field": "UM-7730418.expiration_date",
+      "expected": "2027-03-01",
+      "extracted": "2027-03-01",
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "03/01/2027"
+    },
+    {
+      "field": "UM-7730418.each_occurrence_limit",
+      "expected": 5000000.0,
+      "extracted": 5000000.0,
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "EACH OCCURRENCE   $5,000,000"
+    },
+    {
+      "field": "UM-7730418.aggregate_limit",
+      "expected": 5000000.0,
+      "extracted": 5000000.0,
+      "match": true,
+      "confidence": 0.9979,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "AGGREGATE   $5,000,000"
+    }
+  ],
+  "obligation": {
+    "expected": [
+      "2027-01-15",
+      "2027-03-01"
+    ],
+    "got": [
+      "2027-01-15",
+      "2027-03-01"
+    ],
+    "match": true
+  },
+  "brief": {
+    "lines": [
+      {
+        "line": "earliest_expiration",
+        "expected": "2027-01-15",
+        "got": "2027-01-15",
+        "match": true
+      },
+      {
+        "line": "days_remaining",
+        "expected": 85,
+        "got": 85,
+        "match": true
+      },
+      {
+        "line": "expiring_soon",
+        "expected": 0,
+        "got": 0,
+        "match": true
+      },
+      {
+        "line": "limit_check_1",
+        "expected": true,
+        "got": true,
+        "match": true
+      },
+      {
+        "line": "limit_check_2",
+        "expected": true,
+        "got": true,
+        "match": true
+      }
+    ],
+    "all_cite_sources": true,
+    "skipped": [],
+    "match": true
+  },
+  "actions": {
+    "checks": [
+      {
+        "expected": "reminder on 2026-11-16 listing every policy, its limit check and a source link",
+        "match": true
+      },
+      {
+        "expected": "reminder on 2026-12-16 listing every policy, its limit check and a source link",
+        "match": true
+      },
+      {
+        "expected": "reminder on 2027-01-01 listing every policy, its limit check and a source link",
+        "match": true
+      },
+      {
+        "expected": "one email, holder to insured, asking for a renewed certificate before the earliest expiration",
+        "match": true
+      },
+      {
+        "expected": "tracker record: deadline, insured, status 'renewal needed'",
+        "match": true
+      }
+    ],
+    "match": true,
+    "extra": [],
+    "proposed": [
+      {
+        "tool": "create_calendar_event",
+        "args": {
+          "title": "Renew Certificate of Insurance - January 15, 2027",
+          "date": "2026-11-16",
+          "description": "Reminder to request a renewed certificate of insurance before January 15, 2027.\n\n60 days before the earliest policy expiration of January 15, 2027.\n- Commercial General Liability GL-5521904: expires January 15, 2027; each occurrence $1,000,000 (meets the $1,000,000 minimum)\n- Umbrella Liab UM-7730418: expires March 1, 2027; each occurrence $5,000,000 (meets the $1,000,000 minimum)\nPolicy row (page 1): \"01/15/2027\"\nSource: /#run={{RUN_ID}}&page=1"
+        },
+        "source_fields": [
+          "policy_1.type",
+          "policy_1.number",
+          "policy_1.expiration_date",
+          "policy_1.each_occurrence_limit",
+          "policy_2.type",
+          "policy_2.number",
+          "policy_2.expiration_date",
+          "policy_2.each_occurrence_limit"
+        ],
+        "group": "reminders/bundle",
+        "policy": "pending: Side-effect action: needs human approval (auto-approval is off)."
+      },
+      {
+        "tool": "create_calendar_event",
+        "args": {
+          "title": "Renew Certificate of Insurance - January 15, 2027",
+          "date": "2026-12-16",
+          "description": "Reminder to request a renewed certificate of insurance before January 15, 2027.\n\n30 days before the earliest policy expiration of January 15, 2027.\n- Commercial General Liability GL-5521904: expires January 15, 2027; each occurrence $1,000,000 (meets the $1,000,000 minimum)\n- Umbrella Liab UM-7730418: expires March 1, 2027; each occurrence $5,000,000 (meets the $1,000,000 minimum)\nPolicy row (page 1): \"01/15/2027\"\nSource: /#run={{RUN_ID}}&page=1"
+        },
+        "source_fields": [
+          "policy_1.type",
+          "policy_1.number",
+          "policy_1.expiration_date",
+          "policy_1.each_occurrence_limit",
+          "policy_2.type",
+          "policy_2.number",
+          "policy_2.expiration_date",
+          "policy_2.each_occurrence_limit"
+        ],
+        "group": "reminders/bundle",
+        "policy": "pending: Side-effect action: needs human approval (auto-approval is off)."
+      },
+      {
+        "tool": "create_calendar_event",
+        "args": {
+          "title": "Renew Certificate of Insurance - January 15, 2027",
+          "date": "2027-01-01",
+          "description": "Reminder to request a renewed certificate of insurance before January 15, 2027.\n\n14 days before the earliest policy expiration of January 15, 2027.\n- Commercial General Liability GL-5521904: expires January 15, 2027; each occurrence $1,000,000 (meets the $1,000,000 minimum)\n- Umbrella Liab UM-7730418: expires March 1, 2027; each occurrence $5,000,000 (meets the $1,000,000 minimum)\nPolicy row (page 1): \"01/15/2027\"\nSource: /#run={{RUN_ID}}&page=1"
+        },
+        "source_fields": [
+          "policy_1.type",
+          "policy_1.number",
+          "policy_1.expiration_date",
+          "policy_1.each_occurrence_limit",
+          "policy_2.type",
+          "policy_2.number",
+          "policy_2.expiration_date",
+          "policy_2.each_occurrence_limit"
+        ],
+        "group": "reminders/bundle",
+        "policy": "pending: Side-effect action: needs human approval (auto-approval is off)."
+      },
+      {
+        "tool": "draft_email",
+        "args": {
+          "subject": "Request for Renewal of Certificate of Insurance",
+          "body": "Dear Brightline Studio Inc.,\n\nI hope this message finds you well. I am writing to kindly request that you send a renewed certificate of insurance before January 15, 2027, when the earliest policy expires. The policies in question are as follows:\n\nCommercial General Liability GL-5521904 (expires January 15, 2027);\nUmbrella Liab UM-7730418 (expires March 1, 2027).\n\nThank you for your attention to this matter.\n\nBest regards,\nHarborview Properties LLC",
+          "to": "{{RECIPIENT}}"
+        },
+        "source_fields": [
+          "certificate_holder",
+          "policy_1.type",
+          "policy_1.number",
+          "policy_1.expiration_date"
+        ],
+        "group": null,
+        "policy": "pending: Always a draft: approving only saves a draft, nothing is ever sent."
+      },
+      {
+        "tool": "upsert_record",
+        "args": {
+          "record_type": "obligation",
+          "key": "coverage-expiry:2027-01-15:brightline-studio-inc",
+          "data": {
+            "deadline": "2027-01-15",
+            "status": "renewal needed",
+            "insured": "Brightline Studio Inc.",
+            "certificate_holder": "Harborview Properties LLC",
+            "policies": [
+              {
+                "policy": "Commercial General Liability GL-5521904",
+                "expires": "2027-01-15",
+                "each_occurrence_limit": 1000000.0,
+                "meets_minimum": true
+              },
+              {
+                "policy": "Umbrella Liab UM-7730418",
+                "expires": "2027-03-01",
+                "each_occurrence_limit": 5000000.0,
+                "meets_minimum": true
+              }
+            ],
+            "expiring_within_60_days": 0
+          }
+        },
+        "source_fields": [
+          "insured",
+          "certificate_holder",
+          "policy_1.type",
+          "policy_1.number",
+          "policy_1.expiration_date",
+          "policy_1.each_occurrence_limit",
+          "policy_2.type",
+          "policy_2.number",
+          "policy_2.expiration_date",
+          "policy_2.each_occurrence_limit"
+        ],
+        "group": null,
+        "policy": "pending: Side-effect action: needs human approval (auto-approval is off)."
+      }
+    ],
+    "rejected": [
+      {
+        "tool": "draft_email",
+        "reason": "the email must cite {certificate_holder}"
+      },
+      {
+        "tool": "draft_email",
+        "reason": "the email must cite {certificate_holder}"
+      }
+    ],
+    "notes": []
+  },
+  "steps": [
+    {
+      "stage": "parse",
+      "status": "done",
+      "input_summary": "1 page(s)",
+      "output_summary": "1 page(s), 280 words",
+      "reason": "Text layer found on all pages; no OCR needed (route: text_layer).",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 57,
+      "ts_offset_ms": 0,
+      "error": null
+    },
+    {
+      "stage": "classify",
+      "status": "done",
+      "input_summary": "1 page(s) of text",
+      "output_summary": "insurance_certificate (heuristic)",
+      "reason": "Keyword and layout heuristics are clear (insurance_certificate scored 28 vs 2): insurance_certificate: title matches; insurance_certificate: 1 page(s), certificates are short; insurance_certificate: certificate of liability insurance, certificate holder, insurers affording coverage, policy number, policy eff; lease: premises, expiration date.",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "ts_offset_ms": 57,
+      "error": null
+    },
+    {
+      "stage": "extract",
+      "status": "done",
+      "input_summary": "1 page text(s), as of 2026-10-22",
+      "output_summary": "4/4 top-level fields returned",
+      "reason": "Rules cannot read free-form certificate of liability insurance text, so the LLM extracts fields with verbatim quotes.",
+      "model": "gpt-4o-mini",
+      "tokens": 3263,
+      "cost_usd": 0.000693,
+      "duration_ms": 9568,
+      "ts_offset_ms": 57,
+      "error": null
+    },
+    {
+      "stage": "validate",
+      "status": "done",
+      "input_summary": "extracted fields",
+      "output_summary": "17/17 fields grounded on the page",
+      "reason": "Each quote was fuzzy-matched against the page words (grounded at >= 0.8). No flags raised.",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 22,
+      "ts_offset_ms": 9625,
+      "error": null
+    },
+    {
+      "stage": "obligations",
+      "status": "done",
+      "input_summary": "validated fields",
+      "output_summary": "2 obligation(s)",
+      "reason": "Commercial General Liability GL-5521904 expires 2027-01-15: request a renewed certificate of insurance before then; Umbrella Liab UM-7730418 expires 2027-03-01: request a renewed certificate of insurance before then",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "ts_offset_ms": 9647,
+      "error": null
+    },
+    {
+      "stage": "impact",
+      "status": "done",
+      "input_summary": "validated fields, obligations",
+      "output_summary": "5 line(s), 0 skipped",
+      "reason": "Computed by code from grounded fields only; no LLM.",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "ts_offset_ms": 9647,
+      "error": null
+    },
+    {
+      "stage": "planner",
+      "status": "done",
+      "input_summary": "2 obligation(s), usable fields only",
+      "output_summary": "5 action(s) proposed, 2 rejected",
+      "reason": "The agent only proposes; every side-effect action waits for approval. 3 model call(s), 7 tool call(s). Rejected: draft_email: the email must cite {certificate_holder}; draft_email: the email must cite {certificate_holder}.",
+      "model": "gpt-4o-mini",
+      "tokens": 9162,
+      "cost_usd": 0.001714,
+      "duration_ms": 14998,
+      "ts_offset_ms": 9647,
+      "error": null
+    }
+  ]
+}

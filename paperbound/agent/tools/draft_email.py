@@ -13,7 +13,7 @@ class DraftEmail(BaseTool):
     reversible = True
     always_draft = True
     parameters = {
-        "variant": {"type": "string", "enum": ["renew", "terminate"], "description": "Which choice this notice states."},
+        "variant": {"type": "string", "enum": ["renew", "terminate", "request_certificate"], "description": "Which choice this notice states."},
         "subject": {"type": "string"},
         "body": {"type": "string", "description": "Plain text. Use [PLACEHOLDERS] for anything the user must decide or fill in."},
     }

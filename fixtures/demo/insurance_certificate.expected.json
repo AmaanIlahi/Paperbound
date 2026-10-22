@@ -1,0 +1,38 @@
+{
+  "doc_type": "insurance_certificate",
+  "as_of": "2026-10-22",
+  "pdfs": [
+    "insurance_certificate.pdf"
+  ],
+  "insured": "Brightline Studio Inc.",
+  "certificate_holder": "Harborview Properties LLC",
+  "producer": "Northgate Risk Partners LLC",
+  "policies": [
+    {
+      "type_contains": "general",
+      "insurer": "Meridian Mutual Insurance Company",
+      "number": "GL-5521904",
+      "effective_date": "2026-01-15",
+      "expiration_date": "2027-01-15",
+      "each_occurrence_limit": 1000000.0,
+      "aggregate_limit": 2000000.0
+    },
+    {
+      "type_contains": "umbrella",
+      "insurer": "Pinecrest Casualty Company",
+      "number": "UM-7730418",
+      "effective_date": "2026-03-01",
+      "expiration_date": "2027-03-01",
+      "each_occurrence_limit": 5000000.0,
+      "aggregate_limit": 5000000.0
+    }
+  ],
+  "min_each_occurrence": 1000000,
+  "earliest_expiration": "2027-01-15",
+  "reminder_lead_days": [
+    60,
+    30,
+    14
+  ],
+  "tracker_status": "renewal needed"
+}

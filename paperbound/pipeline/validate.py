@@ -3,6 +3,7 @@ from datetime import date
 
 from rapidfuzz import fuzz
 
+from paperbound import clock
 from paperbound.pipeline.types import ValidatedField
 from paperbound.schemas.lease import LeaseFields
 
@@ -31,13 +32,19 @@ _UNITS = {
     "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
 }
 _TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
-AMOUNT_FIELDS = ("rent_amount", "security_deposit", "current_rent")
+DATE_FIELDS = ("start_date", "end_date", "effective_date", "expiration_date")
+AMOUNT_FIELDS = ("rent_amount", "security_deposit", "current_rent", "each_occurrence_limit", "aggregate_limit")
 PERCENT_FIELDS = ("holdover_rate_percent", "rent_escalation_percent")
 _PERIOD_WORDS = {
     "monthly": ("month", "monthly"),
     "quarterly": ("quarter",),
     "annual": ("year", "annual", "annum"),
 }
+
+
+def rule_name(name: str) -> str:
+    """Rules are keyed by the field's own name: 'policy_2.expiration_date' is checked like 'expiration_date'."""
+    return name.rsplit(".", 1)[-1]
 
 
 def _norm(text: str) -> str:
@@ -157,11 +164,12 @@ def _word_numbers(text: str) -> set[int]:
 
 
 def value_in_quote(name: str, value, quote: str | None) -> bool:
+    name = rule_name(name)
     if value is None:
         return True
     if not quote:
         return False
-    if name in ("start_date", "end_date"):
+    if name in DATE_FIELDS:
         return value in _dates_in(quote)
     if name in AMOUNT_FIELDS:
         return any(abs(n - float(value)) < 0.005 for n in _numbers_in(quote))
@@ -182,9 +190,10 @@ def value_in_quote(name: str, value, quote: str | None) -> bool:
 
 def _normalize(name: str, value, flags: list[str]):
     """Return the normalized value; append a flag and keep the raw value if it fails a check."""
+    name = rule_name(name)
     if value is None:
         return None
-    if name in ("start_date", "end_date"):
+    if name in DATE_FIELDS:
         try:
             return date.fromisoformat(str(value)).isoformat()
         except ValueError:
@@ -226,8 +235,11 @@ _RENT_TABLE_RE = re.compile(
 
 def quote_rule_ok(name: str, quote: str | None) -> bool:
     """A quote must look like the kind of text that can state this field."""
+    name = rule_name(name)
     if not quote:
         return False
+    if name == "number":
+        return any(ch.isdigit() for ch in quote)
     if name in AMOUNT_FIELDS:
         return bool(_CURRENCY_RE.search(quote))
     if name in PERCENT_FIELDS:
@@ -236,7 +248,7 @@ def quote_rule_ok(name: str, quote: str | None) -> bool:
         return bool(_DELIVERY_RE.search(quote))
     if name == "notice_section":
         return bool(_SECTION_RE.search(quote))
-    if name in ("start_date", "end_date"):
+    if name in DATE_FIELDS:
         return bool(_dates_in(quote))
     if name == "notice_period_days":
         return bool(_DAYS_RE.search(quote))
@@ -291,13 +303,10 @@ def rent_table_amount_on(pages, day: date) -> float | None:
     return None
 
 
-def validate_fields(lease: LeaseFields, pages, today: date | None = None) -> list[ValidatedField]:
-    today = today or date.today()
-    pages_by_no = {p.page_no: p for p in pages}
+def _validate_items(items, pages) -> list[ValidatedField]:
+    """Ground and check each (name, extracted field) pair. Cross-field checks and confidence come afterwards."""
     results: list[ValidatedField] = []
-
-    for name in LeaseFields.model_fields:
-        extracted = getattr(lease, name)
+    for name, extracted in items:
         flags: list[str] = []
         value = _normalize(name, extracted.value, flags)
 
@@ -326,6 +335,27 @@ def validate_fields(lease: LeaseFields, pages, today: date | None = None) -> lis
         results.append(
             ValidatedField(name, value, quote, page_no, union_bbox(bboxes), 0.0, score, flags, False, bboxes)
         )
+    return results
+
+
+def _finish(results: list[ValidatedField], pages) -> list[ValidatedField]:
+    """validators_passed and confidence for every field (run after the cross-field checks)."""
+    pages_by_no = {p.page_no: p for p in pages}
+    for r in results:
+        if r.value is None:
+            continue
+        blank = isinstance(r.value, str) and not r.value.strip()
+        r.validators_passed = not blank and not (set(r.flags) & CHECK_FLAGS)
+        quality = pages_by_no[r.page_no].quality_score if r.page_no in pages_by_no else 0.0
+        r.confidence = field_confidence(r.grounding_score, r.validators_passed, quality)
+        if "suspicious_instruction" in r.flags:
+            r.confidence = min(r.confidence, SUSPICIOUS_CONFIDENCE_CAP)
+    return results
+
+
+def validate_fields(lease: LeaseFields, pages, today: date | None = None) -> list[ValidatedField]:
+    today = clock.today(today)
+    results = _validate_items([(name, getattr(lease, name)) for name in LeaseFields.model_fields], pages)
 
     by_name = {r.name: r for r in results}
     rent = by_name["rent_amount"]
@@ -345,13 +375,24 @@ def validate_fields(lease: LeaseFields, pages, today: date | None = None) -> lis
         start.flags.append("end_before_start")
         end.flags.append("end_before_start")
 
-    for r in results:
-        if r.value is None:
-            continue
-        blank = isinstance(r.value, str) and not r.value.strip()
-        r.validators_passed = not blank and not (set(r.flags) & CHECK_FLAGS)
-        quality = pages_by_no[r.page_no].quality_score if r.page_no in pages_by_no else 0.0
-        r.confidence = field_confidence(r.grounding_score, r.validators_passed, quality)
-        if "suspicious_instruction" in r.flags:
-            r.confidence = min(r.confidence, SUSPICIOUS_CONFIDENCE_CAP)
-    return results
+    return _finish(results, pages)
+
+
+def validate_coi(cert, pages, today: date | None = None) -> list[ValidatedField]:
+    """Validate a certificate of insurance. Policy fields are named policy_1.number, policy_1.expiration_date, ..."""
+    clock.today(today)  # certificates have no today-dependent check yet; resolving it keeps AS_OF errors loud
+    items = [(name, getattr(cert, name)) for name in ("insured", "certificate_holder", "producer")]
+    for i, policy in enumerate(cert.policies, start=1):
+        items += [(f"policy_{i}.{name}", getattr(policy, name)) for name in type(policy).model_fields]
+    results = _validate_items(items, pages)
+    by_name = {r.name: r for r in results}
+    for i in range(1, len(cert.policies) + 1):
+        start, end = by_name[f"policy_{i}.effective_date"], by_name[f"policy_{i}.expiration_date"]
+        if (
+            start.value and end.value
+            and "invalid_date" not in start.flags + end.flags
+            and date.fromisoformat(end.value) <= date.fromisoformat(start.value)
+        ):
+            start.flags.append("end_before_start")
+            end.flags.append("end_before_start")
+    return _finish(results, pages)

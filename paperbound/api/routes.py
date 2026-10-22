@@ -22,7 +22,7 @@ from paperbound.db.models import (
     Step,
 )
 from paperbound.db.session import get_session
-from paperbound.pipeline.impact import build_brief
+from paperbound.doctypes import SUPPORTED, UNSUPPORTED_MESSAGE
 from paperbound.pipeline.parse import ParsedPage, parse_pdf
 from paperbound.pipeline.runner import make_parse_step, run_pipeline
 from paperbound.pipeline.types import ValidatedField
@@ -114,6 +114,8 @@ def upload_document(
         pages, make_parse_step(pages, parse_ms, reused), existing_obligations=existing
     )
 
+    if result.doc_type:
+        document.doc_type = result.doc_type
     for seq, step in enumerate(result.steps, start=1):
         session.add(Step(run_id=run.id, seq=seq, **vars(step)))
     field_ids = {}
@@ -169,6 +171,8 @@ def upload_document(
         "status": run.status,
         "page_count": document.page_count,
         "reused": reused,
+        "doc_type": result.doc_type,
+        "message": result.message,
     }
 
 
@@ -207,10 +211,15 @@ def _get_run(session: Session, run_id: int) -> Run:
 def get_run(run_id: int, session: Session = Depends(get_session)):
     run = _get_run(session, run_id)
     document = session.get(Document, run.document_id)
+    doc_type = document.doc_type if document else None
+    classify = session.scalar(select(Step).where(Step.run_id == run_id, Step.stage == "classify"))
     return {
         "id": run.id,
         "document_id": run.document_id,
         "page_count": document.page_count if document else 0,
+        "doc_type": doc_type,
+        "classification": {"summary": classify.output_summary, "reason": classify.reason} if classify else None,
+        "message": UNSUPPORTED_MESSAGE if doc_type is not None and doc_type not in SUPPORTED else None,
         "status": run.status,
         "started_at": run.started_at,
         "finished_at": run.finished_at,
@@ -280,7 +289,11 @@ def get_obligations(run_id: int, session: Session = Depends(get_session)):
 @router.get("/runs/{run_id}/brief")
 def get_brief(run_id: int, today: date | None = None, session: Session = Depends(get_session)):
     """Decision brief, recomputed from the stored fields (deterministic, no LLM). Every line cites its source fields."""
-    _get_run(session, run_id)
+    run = _get_run(session, run_id)
+    document = session.get(Document, run.document_id)
+    spec = SUPPORTED.get((document.doc_type if document else None) or "lease")  # runs from before classification are leases
+    if spec is None:
+        return {"lines": [], "skipped": []}
     rows = list(session.scalars(select(Field).where(Field.run_id == run_id).order_by(Field.id)))
     validated = [
         ValidatedField(f.name, f.value_json, f.source_quote, f.page_no, f.bbox, f.confidence or 0.0, 0.0,
@@ -288,7 +301,7 @@ def get_brief(run_id: int, today: date | None = None, session: Session = Depends
         for f in rows
     ]
     by_name = {f.name: f for f in rows}
-    brief = build_brief(validated, today)
+    brief = spec.brief(validated, today)
     return {
         "lines": [
             {

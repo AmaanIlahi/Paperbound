@@ -1,7 +1,7 @@
 """Simulate a model that FOLLOWS each injection and check the deterministic validators catch it.
 
 Uses the real fixture PDFs (parsed locally, no API calls). This shows what the validators do when the
-model is fooled; whether the live model is fooled is measured by scripts/eval_lease.py.
+model is fooled; whether the live model is fooled is measured by scripts/eval_fixtures.py.
 """
 from pathlib import Path
 

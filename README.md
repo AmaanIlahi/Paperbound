@@ -14,8 +14,14 @@ to approve: staged reminders (60, 30 and 14 days out), a draft "renew" and a dra
 real names and numbers, and a tracker entry marked "decision needed". Nothing is sent or saved anywhere until a human
 approves it, and even then only to a sandbox for now.
 
-Status: working vertical slice for **commercial leases**. OCR, other document types and a public demo are on the
-roadmap below.
+Status: working vertical slice for **commercial leases** and **certificates of liability insurance**. A classifier
+routes each upload; any other document type stops after classification with "document type not supported yet". OCR,
+more document types and a public demo are on the roadmap below.
+
+For a certificate it computes the earliest expiration and days left, which policies expire within 60 days, and whether
+each policy's each-occurrence limit meets a configurable minimum, then proposes staged reminders (60, 30 and 14 days
+before the earliest expiration), a draft email from the certificate holder to the insured asking for a renewed
+certificate, and a tracker entry marked "renewal needed".
 
 ## How it works
 
@@ -23,7 +29,9 @@ roadmap below.
 flowchart LR
   UI[Web UI] -->|upload PDF| API[FastAPI]
   API --> P[Parse<br/>PyMuPDF text layer]
-  P --> X[Extract<br/>LLM, structured output]
+  P --> C[Classify<br/>heuristics first, LLM only if unsure]
+  C -->|lease or certificate| X[Extract<br/>LLM, structured output]
+  C -->|other| STOP[Stop: type not supported yet]
   X --> V[Validate + ground<br/>deterministic]
   V --> O[Obligations<br/>deterministic]
   O --> I[Decision brief<br/>deterministic]
@@ -41,16 +49,18 @@ Every stage writes a `steps` row (what it did, why, model, tokens, cost, time), 
 | Decision | Made by |
 |---|---|
 | Text, word positions, page images from the PDF | Code (PyMuPDF) |
-| Reading free-form clauses into fields (landlord, rent, end date, notice period, holdover rate, notice method...) | **LLM** (gpt-4o-mini, structured output) |
+| Which kind of document this is | Code (keyword and layout heuristics); **LLM** only when they are unsure |
+| Today's date for every calculation | Code (`clock.today()`, `AS_OF` override) |
+| Reading free-form clauses into fields (landlord, rent, end date, notice period, holdover rate...; or insured, policies, dates and limits) | **LLM** (gpt-4o-mini, structured output) |
 | Is the quote really on that page, and where? | Code (fuzzy match, rapidfuzz) |
 | Does the value appear in its quote? Is the date valid, rent > 0, notice 1 to 365 days? | Code |
 | Does the quote look like it can state that field? Does it read like an instruction? | Code (regex) |
 | Does the rent conflict with the rent table on the page? | Code |
 | Field confidence | Code: `0.6 * grounding + 0.3 * validators + 0.1 * page quality` (never the LLM's own confidence) |
 | Obligation dates (notice deadline = end date minus notice days) | Code |
-| Decision brief: days left, current rent, holdover rent, monthly difference (each number cites its source fields) | Code (`impact.py`) |
+| Decision brief: days left, current rent, holdover rent and monthly difference (lease); earliest expiration, expiring soon, limit versus minimum (certificate). Each number cites its source fields | Code (`impact.py`) |
 | Reminder dates (60 / 30 / 14 days before, future only), names, every number and date inside an action | Code |
-| The wording of reminders and of the renew / terminate notices | **LLM** (planner, tool calling) |
+| The wording of reminders and of the emails (renew / terminate notices; request for a renewed certificate) | **LLM** (planner, tool calling) |
 | Whether a proposal is allowed (real source fields, tokens known, every number and date it typed matches the brief, no invented recipients or URLs) | Code |
 | The tracker record (deadline, counterparty, rent, holdover risk, "decision needed") | Code |
 | Whether an action runs | **Human** (approval gate; every side-effect action is pending) |
@@ -58,22 +68,40 @@ Every stage writes a `steps` row (what it did, why, model, tokens, cost, time), 
 
 ## Results
 
-Measured by `scripts/eval_lease.py` on the three fixtures in `fixtures/demo/` (one run each, gpt-4o-mini, on
-2026-10-22, final code). These are single runs on one synthetic lease, not a benchmark; they show the pipeline works
-end to end and how it behaves under attack, nothing more. "Brief" compares the code's decision-brief numbers with an
-independent recomputation in the eval script (current rent comes from the expected rent schedule for today's date).
-"Actions" are 3 staged reminders, 2 notice drafts (names, section, deadline and current rent present; recipient left as
-`{{RECIPIENT}}`; the two form one exclusive choice) and 1 tracker record: 7 checks.
+Measured by `scripts/eval_fixtures.py` on the four fixtures in `fixtures/demo/` (one run each, gpt-4o-mini, final code),
+all replayed **as of 2026-10-22** through the injected clock so the numbers do not drift with the calendar. These are
+single runs on synthetic documents, not a benchmark; they show the pipeline works end to end and how it behaves under
+attack, nothing more. "Brief" compares the code's decision-brief numbers with an independent recomputation in the eval
+script. The classifier decided every fixture by heuristics alone (no classification call).
 
-| Fixture | Fields correct | Obligation (due 2026-12-31) | Brief numbers | Action checks | `rent_amount` extracted | OpenAI calls | Cost | Latency |
-|---|---|---|---|---|---|---|---|---|
-| `lease.pdf` | 14/14 | correct | 6/6, all cite sources | 7/7 | 8500 | 2 | $0.0016 | 21.8 s |
-| `lease_injected.pdf` | 14/14 | correct | 6/6, all cite sources | 7/7 | 8500 | 2 | $0.0016 | 21.4 s |
-| `lease_injected_2.pdf` | 14/14 | correct | 6/6, all cite sources | 7/7 | 8500 | 2 | $0.0016 | 18.8 s |
+**Leases.** "Actions" are 3 staged reminders, 2 notice drafts (names, section, deadline and current rent present;
+recipient left as `{{RECIPIENT}}`; the two form one exclusive choice) and 1 tracker record: 7 checks.
+
+| Fixture | Classified | Fields correct | Obligation (due 2026-12-31) | Brief numbers | Action checks | `rent_amount` extracted | OpenAI calls | Cost | Latency |
+|---|---|---|---|---|---|---|---|---|---|
+| `lease.pdf` | lease (heuristic) | 14/14 | correct | 6/6, all cite sources | 7/7 | 8500 | 2 | $0.0016 | 29.5 s |
+| `lease_injected.pdf` | lease (heuristic) | 14/14 | correct | 6/6, all cite sources | 7/7 | 8500 | 2 | $0.0016 | 17.2 s |
+| `lease_injected_2.pdf` | lease (heuristic) | 14/14 | correct | 6/6, all cite sources | 7/7 | 8500 | 2 | $0.0016 | 18.2 s |
 
 For the lease on 2026-10-22: 70 days left, current rent $9,017.65, holdover rent $13,526.48 a month (150%), which is
-$4,508.83 a month more. Reminders land on 2026-11-01, 2026-12-01 and 2026-12-17. Field-level results and the exact
-proposed actions are saved in `evals/results/`.
+$4,508.83 a month more. Reminders land on 2026-11-01, 2026-12-01 and 2026-12-17.
+
+**Certificate of liability insurance** (`insurance_certificate.pdf`: a fictional producer, two fictional insurers, a
+general liability and an umbrella policy). "Fields" are insured, certificate holder, producer, the policy count and 7
+fields for each of the 2 policies, matched by policy number. "Actions" are 3 reminders listing every policy with its
+limit check and a source link, 1 request email (holder to insured, asks for a renewed certificate before the earliest
+expiration, recipient `{{RECIPIENT}}`) and 1 tracker record: 5 checks.
+
+| Fixture | Classified | Fields correct | Obligations (2 expirations) | Brief lines | Action checks | OpenAI calls | Cost | Latency |
+|---|---|---|---|---|---|---|---|---|
+| `insurance_certificate.pdf` | insurance_certificate (heuristic) | 18/18 | correct | 5/5, all cite sources | 5/5 | 2 | $0.0013 | 16.6 s |
+
+As of 2026-10-22 the earliest expiration is 2027-01-15 (the general liability policy), 85 days away; no policy expires
+within 60 days; both each-occurrence limits ($1,000,000 and $5,000,000) meet the $1,000,000 minimum. Reminders land on
+2026-11-16, 2026-12-16 and 2027-01-01. A fifth document, an invoice, was classified `other` by the LLM fallback in a
+one-off check (1 call, $0.00005) and stopped with "document type not supported yet".
+
+Field-level results and the exact proposed actions for every run are saved in `evals/results/`.
 
 **What went wrong on the way (all result files kept in `evals/results/`).** Four earlier runs of `lease.pdf` exposed
 real problems before the final runs above:
@@ -138,7 +166,7 @@ copy .env.example .env      # then fill in DATABASE_URL and OPENAI_API_KEY
 .\.venv\Scripts\python.exe -m uvicorn paperbound.api.main:app --reload
 ```
 
-Open http://127.0.0.1:8000/ and upload `fixtures/demo/lease.pdf`. You get the run timeline, fields with confidence and
+Open http://127.0.0.1:8000/ and upload `fixtures/demo/lease.pdf` or `fixtures/demo/insurance_certificate.pdf`. You get the run timeline, fields with confidence and
 flags (click one to see its source highlighted on the page, one box per line), the obligation, a decision brief
 (click a number to see where it came from), the proposed actions with Approve / Reject (reminders as one group, the two
 notice drafts as a "choose one" pair), and a sandbox panel showing what approved actions "did".
@@ -147,10 +175,14 @@ Tests and evals:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q                       # unit tests, no network (UI link test needs node)
-.\.venv\Scripts\python.exe scripts\eval_lease.py              # one fixture, ~2 OpenAI calls
-.\.venv\Scripts\python.exe scripts\eval_lease.py --pdf fixtures\demo\lease_injected.pdf
-.\.venv\Scripts\python.exe scripts\eval_lease.py --pdf fixtures\demo\lease_injected_2.pdf
-.\.venv\Scripts\python.exe scripts\make_sample_lease.py       # regenerate fixtures (--injected, --injected2)
+.\.venv\Scripts\python.exe scripts\eval_fixtures.py                    # all four fixtures, ~2 OpenAI calls each, one table per doc type
+.\.venv\Scripts\python.exe scripts\eval_fixtures.py --only insurance   # just the certificate
+.\.venv\Scripts\python.exe scripts\eval_fixtures.py --as-of 2026-11-20 # replay as of another day
+.\.venv\Scripts\python.exe scripts\make_sample_lease.py                # regenerate lease fixtures (--injected, --injected2)
+.\.venv\Scripts\python.exe scripts\make_sample_coi.py                  # regenerate the certificate and its expected JSON
+
+# replay anything as of another day, and set the certificate limit minimum
+$env:AS_OF = "2026-10-22"; $env:COI_MIN_EACH_OCCURRENCE = "1000000"
 ```
 
 Design details live in [docs/architecture.md](docs/architecture.md), which is the source of truth.
@@ -158,7 +190,7 @@ Design details live in [docs/architecture.md](docs/architecture.md), which is th
 ## Roadmap
 
 - **OCR and vision routes** for scanned pages (Tesseract, then a vision model) so non-text PDFs work.
-- **More document types**: insurance certificates, contracts, invoices, permits, with a classifier.
+- **More document types**: contracts, invoices, permits (the classifier and `doctypes.py` are the extension points).
 - **Public evals**: field-level F1 on CORD and SROIE, clause evals on CUAD, and ~20 hand-labeled documents.
 - **Demo mode**: a Run Demo button that replays a recorded real run from local snapshots (no database, no API cost).
 - **Background worker and live progress**: job queue on Postgres and SSE streaming instead of a synchronous upload.

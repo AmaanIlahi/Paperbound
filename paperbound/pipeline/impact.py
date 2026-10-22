@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
+from paperbound import clock
 from paperbound.pipeline.obligations import derive_obligations, unusable_reason
 from paperbound.pipeline.types import ValidatedField
 
@@ -47,6 +48,11 @@ def fmt_money(amount: float | Decimal) -> str:
     return f"${money(amount):,.2f}"
 
 
+def fmt_limit(amount: float | Decimal) -> str:
+    """Whole-dollar amount for insurance limits: $1,000,000."""
+    return f"${money(amount):,.0f}"
+
+
 def fmt_date(day: date) -> str:
     return f"{day:%B} {day.day}, {day.year}"
 
@@ -57,7 +63,7 @@ def fmt_percent(value: float) -> str:
 
 def build_brief(fields: list[ValidatedField], today: date | None = None) -> Brief:
     """Compute the decision brief from validated fields (blocked fields are never used)."""
-    today = today or date.today()
+    today = clock.today(today)
     by_name = {f.name: f for f in fields}
     brief = Brief()
 
@@ -125,4 +131,84 @@ def build_brief(fields: list[ValidatedField], today: date | None = None) -> Brie
     if need("security_deposit", "security_deposit"):
         deposit = money(by_name["security_deposit"].value)
         brief.lines.append(BriefLine("security_deposit", "Security deposit", float(deposit), fmt_money(deposit), ["security_deposit"]))
+    return brief
+
+
+# ---- certificates of insurance ----
+
+EXPIRING_WINDOW_DAYS = 60
+
+
+def _policy_indexes(fields: list[ValidatedField]) -> list[int]:
+    return sorted({int(f.name.split(".")[0].split("_")[1]) for f in fields if f.name.startswith("policy_")})
+
+
+def build_coi_brief(fields: list[ValidatedField], today: date | None = None, min_limit: float | None = None) -> Brief:
+    """Decision brief for a certificate of insurance: earliest expiration, policies expiring soon, limit checks."""
+    from paperbound import config
+
+    today = clock.today(today)
+    min_limit = config.coi_min_each_occurrence() if min_limit is None else min_limit
+    by_name = {f.name: f for f in fields}
+    brief = Brief()
+
+    live: list[tuple[int, date]] = []  # (policy index, expiration) for policies whose expiration is usable
+    excluded: list[str] = []
+    for i in _policy_indexes(fields):
+        name = f"policy_{i}.expiration_date"
+        problem = unusable_reason(by_name.get(name), name)
+        if problem:
+            excluded.append(f"policy {i}")
+            brief.skipped.append({"key": f"policy_{i}_expiration", "reason": problem})
+        else:
+            live.append((i, date.fromisoformat(by_name[name].value)))
+
+    def label(i: int) -> str:
+        parts = [str(by_name[n].value) for n in (f"policy_{i}.type", f"policy_{i}.number")
+                 if unusable_reason(by_name.get(n), n) is None]
+        return " ".join(parts) or f"Policy {i}"
+
+    exp_fields = [f"policy_{i}.expiration_date" for i, _ in live]
+    if live:
+        i_first, first = min(live, key=lambda t: t[1])
+        brief.due_date = first
+        note = f"Not counted (blocked): {', '.join(excluded)}." if excluded else None
+        brief.lines.append(BriefLine("earliest_expiration", "Earliest policy expiration", first.isoformat(), fmt_date(first), exp_fields, note))
+        days = (first - today).days
+        text = f"{days} days left" if days >= 0 else f"{-days} days overdue"
+        brief.lines.append(BriefLine("days_remaining", "Days until it expires", days, text, exp_fields, note))
+
+        soon = [(i, d, (d - today).days) for i, d in live if (d - today).days <= EXPIRING_WINDOW_DAYS]
+        if soon:
+            names = "; ".join(
+                f"{label(i)} ({'expired' if left < 0 else 'expires'} {fmt_date(d)})" for i, d, left in sorted(soon, key=lambda t: t[1])
+            )
+            brief.lines.append(
+                BriefLine("expiring_soon", f"Policies expiring within {EXPIRING_WINDOW_DAYS} days", len(soon), names,
+                          [f"policy_{i}.expiration_date" for i, _, _ in soon], note)
+            )
+        else:
+            brief.lines.append(
+                BriefLine("expiring_soon", f"Policies expiring within {EXPIRING_WINDOW_DAYS} days", 0, "None", exp_fields, note)
+            )
+    else:
+        for key in ("earliest_expiration", "days_remaining", "expiring_soon"):
+            brief.skipped.append({"key": key, "reason": "no policy has a usable expiration date"})
+
+    for i in _policy_indexes(fields):
+        name = f"policy_{i}.each_occurrence_limit"
+        problem = unusable_reason(by_name.get(name), name)
+        if problem:
+            brief.skipped.append({"key": f"limit_check_{i}", "reason": problem})
+            continue
+        limit = money(by_name[name].value)
+        ok = limit >= money(min_limit)
+        sources = [name] + [n for n in (f"policy_{i}.type",) if unusable_reason(by_name.get(n), n) is None]
+        brief.lines.append(
+            BriefLine(
+                f"limit_check_{i}", f"{label(i)}: each-occurrence limit", ok,
+                f"{fmt_limit(limit)}, " + (f"meets the {fmt_limit(min_limit)} minimum" if ok else f"BELOW the {fmt_limit(min_limit)} minimum"),
+                sources,
+            )
+        )
     return brief

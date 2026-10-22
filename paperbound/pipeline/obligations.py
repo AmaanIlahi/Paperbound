@@ -39,3 +39,30 @@ def unusable_reason(field: ValidatedField | None, name: str) -> str | None:
     if blocked:
         return f"{name} failed validation ({', '.join(blocked)})"
     return None
+
+
+def derive_coi_obligations(fields: list[ValidatedField]) -> tuple[list[DerivedObligation], list[str]]:
+    """One 'expiration' obligation per policy whose expiration date (and number) are usable."""
+    by_name = {f.name: f for f in fields}
+    obligations, skipped = [], []
+    indexes = sorted({int(f.name.split(".")[0].split("_")[1]) for f in fields if f.name.startswith("policy_")})
+    for i in indexes:
+        exp = by_name.get(f"policy_{i}.expiration_date")
+        number = by_name.get(f"policy_{i}.number")
+        kind = by_name.get(f"policy_{i}.type")
+        problem = unusable_reason(exp, f"policy_{i}.expiration_date")
+        if problem:
+            skipped.append(f"policy {i} expiration skipped: {problem}")
+            continue
+        due = date.fromisoformat(exp.value)
+        sources = [exp.name] + [f.name for f in (number, kind) if unusable_reason(f, "x") is None]
+        label = " ".join(str(f.value) for f in (kind, number) if unusable_reason(f, "x") is None) or f"Policy {i}"
+        obligations.append(
+            DerivedObligation(
+                kind="expiration",
+                due_date=due,
+                description=f"{label} expires {due.isoformat()}: request a renewed certificate of insurance before then",
+                source_fields=sources,
+            )
+        )
+    return obligations, skipped

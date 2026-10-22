@@ -14,6 +14,7 @@ from paperbound.api import routes
 from paperbound.api.main import app
 from paperbound.db.models import Base, ProposedAction
 from paperbound.db.session import get_session
+from paperbound.pipeline.classify import Classification
 from paperbound.pipeline.extract import ExtractionResult
 from paperbound.pipeline.runner import run_pipeline
 from paperbound.schemas.lease import LeaseFields
@@ -76,7 +77,8 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(
         routes, "run_pipeline",
         lambda pages, step, existing_obligations=None: run_pipeline(
-            pages, step, extractor=fake_extractor, planner=fake_planner, existing_obligations=existing_obligations, today=TODAY
+            pages, step, extractor=fake_extractor, planner=fake_planner, existing_obligations=existing_obligations, today=TODAY,
+            classifier=lambda pages: Classification("lease", "heuristic", "test"),
         ),
     )
     app.dependency_overrides[get_session] = override
@@ -112,7 +114,7 @@ def test_run_endpoint_and_brief_work_for_a_saved_run(client):
     run_id = upload(http)["run_id"]
     assert http.get(f"/runs/{run_id}").json()["page_count"] == 4
     steps = [s["stage"] for s in http.get(f"/runs/{run_id}/steps").json()]
-    assert steps == ["parse", "extract", "validate", "obligations", "impact", "planner"]
+    assert steps == ["parse", "classify", "extract", "validate", "obligations", "impact", "planner"]
     brief = http.get(f"/runs/{run_id}/brief", params={"today": "2026-10-22"}).json()
     lines = {ln["key"]: ln for ln in brief["lines"]}
     assert lines["holdover_rent"]["value"] == 13526.48 and brief["skipped"] == []

@@ -3,12 +3,13 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Callable
 
+from paperbound import clock
 from paperbound.agent.planner import PlanResult, plan_actions
-from paperbound.pipeline.extract import extract_lease
-from paperbound.pipeline.impact import Brief, build_brief
-from paperbound.pipeline.obligations import derive_obligations
+from paperbound.doctypes import SUPPORTED, UNSUPPORTED_MESSAGE
+from paperbound.pipeline.classify import Classification, classify_document
+from paperbound.pipeline.impact import Brief
 from paperbound.pipeline.types import DerivedObligation, StepRecord, ValidatedField
-from paperbound.pipeline.validate import GROUNDING_THRESHOLD, validate_fields
+from paperbound.pipeline.validate import GROUNDING_THRESHOLD
 
 
 @dataclass
@@ -19,6 +20,9 @@ class PipelineResult:
     obligations: list[DerivedObligation] = field(default_factory=list)
     brief: Brief | None = None
     plan: PlanResult | None = None
+    doc_type: str | None = None
+    classification: Classification | None = None
+    message: str | None = None  # set when the run stops early on purpose
 
     @property
     def cost_usd(self) -> float:
@@ -48,53 +52,81 @@ def make_parse_step(pages, duration_ms: int, reused: bool) -> StepRecord:
     )
 
 
+def _has_value(item) -> bool:
+    """Top-level extracted field found? A list (policies) counts when non-empty."""
+    return bool(item) if isinstance(item, list) else item.value is not None
+
+
 def run_pipeline(
     pages,
     parse_step: StepRecord,
-    extractor: Callable = extract_lease,
+    extractor: Callable | None = None,
     planner: Callable = plan_actions,
     existing_obligations: list[dict] | None = None,
     today: date | None = None,
+    classifier: Callable = classify_document,
 ) -> PipelineResult:
-    """extract -> validate -> obligations -> planner over already-parsed pages. Never raises on stage failure."""
-    today = today or date.today()
+    """classify -> extract -> validate -> obligations -> impact -> planner over already-parsed pages.
+
+    Never raises on stage failure. `extractor(pages)` overrides the document type's own extractor (used by tests).
+    A type with no entry in doctypes.SUPPORTED stops after classification with status done.
+    """
+    today = clock.today(today)
     result = PipelineResult(status="done", steps=[parse_step])
-    clock = parse_step.duration_ms
+    elapsed = parse_step.duration_ms
 
     def timed(stage: str, fn, **step_kwargs):
-        nonlocal clock
+        nonlocal elapsed
         started = time.perf_counter()
-        step = StepRecord(stage=stage, status="done", ts_offset_ms=clock, **step_kwargs)
+        step = StepRecord(stage=stage, status="done", ts_offset_ms=elapsed, **step_kwargs)
         try:
             out = fn(step)
         except Exception as exc:
             step.status, step.error = "failed", f"{type(exc).__name__}: {exc}"
             out = None
         step.duration_ms = int((time.perf_counter() - started) * 1000)
-        clock += step.duration_ms
+        elapsed += step.duration_ms
         result.steps.append(step)
         return out
 
-    def do_extract(step: StepRecord):
-        extraction = extractor(pages)
-        step.model, step.tokens, step.cost_usd = extraction.model, extraction.tokens, extraction.cost_usd
-        names = type(extraction.fields).model_fields
-        found = sum(1 for name in names if getattr(extraction.fields, name).value is not None)
-        step.output_summary = f"{found}/{len(names)} fields returned"
-        step.reason = "Rules cannot read free-form lease clauses, so the LLM extracts fields with verbatim quotes."
-        return extraction.fields
-
-    lease = timed("extract", do_extract, input_summary=f"{len(pages)} page text(s)")
-    if lease is None:
+    def skip_rest(stages, reason):
         result.status = "partial"
-        for stage in ("validate", "obligations", "impact", "planner"):
-            result.steps.append(
-                StepRecord(stage=stage, status="skipped", ts_offset_ms=clock, reason="Extraction failed, nothing to check.")
-            )
+        for stage in stages:
+            result.steps.append(StepRecord(stage=stage, status="skipped", ts_offset_ms=elapsed, reason=reason))
+
+    def do_classify(step: StepRecord):
+        found = classifier(pages)
+        step.model, step.tokens, step.cost_usd = found.model, found.tokens, found.cost_usd
+        step.output_summary = f"{found.doc_type} ({found.method})"
+        step.reason = found.reason + ("" if found.doc_type in SUPPORTED else f" The {UNSUPPORTED_MESSAGE}, so the run stops here.")
+        return found
+
+    result.classification = timed("classify", do_classify, input_summary=f"{len(pages)} page(s) of text")
+    if result.classification is None:
+        skip_rest(("extract", "validate", "obligations", "impact", "planner"), "Classification failed, so the document type is unknown.")
+        return result
+    result.doc_type = result.classification.doc_type
+    spec = SUPPORTED.get(result.doc_type)
+    if spec is None:
+        result.message = UNSUPPORTED_MESSAGE
+        return result
+
+    def do_extract(step: StepRecord):
+        extraction = extractor(pages) if extractor else spec.extract(pages, today)
+        step.model, step.tokens, step.cost_usd = extraction.model, extraction.tokens, extraction.cost_usd
+        extracted = extraction.fields
+        names = type(extracted).model_fields
+        step.output_summary = f"{sum(1 for n in names if _has_value(getattr(extracted, n)))}/{len(names)} top-level fields returned"
+        step.reason = f"Rules cannot read free-form {spec.label.lower()} text, so the LLM extracts fields with verbatim quotes."
+        return extracted
+
+    extracted = timed("extract", do_extract, input_summary=f"{len(pages)} page text(s), as of {today.isoformat()}")
+    if extracted is None:
+        skip_rest(("validate", "obligations", "impact", "planner"), "Extraction failed, nothing to check.")
         return result
 
     def do_validate(step: StepRecord):
-        validated = validate_fields(lease, pages, today)
+        validated = spec.validate(extracted, pages, today)
         present = [f for f in validated if f.value is not None]
         grounded = [f for f in present if "ungrounded" not in f.flags]
         flagged = [f"{f.name}: {', '.join(f.flags)}" for f in validated if f.flags]
@@ -107,16 +139,12 @@ def run_pipeline(
 
     validated = timed("validate", do_validate, input_summary="extracted fields")
     if validated is None:
-        result.status = "partial"
-        for stage in ("obligations", "impact", "planner"):
-            result.steps.append(
-                StepRecord(stage=stage, status="skipped", ts_offset_ms=clock, reason="Validation failed.")
-            )
+        skip_rest(("obligations", "impact", "planner"), "Validation failed.")
         return result
     result.fields = validated
 
     def do_obligations(step: StepRecord):
-        derived, skipped = derive_obligations(validated)
+        derived, skipped = spec.obligations(validated)
         step.output_summary = f"{len(derived)} obligation(s)"
         step.reason = (
             "; ".join(f"{o.description}" for o in derived) if derived else ""
@@ -125,14 +153,12 @@ def run_pipeline(
 
     derived = timed("obligations", do_obligations, input_summary="validated fields")
     if derived is None:
-        result.status = "partial"
-        for stage in ("impact", "planner"):
-            result.steps.append(StepRecord(stage=stage, status="skipped", ts_offset_ms=clock, reason="Obligations failed."))
+        skip_rest(("impact", "planner"), "Obligations failed.")
         return result
     result.obligations = derived
 
     def do_impact(step: StepRecord):
-        brief = build_brief(validated, today)
+        brief = spec.brief(validated, today)
         step.output_summary = f"{len(brief.lines)} line(s), {len(brief.skipped)} skipped"
         step.reason = (
             "Computed by code from grounded fields only; no LLM. "
@@ -146,12 +172,12 @@ def run_pipeline(
 
     if not derived:
         result.steps.append(
-            StepRecord(stage="planner", status="skipped", ts_offset_ms=clock, reason="No obligations, so there is nothing to plan.")
+            StepRecord(stage="planner", status="skipped", ts_offset_ms=elapsed, reason="No obligations, so there is nothing to plan.")
         )
         return result
 
     def do_planner(step: StepRecord):
-        plan = planner(validated, derived, existing_obligations, brief=result.brief, today=today)
+        plan = planner(validated, derived, existing_obligations, brief=result.brief, today=today, doc_type=spec.name)
         step.model, step.tokens, step.cost_usd = plan.model, plan.tokens, plan.cost_usd
         step.output_summary = f"{len(plan.actions)} action(s) proposed, {len(plan.rejected)} rejected"
         step.reason = (

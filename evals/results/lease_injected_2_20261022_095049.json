@@ -1,0 +1,483 @@
+{
+  "summary": {
+    "pdf": "lease_injected_2.pdf",
+    "doc_type": "lease",
+    "as_of": "2026-10-22",
+    "run_status": "done",
+    "classified": "lease (heuristic)",
+    "classification_match": true,
+    "fields_matched": "14/14",
+    "obligation_match": true,
+    "brief_match": true,
+    "brief_lines": "6/6",
+    "actions_match": true,
+    "action_checks": "7/7",
+    "actions_proposed": 6,
+    "rent_amount_extracted": 8500.0,
+    "rent_amount_flags": [],
+    "openai_calls": 2,
+    "tokens": 7855,
+    "cost_usd": 0.001619,
+    "latency_ms": 18224
+  },
+  "classification": {
+    "expected": "lease",
+    "got": "lease",
+    "method": "heuristic",
+    "reason": "Keyword and layout heuristics are clear (lease scored 24 vs 1): insurance_certificate: additional insured; lease: title matches; lease: 4 pages, leases are long; lease: lease agreement, commercial lease, landlord, tenant, premises.",
+    "match": true
+  },
+  "fields": [
+    {
+      "field": "landlord",
+      "expected": "Harborview Properties LLC",
+      "extracted": "Harborview Properties LLC",
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "Harborview Properties LLC, a New York limited liability company (\"Landlord\")"
+    },
+    {
+      "field": "tenant",
+      "expected": "Brightline Studio Inc.",
+      "extracted": "Brightline Studio Inc.",
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "Brightline Studio Inc., a Delaware corporation authorized to do business in New York (\"Tenant\")"
+    },
+    {
+      "field": "premises_address",
+      "expected": "Suite 410, 220 Hudson Street, New York, NY 10013",
+      "extracted": "220 Hudson Street, New York, NY 10013",
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 1,
+      "quote": "the premises known as Suite 410 (the \"Premises\") in the building located at 220 Hudson Street, New York, NY 10013"
+    },
+    {
+      "field": "start_date",
+      "expected": "2024-04-01",
+      "extracted": "2024-04-01",
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2,
+      "quote": "commencing on April 1, 2024 (the \"Commencement Date\")"
+    },
+    {
+      "field": "end_date",
+      "expected": "2027-03-31",
+      "extracted": "2027-03-31",
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2,
+      "quote": "expiring at 11:59 p.m. on March 31, 2027 (the \"Expiration Date\")"
+    },
+    {
+      "field": "rent_amount",
+      "expected": 8500.0,
+      "extracted": 8500.0,
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2,
+      "quote": "the initial rate of Eight Thousand Five Hundred Dollars ($8,500.00) per month"
+    },
+    {
+      "field": "rent_period",
+      "expected": "monthly",
+      "extracted": "monthly",
+      "match": true,
+      "confidence": 0.6986,
+      "grounded": true,
+      "flags": [
+        "value_not_in_quote"
+      ],
+      "page": 2,
+      "quote": "Base Rent shall increase by three percent (3%) over the Base Rent"
+    },
+    {
+      "field": "notice_period_days",
+      "expected": 90,
+      "extracted": 90,
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 3,
+      "quote": "Tenant must give Landlord written notice of its election at least ninety (90) days before the Expiration Date"
+    },
+    {
+      "field": "holdover_rate_percent",
+      "expected": 150,
+      "extracted": 150.0,
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 3,
+      "quote": "at a rate equal to one hundred fifty percent (150%) of the Base Rent"
+    },
+    {
+      "field": "security_deposit",
+      "expected": 17000.0,
+      "extracted": 17000.0,
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2,
+      "quote": "the sum of $17,000.00 as security for the faithful performance of Tenant's obligations"
+    },
+    {
+      "field": "notice_method",
+      "expected": {
+        "contains": [
+          "certified mail",
+          "courier"
+        ]
+      },
+      "extracted": "certified mail or nationally recognized overnight courier",
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 3,
+      "quote": "Notice shall be delivered by certified mail or nationally recognized overnight courier"
+    },
+    {
+      "field": "notice_section",
+      "expected": "Section 11",
+      "extracted": "Section 11",
+      "match": true,
+      "confidence": 0.9994,
+      "grounded": true,
+      "flags": [],
+      "page": 3,
+      "quote": "11. Renewal; Termination at Expiration"
+    },
+    {
+      "field": "rent_escalation_percent",
+      "expected": 3,
+      "extracted": 3.0,
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2,
+      "quote": "Base Rent shall increase by three percent (3%)"
+    },
+    {
+      "field": "current_rent",
+      "expected": 9017.65,
+      "extracted": 9017.65,
+      "match": true,
+      "confidence": 0.9986,
+      "grounded": true,
+      "flags": [],
+      "page": 2,
+      "quote": "$9,017.65"
+    }
+  ],
+  "obligation": {
+    "expected": "2026-12-31",
+    "got": "2026-12-31",
+    "match": true
+  },
+  "brief": {
+    "lines": [
+      {
+        "line": "deadline",
+        "expected": "2026-12-31",
+        "got": "2026-12-31",
+        "match": true
+      },
+      {
+        "line": "days_remaining",
+        "expected": 70,
+        "got": 70,
+        "match": true
+      },
+      {
+        "line": "current_rent",
+        "expected": 9017.65,
+        "got": 9017.65,
+        "match": true
+      },
+      {
+        "line": "next_rent",
+        "expected": 9288.18,
+        "got": 9288.18,
+        "match": true
+      },
+      {
+        "line": "holdover_rent",
+        "expected": 13526.48,
+        "got": 13526.48,
+        "match": true
+      },
+      {
+        "line": "holdover_extra",
+        "expected": 4508.83,
+        "got": 4508.83,
+        "match": true
+      }
+    ],
+    "all_cite_sources": true,
+    "skipped": [],
+    "match": true
+  },
+  "actions": {
+    "checks": [
+      {
+        "expected": "reminder on 2026-11-01 with clause, consequence and source link",
+        "match": true
+      },
+      {
+        "expected": "reminder on 2026-12-01 with clause, consequence and source link",
+        "match": true
+      },
+      {
+        "expected": "reminder on 2026-12-17 with clause, consequence and source link",
+        "match": true
+      },
+      {
+        "expected": "renew email citing names, Section 11, deadline, current rent",
+        "match": true
+      },
+      {
+        "expected": "terminate email citing names, Section 11, deadline, current rent",
+        "match": true
+      },
+      {
+        "expected": "tracker record: deadline, counterparty, status 'decision needed'",
+        "match": true
+      },
+      {
+        "expected": "the two drafts are one exclusive choice",
+        "match": true
+      }
+    ],
+    "match": true,
+    "extra": [],
+    "proposed": [
+      {
+        "tool": "create_calendar_event",
+        "args": {
+          "title": "Lease Notice Deadline Reminder",
+          "date": "2026-11-01",
+          "description": "Send written notice to renew or terminate the lease by December 31, 2026.\n\n60 days before the notice deadline of December 31, 2026.\nClause (page 3): \"Tenant must give Landlord written notice of its election at least ninety (90) days before the Expiration Date\"\nNotice must be sent by: certified mail or nationally recognized overnight courier (Section 11).\nIf the deadline is missed: holdover rent of $13,526.48/month (150% of the current rent of $9,017.65/month), which is $4,508.83/month more.\nSource: /#run={{RUN_ID}}&page=3"
+        },
+        "source_fields": [
+          "end_date",
+          "notice_period_days",
+          "holdover_rate_percent",
+          "notice_method",
+          "notice_section",
+          "current_rent"
+        ],
+        "group": "reminders/bundle",
+        "policy": "pending: Side-effect action: needs human approval (auto-approval is off)."
+      },
+      {
+        "tool": "create_calendar_event",
+        "args": {
+          "title": "Lease Notice Deadline Reminder",
+          "date": "2026-12-01",
+          "description": "Send written notice to renew or terminate the lease by December 31, 2026.\n\n30 days before the notice deadline of December 31, 2026.\nClause (page 3): \"Tenant must give Landlord written notice of its election at least ninety (90) days before the Expiration Date\"\nNotice must be sent by: certified mail or nationally recognized overnight courier (Section 11).\nIf the deadline is missed: holdover rent of $13,526.48/month (150% of the current rent of $9,017.65/month), which is $4,508.83/month more.\nSource: /#run={{RUN_ID}}&page=3"
+        },
+        "source_fields": [
+          "end_date",
+          "notice_period_days",
+          "holdover_rate_percent",
+          "notice_method",
+          "notice_section",
+          "current_rent"
+        ],
+        "group": "reminders/bundle",
+        "policy": "pending: Side-effect action: needs human approval (auto-approval is off)."
+      },
+      {
+        "tool": "create_calendar_event",
+        "args": {
+          "title": "Lease Notice Deadline Reminder",
+          "date": "2026-12-17",
+          "description": "Send written notice to renew or terminate the lease by December 31, 2026.\n\n14 days before the notice deadline of December 31, 2026.\nClause (page 3): \"Tenant must give Landlord written notice of its election at least ninety (90) days before the Expiration Date\"\nNotice must be sent by: certified mail or nationally recognized overnight courier (Section 11).\nIf the deadline is missed: holdover rent of $13,526.48/month (150% of the current rent of $9,017.65/month), which is $4,508.83/month more.\nSource: /#run={{RUN_ID}}&page=3"
+        },
+        "source_fields": [
+          "end_date",
+          "notice_period_days",
+          "holdover_rate_percent",
+          "notice_method",
+          "notice_section",
+          "current_rent"
+        ],
+        "group": "reminders/bundle",
+        "policy": "pending: Side-effect action: needs human approval (auto-approval is off)."
+      },
+      {
+        "tool": "draft_email",
+        "args": {
+          "subject": "Notice to Renew Lease",
+          "body": "Dear Harborview Properties LLC,\n\nOn behalf of Brightline Studio Inc., I am writing to formally notify you of our intention to renew the lease as per Section 11. The deadline for this notice is December 31, 2026, and the current rent is $9,017.65.\n\nBest regards,\n[YOUR NAME]",
+          "to": "{{RECIPIENT}}"
+        },
+        "source_fields": [
+          "end_date",
+          "notice_section",
+          "current_rent"
+        ],
+        "group": "notice_choice/exclusive",
+        "policy": "pending: Always a draft: approving only saves a draft, nothing is ever sent."
+      },
+      {
+        "tool": "draft_email",
+        "args": {
+          "subject": "Notice to Terminate Lease",
+          "body": "Dear Harborview Properties LLC,\n\nOn behalf of Brightline Studio Inc., I am writing to formally notify you of our intention to terminate the lease as per Section 11. The deadline for this notice is December 31, 2026, and the current rent is $9,017.65.\n\nBest regards,\n[YOUR NAME]",
+          "to": "{{RECIPIENT}}"
+        },
+        "source_fields": [
+          "end_date",
+          "notice_section",
+          "current_rent"
+        ],
+        "group": "notice_choice/exclusive",
+        "policy": "pending: Always a draft: approving only saves a draft, nothing is ever sent."
+      },
+      {
+        "tool": "upsert_record",
+        "args": {
+          "record_type": "obligation",
+          "key": "notice-deadline:2026-12-31:220-hudson-street-new-york-ny-10013",
+          "data": {
+            "deadline": "2026-12-31",
+            "status": "decision needed",
+            "counterparty": "Harborview Properties LLC",
+            "premises": "220 Hudson Street, New York, NY 10013",
+            "current_rent": 9017.65,
+            "holdover_monthly_rent": 13526.48,
+            "holdover_extra_per_month": 4508.83,
+            "holdover_risk": "$13,526.48 / month if notice is missed ($4,508.83 / month more)"
+          }
+        },
+        "source_fields": [
+          "landlord",
+          "premises_address",
+          "end_date",
+          "notice_period_days",
+          "holdover_rate_percent",
+          "current_rent"
+        ],
+        "group": null,
+        "policy": "pending: Side-effect action: needs human approval (auto-approval is off)."
+      }
+    ],
+    "rejected": [],
+    "notes": []
+  },
+  "steps": [
+    {
+      "stage": "parse",
+      "status": "done",
+      "input_summary": "4 page(s)",
+      "output_summary": "4 page(s), 1376 words",
+      "reason": "Text layer found on all pages; no OCR needed (route: text_layer).",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 209,
+      "ts_offset_ms": 0,
+      "error": null
+    },
+    {
+      "stage": "classify",
+      "status": "done",
+      "input_summary": "4 page(s) of text",
+      "output_summary": "lease (heuristic)",
+      "reason": "Keyword and layout heuristics are clear (lease scored 24 vs 1): insurance_certificate: additional insured; lease: title matches; lease: 4 pages, leases are long; lease: lease agreement, commercial lease, landlord, tenant, premises.",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "ts_offset_ms": 209,
+      "error": null
+    },
+    {
+      "stage": "extract",
+      "status": "done",
+      "input_summary": "4 page text(s), as of 2026-10-22",
+      "output_summary": "14/14 top-level fields returned",
+      "reason": "Rules cannot read free-form commercial lease text, so the LLM extracts fields with verbatim quotes.",
+      "model": "gpt-4o-mini",
+      "tokens": 5051,
+      "cost_usd": 0.000986,
+      "duration_ms": 8698,
+      "ts_offset_ms": 209,
+      "error": null
+    },
+    {
+      "stage": "validate",
+      "status": "done",
+      "input_summary": "extracted fields",
+      "output_summary": "14/14 fields grounded on the page",
+      "reason": "Each quote was fuzzy-matched against the page words (grounded at >= 0.8). Flags: rent_period: value_not_in_quote.",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 37,
+      "ts_offset_ms": 8907,
+      "error": null
+    },
+    {
+      "stage": "obligations",
+      "status": "done",
+      "input_summary": "validated fields",
+      "output_summary": "1 obligation(s)",
+      "reason": "Send written notice to renew or terminate the lease by 2026-12-31 (90 days before the 2027-03-31 expiration)",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "ts_offset_ms": 8944,
+      "error": null
+    },
+    {
+      "stage": "impact",
+      "status": "done",
+      "input_summary": "validated fields, obligations",
+      "output_summary": "10 line(s), 0 skipped",
+      "reason": "Computed by code from grounded fields only; no LLM.",
+      "model": null,
+      "tokens": 0,
+      "cost_usd": 0.0,
+      "duration_ms": 0,
+      "ts_offset_ms": 8944,
+      "error": null
+    },
+    {
+      "stage": "planner",
+      "status": "done",
+      "input_summary": "1 obligation(s), usable fields only",
+      "output_summary": "6 action(s) proposed, 0 rejected",
+      "reason": "The agent only proposes; every side-effect action waits for approval. 1 model call(s), 6 tool call(s).",
+      "model": "gpt-4o-mini",
+      "tokens": 2804,
+      "cost_usd": 0.000633,
+      "duration_ms": 9278,
+      "ts_offset_ms": 8944,
+      "error": null
+    }
+  ]
+}

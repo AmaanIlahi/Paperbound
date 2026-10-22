@@ -69,6 +69,9 @@
     .group > .gnote { color: var(--muted); font-size: .76rem; margin: .1rem 0 .2rem; }
     .group .action { border-top: 1px solid #e4e4e7; }
     .group .action:first-of-type { border-top: 0; }
+    .typechip { display: inline-block; font-weight: 700; padding: .05rem .6rem; border-radius: 999px; background: #e0e7ff; color: #3730a3; }
+    .typechip.other { background: #fee2e2; color: var(--bad); }
+    .notice { margin-top: .4rem; padding: .4rem .5rem; border-radius: 6px; background: #fef3c7; color: var(--warn); font-size: .85rem; }
     .sbx .body { white-space: pre-wrap; color: #3f3f46; margin-top: .2rem; }
   </style>
 </head>
@@ -81,6 +84,7 @@
   <main>
     <div id="pages"></div>
     <aside id="panel" hidden>
+      <section class="card"><h2>Document type</h2><div id="doctype"></div></section>
       <section class="card"><h2>Run timeline</h2><div id="steps"></div></section>
       <section class="card"><h2>Fields</h2><div id="fields"></div></section>
       <section class="card"><h2>Obligations</h2><div id="obligations"></div></section>
@@ -137,6 +141,7 @@
         renderPage(await (await fetch(`/documents/${doc.document_id}/pages/${n}`)).json());
       }
       currentRun = doc.run_id;
+      renderDocType(await (await fetch(`/runs/${doc.run_id}`)).json());
       const [steps, fields, obligations] = await Promise.all(
         ['steps', 'fields', 'obligations'].map((k) => fetch(`/runs/${doc.run_id}/${k}`).then((r) => r.json()))
       );
@@ -241,6 +246,20 @@
       }
       box.appendChild(document.createTextNode(text.slice(last)));
       return box;
+    }
+
+    const TYPE_LABELS = { lease: 'Commercial lease', insurance_certificate: 'Certificate of liability insurance', other: 'Other' };
+
+    function renderDocType(run) {
+      const root = $('doctype');
+      root.replaceChildren();
+      const type = run.doc_type || 'lease';  // runs saved before classification existed are leases
+      root.appendChild(el('span', 'typechip' + (type === 'other' ? ' other' : ''), TYPE_LABELS[type] || type));
+      if (run.classification) {
+        root.appendChild(el('div', 'meta', run.classification.summary || ''));
+        root.appendChild(el('div', 'why', run.classification.reason || ''));
+      }
+      if (run.message) root.appendChild(el('div', 'notice', run.message.charAt(0).toUpperCase() + run.message.slice(1) + '.'));
     }
 
     function renderSteps(steps) {
