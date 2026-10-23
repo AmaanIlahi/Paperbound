@@ -51,6 +51,11 @@ def _table(head: list[str], rows: list[list[str]]) -> str:
     return f'<div class="table-wrap"><table class="evals-table"><thead><tr>{th}</tr></thead><tbody>{tr}</tbody></table></div>'
 
 
+def _runs(run: dict) -> str:
+    runs = run.get("runs") or {}
+    return ", ".join(f"{t} {ts}" for t, ts in runs.items()) or run["timestamp"]
+
+
 def _synthetic_html(run: dict) -> str:
     groups = run["groups"]
     head = ["Type", "Variant", "Docs", "Classified", "Fields", "Missing handled", "Grounded", "Page", "Obligation", "Brief lines",
@@ -130,7 +135,7 @@ def _suite_html(directory=None) -> str:
             '<section class="eval-suite"><h2>Synthetic fixtures</h2><p class="note"><b>Template-generated.</b> '
             f'{r["n_docs"]} documents ({n_fields} scored fields) rendered from seeded random values in 3 layouts per type, with '
             "distractors, missing fields, late pages and injected text. Easier and more regular than real documents, so read it as a "
-            f'regression check, not as accuracy on your documents. Run {escape(r["timestamp"])}, as of {escape(r["as_of"])}.</p>'
+            f'regression check, not as accuracy on your documents. Runs: {escape(_runs(r))}; as of {escape(r["as_of"])}.</p>'
             f"{_synthetic_html(r)}{_modes_html(r)}</section>"
         )
     if "cuad" in runs:

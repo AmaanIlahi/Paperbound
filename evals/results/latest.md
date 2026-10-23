@@ -2,7 +2,7 @@
 
 The synthetic set is **template-generated** (seeded; a few layouts per type, so it is easier than real documents). CUAD is **real contracts** scored by **span overlap** against human labels. Neither is a benchmark of production accuracy.
 
-## synthetic (run 20261023_022926, as of 2026-10-22, 40 documents)
+## synthetic (run lease 20261023_030905, insurance_certificate 20261023_022926, as of 2026-10-22, 40 documents)
 
 | Group | Docs | Classif. | Field acc. | Missing ok | Grounding | Page acc. | Oblig. | Brief lines | Actions | Cost/doc | p95 latency |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -11,11 +11,11 @@ The synthetic set is **template-generated** (seeded; a few layouts per type, so 
 | insurance_certificate/injection | 3 | 100.0% | 98.0% | - | 98.0% | 100.0% | 100.0% | 100.0% | 100.0% | $0.0013 | 9.7 s |
 | insurance_certificate/late_page | 2 | 100.0% | 100.0% | - | 100.0% | 100.0% | 100.0% | 100.0% | 100.0% | $0.0013 | 8.2 s |
 | insurance_certificate/missing_field | 3 | 100.0% | 98.0% | 66.7% | 95.9% | 100.0% | 100.0% | 100.0% | 100.0% | $0.0012 | 8.6 s |
-| lease/all | 20 | 100.0% | 97.1% | 66.7% | 98.9% | 100.0% | 70.0% | 70.1% | 50.0% | $0.0014 | 12.2 s |
-| lease/clean | 12 | 100.0% | 97.0% | - | 99.4% | 100.0% | 66.7% | 67.7% | 41.7% | $0.0014 | 17.5 s |
-| lease/injection | 3 | 100.0% | 100.0% | - | 100.0% | 100.0% | 66.7% | 91.7% | 66.7% | $0.0013 | 10.3 s |
-| lease/late_page | 2 | 100.0% | 100.0% | - | 96.4% | 100.0% | 100.0% | 81.2% | 100.0% | $0.0017 | 12.2 s |
-| lease/missing_field | 3 | 100.0% | 92.9% | 66.7% | 97.5% | 100.0% | 66.7% | 44.4% | 33.3% | $0.0011 | 11.1 s |
+| lease/all | 20 | 100.0% | 97.9% | 100.0% | 99.6% | 100.0% | 100.0% | 81.2% | 85.0% | $0.0015 | 12.0 s |
+| lease/clean | 12 | 100.0% | 97.6% | - | 100.0% | 100.0% | 100.0% | 81.2% | 83.3% | $0.0016 | 13.4 s |
+| lease/injection | 3 | 100.0% | 100.0% | - | 100.0% | 100.0% | 100.0% | 100.0% | 100.0% | $0.0015 | 11.3 s |
+| lease/late_page | 2 | 100.0% | 100.0% | - | 96.4% | 100.0% | 100.0% | 81.2% | 100.0% | $0.0017 | 12.0 s |
+| lease/missing_field | 3 | 100.0% | 95.2% | 100.0% | 100.0% | 100.0% | 100.0% | 55.6% | 66.7% | $0.0013 | 11.1 s |
 
 ### Injection
 
@@ -40,25 +40,25 @@ ECE: 0.015 over 373 fields.
 
 | Confidence | Fields | Accuracy | Mean confidence |
 |---|---|---|---|
-| <0.7 | 11 | 72.7% | 0.70 |
-| 0.7-0.9 | 3 | 66.7% | 0.87 |
-| >=0.9 | 264 | 98.5% | 1.00 |
+| <0.7 | 3 | 33.3% | 0.70 |
+| 0.7-0.9 | 1 | 100.0% | 0.85 |
+| >=0.9 | 273 | 98.5% | 1.00 |
 
-ECE: 0.017 over 278 fields.
+ECE: 0.018 over 277 fields.
 
 
 ### Top failure modes
 
-- action: 10
-- wrong_field: current_rent: 7
-- obligation: 6
-- brief_withheld: deadline: 6
-- brief_withheld: days_remaining: 6
+- wrong_field: current_rent: 6
 - wrong_field: type: 5
 - brief_wrong: current_rent: 4
 - brief_wrong: next_rent: 4
+- brief_wrong: holdover_rent: 4
+- brief_wrong: holdover_extra: 4
+- action: 3
+- brief_withheld: holdover_rent: 3
 
-Failure log: `evals/results/failures_synthetic_20261023_022926.json`
+Failure log: `evals/results/failures_synthetic_20261023_030905.json`
 
 
 ## cuad (run 20261023_023204, as of 2026-10-22, 50 documents)

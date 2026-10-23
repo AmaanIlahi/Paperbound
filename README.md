@@ -150,10 +150,10 @@ a regression check on regular documents, easier than real ones.
 
 | Type (20 docs each) | Classified | Field accuracy | Missing fields handled | Grounded | Page right | Obligation right | Brief lines right | Actions right | Cost / doc |
 |---|---|---|---|---|---|---|---|---|---|
-| Lease (280 fields) | 100% | 97.1% | 2 of 3 | 98.9% | 100% | 70% | 70.1% | 50% | $0.0014 |
+| Lease (280 fields) | 100% | 97.9% | 3 of 3 | 99.6% | 100% | 100% | 81.2% | 85% | $0.0015 |
 | Certificate (375 fields) | 100% | 98.4% | 2 of 3 | 98.1% | 100% | 100% | 100% | 100% | $0.0014 |
 
-Calibration: ECE 0.017 (lease) and 0.015 (certificate), but 95 to 98% of fields sit in the top bucket (confidence 0.9 or
+Lease numbers are from the part-7b rerun (see below); certificate numbers from the first run. Calibration: ECE 0.018 (lease) and 0.015 (certificate), but 95 to 98% of fields sit in the top bucket (confidence 0.9 or
 more) and the buckets below it hold 3 to 11 fields each, so the table says little about the low end. Latency is about 9 s
 a document (p95 12 to 13 s), run one document at a time.
 
@@ -186,11 +186,24 @@ simulating a fooled model, see below).
    later year's row). Where the lease has a rent table the cross-check flagged all 3 and the figure was withheld
    (confidence 0.70); where the schedule is prose, 4 of 4 went through unflagged at confidence 0.9996, and the brief and
    the drafted emails carried the wrong rent.
-2. **"Ninety (90) calendar days" is rejected.** The notice-period quote rule wants "days" right after the number, so in
-   all 6 leases from the template that writes "calendar days" the notice period was blocked: no deadline, no brief
-   line, no actions. A validator gap that real leases would hit.
+2. **"Ninety (90) calendar days" was rejected (fixed in part 7b).** The notice-period quote rule wanted "days" right
+   after the number, so in all 6 leases from the template that writes "calendar days" the notice period was blocked
+   (no deadline, no brief line, no actions). The rule now accepts "N days", "N calendar days" and "N business days" in
+   digits or words; business days are flagged `notice_unit_business_days` and no obligation is derived (a business-day
+   deadline needs a holiday calendar). Rerunning only the lease suite (40 calls) against the saved baseline: obligations
+   70% to 100%, actions 50% to 85%, brief lines 70.1% to 81.2%, field accuracy 97.1% to 97.9%, and no metric dropped by
+   more than 2 points, so the lease rows of `evals/baseline.json` were replaced. Part of that gain is not the fix: in
+   the first run the model invented a holdover rate for one lease that has none and in the rerun it did not (missing
+   fields handled 2 of 3 to 3 of 3), which is the run-to-run noise to expect from single runs.
 3. **Overlap on long clauses (CUAD).** Recall on expiration, renewal and notice clauses is 30 to 40% because the quote
    is capped at 30 words while the labeled span is the whole clause.
+
+**Known failure mode, not fixed: a prose rent schedule.** When the rent schedule is written as sentences instead of a
+table, nothing can cross-check `current_rent`. In the rerun it was wrong in 6 of 20 leases (7 of 20 before): the 2 leases
+with a rent table were flagged `conflicting_values` and withheld (confidence 0.70), but all 4 prose-schedule leases (the
+model picked the neighboring lease year) went through unflagged at confidence 0.9996, so the brief and the drafted
+emails carried the wrong current, next and holdover rent. Probable fix, left for later: recompute the expected rent for today from the grounded start date, first-year rent
+and escalation, and flag a disagreement.
 
 Others worth knowing: short quotes misread by the model (`UMBRA LIAB` for `UMBRELLA LIAB`, 5 times) were flagged
 ungrounded but kept a confidence of 0.92; a certificate with no producer got the authorized representative's name as the

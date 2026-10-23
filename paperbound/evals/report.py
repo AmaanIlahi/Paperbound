@@ -211,18 +211,37 @@ def save_baseline(flat: dict[str, float], extra: dict, path: Path = BASELINE) ->
 # ---------------------------------------------------------------------------------------------------------------
 
 def latest_runs(directory: Path | None = None) -> dict[str, dict]:
-    """The newest saved result per suite (synthetic_*.json, cuad_*.json)."""
+    """The newest saved result per suite (synthetic_*.json, cuad_*.json).
+
+    A synthetic run may cover one document type (`--doc-type lease`), so the synthetic entry is assembled from the newest
+    run of each type; `runs` says which timestamp each type comes from.
+    """
     out = {}
     for suite in ("synthetic", "cuad"):
         files = sorted((directory or RESULTS_DIR).glob(f"{suite}_[0-9]*.json"))
+        merged, records = None, []
         for path in reversed(files):
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 continue
-            if data.get("suite") == suite:
+            if data.get("suite") != suite or not data.get("groups"):
+                continue
+            if suite == "cuad":
                 out[suite] = {**data, "_file": path.name}
                 break
+            types = {g.split("/")[0] for g in data["groups"]}
+            if merged is None:
+                merged = {**data, "_file": path.name, "groups": {}, "n_docs": 0, "runs": {}}
+            for doc_type in sorted(types - set(merged["runs"])):
+                merged["runs"][doc_type] = data["timestamp"]
+                merged["groups"].update({k: v for k, v in data["groups"].items() if k.split("/")[0] == doc_type})
+                merged["n_docs"] += data["groups"][f"{doc_type}/all"]["n_docs"]
+                records += [r for r in data["records"] if r["doc_type"] == doc_type]
+        if merged is not None:
+            merged["groups"] = dict(sorted(merged["groups"].items()))
+            merged["failure_modes"] = failure_modes(failures_synthetic(records))
+            out[suite] = merged
     return out
 
 
@@ -246,7 +265,8 @@ def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None =
           "CUAD is **real contracts** scored by **span overlap** against human labels. Neither is a benchmark of "
           "production accuracy.", ""]
     for suite, run in runs.items():
-        md += [f"## {suite} (run {run['timestamp']}, as of {run['as_of']}, {run['n_docs']} documents)", ""]
+        runs = ", ".join(f"{t} {ts}" for t, ts in (run.get("runs") or {}).items()) or run["timestamp"]
+        md += [f"## {suite} (run {runs}, as of {run['as_of']}, {run['n_docs']} documents)", ""]
         if run.get("aborted"):
             md += [f"**Aborted:** {run['aborted']}", ""]
         groups = run["groups"]

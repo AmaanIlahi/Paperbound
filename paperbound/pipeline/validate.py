@@ -14,7 +14,7 @@ SUSPICIOUS_CONFIDENCE_CAP = 0.3
 # Any of these flags means the validator weight is dropped from the confidence.
 CHECK_FLAGS = {
     "invalid_date", "end_before_start", "invalid_amount", "invalid_notice_period", "invalid_percent",
-    "value_not_in_quote", "quote_rule_failed", "conflicting_values",
+    "value_not_in_quote", "quote_rule_failed", "conflicting_values", "notice_unit_business_days",
 }
 # Fields carrying any of these flags are never used for obligations or actions.
 BLOCKING_FLAGS = CHECK_FLAGS | {"ungrounded", "suspicious_instruction", "not_found"}
@@ -224,7 +224,10 @@ _NUMBER_WORDS = "|".join([*_UNITS, *_TENS, "hundred"])
 _PERCENT_RE = re.compile(r"%|\bper\s?cent\b", re.I)
 _DELIVERY_RE = re.compile(r"\b(?:mail|courier|deliver\w*|e-?mail|fax|hand|person|post\w*|registered|writing|written)\b", re.I)
 _SECTION_RE = re.compile(r"\b(?i:section|article|clause)\b|§|(?:^|\s)\d+(?:\.\d+)*\.?\s+[A-Z]")
-_DAYS_RE = re.compile(rf"(?:\d+|\b(?:{_NUMBER_WORDS})\b)\)?\s*-?\s*days?\b", re.I)
+_DAYS_RE = re.compile(  # "90 days", "90-day", "ninety (90) calendar days", "ninety (90) business days"
+    rf"(?:\d+|\b(?:{_NUMBER_WORDS})\b)\)?\s*-?\s*(?:(?:calendar|business|working|consecutive)\s+)?days?\b", re.I
+)
+_BUSINESS_DAYS_RE = re.compile(rf"(?:\d+|\b(?:{_NUMBER_WORDS})\b)\)?\s*-?\s*(?:business|working)\s+days?\b", re.I)
 _INSTRUCTION_RE = re.compile(
     r"\b(?:ignore|disregard|instructions?|assistant)\b|\bsystem\s*:|\bset\s+[\w.]+\s+to\b", re.I
 )
@@ -329,6 +332,8 @@ def _validate_items(items, pages) -> list[ValidatedField]:
             flags.append("value_not_in_quote")
         if not quote_rule_ok(name, quote):
             flags.append("quote_rule_failed")
+        if rule_name(name) == "notice_period_days" and quote and _BUSINESS_DAYS_RE.search(quote):
+            flags.append("notice_unit_business_days")  # a business-day deadline needs a holiday calendar: not derived
         if looks_like_instruction(quote):
             flags.append("suspicious_instruction")
 

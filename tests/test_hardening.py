@@ -47,6 +47,11 @@ def f(value, quote, page=1):
         ("notice_period_days", "at least ninety (90) days before", True),
         ("notice_period_days", "at least ninety days before", True),
         ("notice_period_days", "a 90-day notice", True),
+        ("notice_period_days", "at least ninety (90) calendar days before", True),
+        ("notice_period_days", "not less than 90 calendar days prior", True),
+        ("notice_period_days", "at least sixty (60) business days before", True),
+        ("notice_period_days", "at least 30 days before", True),
+        ("notice_period_days", "at least 90 calendar before the date", False),
         ("notice_period_days", "at least 90 before the date", False),
         ("notice_period_days", "give notice promptly in days of need", False),
         ("landlord", "anything at all", True),
@@ -171,3 +176,28 @@ def test_multiline_quote_grounds_to_one_box_per_line():
     assert len(rent.bboxes) == 2
     assert rent.bboxes[0][1] == 0 and rent.bboxes[1][1] == 12
     assert rent.bbox == [0, 0, 390, 22]
+
+
+def _notice_fields(text, quote, value=60):
+    page = make_page(1, "The Term expires on March 31, 2027. " + text)
+    return validate_fields(
+        lease(end_date=f("2027-03-31", "The Term expires on March 31, 2027."), notice_period_days=f(value, quote)), [page]
+    )
+
+
+def test_calendar_days_notice_is_accepted_and_derives_the_obligation():
+    quote = "at least sixty (60) calendar days prior written notice"
+    fields = _notice_fields(quote, quote)
+    notice = {x.name: x for x in fields}["notice_period_days"]
+    assert notice.flags == [] and notice.validators_passed
+    obligations, _ = derive_obligations(fields)
+    assert [o.due_date.isoformat() for o in obligations] == ["2027-01-30"]
+
+
+def test_business_days_notice_is_flagged_and_no_obligation_is_derived():
+    quote = "at least sixty (60) business days prior written notice"
+    fields = _notice_fields(quote, quote)
+    notice = {x.name: x for x in fields}["notice_period_days"]
+    assert "notice_unit_business_days" in notice.flags and not notice.validators_passed
+    obligations, skipped = derive_obligations(fields)
+    assert obligations == [] and "notice_unit_business_days" in skipped[0]
