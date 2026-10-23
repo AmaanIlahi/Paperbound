@@ -219,7 +219,7 @@ def latest_runs(directory: Path | None = None) -> dict[str, dict]:
     out = {}
     for suite in ("synthetic", "cuad"):
         files = sorted((directory or RESULTS_DIR).glob(f"{suite}_[0-9]*.json"))
-        merged, records = None, []
+        merged, records, fallback_modes = None, [], []
         for path in reversed(files):
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
@@ -237,10 +237,11 @@ def latest_runs(directory: Path | None = None) -> dict[str, dict]:
                 merged["runs"][doc_type] = data["timestamp"]
                 merged["groups"].update({k: v for k, v in data["groups"].items() if k.split("/")[0] == doc_type})
                 merged["n_docs"] += data["groups"][f"{doc_type}/all"]["n_docs"]
-                records += [r for r in data["records"] if r["doc_type"] == doc_type]
+                records += [r for r in data.get("records", []) if r["doc_type"] == doc_type]
+                fallback_modes += data["failure_modes"]
         if merged is not None:
             merged["groups"] = dict(sorted(merged["groups"].items()))
-            merged["failure_modes"] = failure_modes(failures_synthetic(records))
+            merged["failure_modes"] = failure_modes(failures_synthetic(records)) if records else fallback_modes
             out[suite] = merged
     return out
 
