@@ -1,0 +1,204 @@
+{
+  "id": "lease_019",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "A",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 2,
+  "fields": {
+    "landlord": {
+      "value": "Summit Asset Group LLC",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Summit Asset Group LLC"
+      ]
+    },
+    "tenant": {
+      "value": "Blue Heron Logistics LLC",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Blue Heron Logistics LLC"
+      ]
+    },
+    "premises_address": {
+      "value": "Suite 590, 441 Oak Lane, Tucson, AZ 85701",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Suite 590, 441 Oak Lane, Tucson, AZ 85701"
+      ]
+    },
+    "start_date": {
+      "value": "2023-01-01",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "January 1, 2023"
+      ]
+    },
+    "end_date": {
+      "value": "2027-12-31",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "December 31, 2027"
+      ]
+    },
+    "rent_amount": {
+      "value": 21263.97,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$21,263.97"
+      ]
+    },
+    "rent_period": {
+      "value": "monthly",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "per month"
+      ]
+    },
+    "notice_period_days": {
+      "value": 90,
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "ninety (90) days"
+      ]
+    },
+    "holdover_rate_percent": {
+      "value": 200,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "two hundred percent (200%)",
+        "(200%)",
+        "two hundred percent"
+      ]
+    },
+    "security_deposit": {
+      "value": 21263.97,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$21,263.97"
+      ]
+    },
+    "notice_method": {
+      "value": {
+        "contains": [
+          "certified mail"
+        ]
+      },
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "certified mail or nationally recognized overnight courier"
+      ]
+    },
+    "notice_section": {
+      "value": "Section 10",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "Renewal; Termination at Expiration"
+      ]
+    },
+    "rent_escalation_percent": {
+      "value": 4,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "four percent (4%)"
+      ]
+    },
+    "current_rent": {
+      "value": 23919.07,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$23,919.07"
+      ]
+    }
+  },
+  "missing": null,
+  "rent_schedule": [
+    {
+      "start": "2023-01-01",
+      "end": "2023-12-31",
+      "amount": 21263.97
+    },
+    {
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "amount": 22114.53
+    },
+    {
+      "start": "2025-01-01",
+      "end": "2025-12-31",
+      "amount": 22999.11
+    },
+    {
+      "start": "2026-01-01",
+      "end": "2026-12-31",
+      "amount": 23919.07
+    },
+    {
+      "start": "2027-01-01",
+      "end": "2027-12-31",
+      "amount": 24875.83
+    }
+  ],
+  "obligations": [
+    {
+      "kind": "deadline",
+      "due_date": "2027-10-02"
+    }
+  ],
+  "brief": {
+    "deadline": "2027-10-02",
+    "days_remaining": 345,
+    "current_rent": 23919.07,
+    "next_rent": 24875.83,
+    "holdover_rent": 47838.14,
+    "holdover_extra": 23919.07,
+    "holdover_percent": 200.0,
+    "security_deposit": 21263.97
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 2,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2027-08-03",
+      "2027-09-02",
+      "2027-09-18"
+    ],
+    "deadline": "2027-10-02",
+    "tracker_status": "decision needed",
+    "counterparty": "Summit Asset Group LLC"
+  },
+  "injection": null
+}

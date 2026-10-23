@@ -8,3 +8,6 @@ __pycache__/
 *.log
 
 MORNING_REPORT*.md
+
+evals/datasets/
+evals/.budget.json

@@ -1,0 +1,200 @@
+{
+  "id": "coi_007",
+  "doc_type": "insurance_certificate",
+  "variant": "missing_field",
+  "template": "A",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 1,
+  "fields": {
+    "insured": {
+      "value": "Quantum Dental Group LP",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Quantum Dental Group LP"
+      ]
+    },
+    "certificate_holder": {
+      "value": "Ashford Asset Group LLC",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Ashford Asset Group LLC"
+      ]
+    },
+    "producer": {
+      "value": "Beacon Hill Assurance Services Inc.",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Beacon Hill Assurance Services Inc."
+      ]
+    },
+    "policy_1.type": {
+      "value": {
+        "contains": [
+          "general"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "COMMERCIAL GENERAL LIABILITY"
+      ]
+    },
+    "policy_1.insurer": {
+      "value": "Bluewater Underwriters Mutual Insurance Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Bluewater Underwriters Mutual Insurance Company"
+      ]
+    },
+    "policy_1.number": {
+      "value": "GL-2984323",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "GL-2984323"
+      ]
+    },
+    "policy_1.effective_date": {
+      "value": "2026-07-10",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "07/10/2026"
+      ]
+    },
+    "policy_1.expiration_date": {
+      "value": "2027-07-10",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "07/10/2027"
+      ]
+    },
+    "policy_1.each_occurrence_limit": {
+      "value": 2000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$2,000,000"
+      ]
+    },
+    "policy_1.aggregate_limit": {
+      "value": null
+    },
+    "policy_2.type": {
+      "value": {
+        "contains": [
+          "umbrella"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "UMBRELLA LIAB"
+      ]
+    },
+    "policy_2.insurer": {
+      "value": "Meridian Mutual Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Meridian Mutual Company"
+      ]
+    },
+    "policy_2.number": {
+      "value": "UM-4096644",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "UM-4096644"
+      ]
+    },
+    "policy_2.effective_date": {
+      "value": "2026-01-17",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "01/17/2026"
+      ]
+    },
+    "policy_2.expiration_date": {
+      "value": "2027-01-17",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "01/17/2027"
+      ]
+    },
+    "policy_2.each_occurrence_limit": {
+      "value": 10000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$10,000,000"
+      ]
+    },
+    "policy_2.aggregate_limit": {
+      "value": 10000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$10,000,000"
+      ]
+    }
+  },
+  "missing": "policy_1.aggregate_limit",
+  "policy_count": 2,
+  "min_each_occurrence": 1000000,
+  "obligations": [
+    {
+      "kind": "expiration",
+      "due_date": "2027-07-10"
+    },
+    {
+      "kind": "expiration",
+      "due_date": "2027-01-17"
+    }
+  ],
+  "brief": {
+    "earliest_expiration": "2027-01-17",
+    "days_remaining": 87,
+    "expiring_soon": 0,
+    "limit_check_1": true,
+    "limit_check_2": true
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 1,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2026-11-18",
+      "2026-12-18",
+      "2027-01-03"
+    ],
+    "deadline": "2027-01-17",
+    "tracker_status": "renewal needed",
+    "insured": "Quantum Dental Group LP"
+  },
+  "injection": null
+}

@@ -1,0 +1,205 @@
+{
+  "id": "lease_006",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "C",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 3,
+  "fields": {
+    "landlord": {
+      "value": "Oakridge Estates LLC",
+      "pages": [
+        1,
+        3
+      ],
+      "anchors": [
+        "Oakridge Estates LLC"
+      ]
+    },
+    "tenant": {
+      "value": "Sable Therapeutics Inc.",
+      "pages": [
+        1,
+        3
+      ],
+      "anchors": [
+        "Sable Therapeutics Inc."
+      ]
+    },
+    "premises_address": {
+      "value": "Suite 360, 618 Commerce Drive, Denver, CO 80202",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Suite 360, 618 Commerce Drive, Denver, CO 80202"
+      ]
+    },
+    "start_date": {
+      "value": "2023-06-01",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "06/01/2023"
+      ]
+    },
+    "end_date": {
+      "value": "2028-05-31",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "05/31/2028"
+      ]
+    },
+    "rent_amount": {
+      "value": 20391.32,
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "$20,391.32"
+      ]
+    },
+    "rent_period": {
+      "value": "monthly",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "per month"
+      ]
+    },
+    "notice_period_days": {
+      "value": 60,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "sixty (60) calendar days"
+      ]
+    },
+    "holdover_rate_percent": {
+      "value": 200,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "two hundred percent (200%)",
+        "(200%)",
+        "two hundred percent"
+      ]
+    },
+    "security_deposit": {
+      "value": 20391.32,
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "$20,391.32"
+      ]
+    },
+    "notice_method": {
+      "value": {
+        "contains": [
+          "certified mail"
+        ]
+      },
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "certified mail or nationally recognized overnight courier"
+      ]
+    },
+    "notice_section": {
+      "value": "Section 5",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "Renewal; Termination at Expiration"
+      ]
+    },
+    "rent_escalation_percent": {
+      "value": 3,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "three percent (3%)"
+      ]
+    },
+    "current_rent": {
+      "value": 22282.14,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "$22,282.14"
+      ]
+    }
+  },
+  "missing": null,
+  "rent_schedule": [
+    {
+      "start": "2023-06-01",
+      "end": "2024-05-31",
+      "amount": 20391.32
+    },
+    {
+      "start": "2024-06-01",
+      "end": "2025-05-31",
+      "amount": 21003.06
+    },
+    {
+      "start": "2025-06-01",
+      "end": "2026-05-31",
+      "amount": 21633.15
+    },
+    {
+      "start": "2026-06-01",
+      "end": "2027-05-31",
+      "amount": 22282.14
+    },
+    {
+      "start": "2027-06-01",
+      "end": "2028-05-31",
+      "amount": 22950.6
+    }
+  ],
+  "obligations": [
+    {
+      "kind": "deadline",
+      "due_date": "2028-04-01"
+    }
+  ],
+  "brief": {
+    "deadline": "2028-04-01",
+    "days_remaining": 527,
+    "current_rent": 22282.14,
+    "next_rent": 22950.6,
+    "holdover_rent": 44564.28,
+    "holdover_extra": 22282.14,
+    "holdover_percent": 200.0,
+    "security_deposit": 20391.32
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 2,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2028-02-01",
+      "2028-03-02",
+      "2028-03-18"
+    ],
+    "deadline": "2028-04-01",
+    "tracker_status": "decision needed",
+    "counterparty": "Oakridge Estates LLC"
+  },
+  "injection": null
+}

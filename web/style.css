@@ -404,3 +404,7 @@ body[data-view="run"] { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+.evals h2 { font-size: 20px; margin: var(--s4) 0 var(--s1); }
+.evals h3 { font-size: 15px; margin: var(--s3) 0 var(--s1); }
+.evals .note { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--s2); font-size: 14px; }
+.evals ol { padding-left: var(--s3); font-size: 14px; }

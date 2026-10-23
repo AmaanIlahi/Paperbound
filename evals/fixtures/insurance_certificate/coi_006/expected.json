@@ -1,0 +1,206 @@
+{
+  "id": "coi_006",
+  "doc_type": "insurance_certificate",
+  "variant": "late_page",
+  "template": "C",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 2,
+  "fields": {
+    "insured": {
+      "value": "Ivory Labs Corp.",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Ivory Labs Corp."
+      ]
+    },
+    "certificate_holder": {
+      "value": "Brookline Realty Partners LP",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "Brookline Realty Partners LP"
+      ]
+    },
+    "producer": {
+      "value": "Foxglove Assurance Services Inc.",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Foxglove Assurance Services Inc."
+      ]
+    },
+    "policy_1.type": {
+      "value": {
+        "contains": [
+          "general"
+        ]
+      },
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "COMMERCIAL GENERAL LIABILITY"
+      ]
+    },
+    "policy_1.insurer": {
+      "value": "Redstone Assurance Company",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Redstone Assurance Company"
+      ]
+    },
+    "policy_1.number": {
+      "value": "GL-8159662",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "GL-8159662"
+      ]
+    },
+    "policy_1.effective_date": {
+      "value": "2025-11-15",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "15 November 2025"
+      ]
+    },
+    "policy_1.expiration_date": {
+      "value": "2026-11-15",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "15 November 2026"
+      ]
+    },
+    "policy_1.each_occurrence_limit": {
+      "value": 1000000.0,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "$1,000,000"
+      ]
+    },
+    "policy_1.aggregate_limit": {
+      "value": 2000000.0,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "$2,000,000"
+      ]
+    },
+    "policy_2.type": {
+      "value": {
+        "contains": [
+          "umbrella"
+        ]
+      },
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "UMBRELLA LIAB"
+      ]
+    },
+    "policy_2.insurer": {
+      "value": "Alder Creek Mutual Company",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Alder Creek Mutual Company"
+      ]
+    },
+    "policy_2.number": {
+      "value": "UM-3108843",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "UM-3108843"
+      ]
+    },
+    "policy_2.effective_date": {
+      "value": "2026-04-07",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "7 April 2026"
+      ]
+    },
+    "policy_2.expiration_date": {
+      "value": "2027-04-07",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "7 April 2027"
+      ]
+    },
+    "policy_2.each_occurrence_limit": {
+      "value": 10000000.0,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "$10,000,000"
+      ]
+    },
+    "policy_2.aggregate_limit": {
+      "value": 10000000.0,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "$10,000,000"
+      ]
+    }
+  },
+  "missing": null,
+  "policy_count": 2,
+  "min_each_occurrence": 1000000,
+  "obligations": [
+    {
+      "kind": "expiration",
+      "due_date": "2026-11-15"
+    },
+    {
+      "kind": "expiration",
+      "due_date": "2027-04-07"
+    }
+  ],
+  "brief": {
+    "earliest_expiration": "2026-11-15",
+    "days_remaining": 24,
+    "expiring_soon": 1,
+    "limit_check_1": true,
+    "limit_check_2": true
+  },
+  "actions": {
+    "create_calendar_event": 1,
+    "draft_email": 1,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2026-11-01"
+    ],
+    "deadline": "2026-11-15",
+    "tracker_status": "renewal needed",
+    "insured": "Ivory Labs Corp."
+  },
+  "injection": null
+}

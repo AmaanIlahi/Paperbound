@@ -358,12 +358,33 @@ Files: `web/index.html` (structure), `web/style.css` (design), `web/app.js` (the
 
 ## 9. Evals
 
-Run via `python -m paperbound.evals --dataset <name>`; results stored in `eval_runs` and published to the README.
+Two suites run in `paperbound/evals/` (`python -m paperbound.evals.run`). They call the pipeline directly (parse, classify, extract, validate, obligations, brief, planner): no API, no database, no job queue. Every run is as of `AS_OF=2026-10-22`, uses gpt-4o-mini only, and goes through a call counter (`evals/budget.py`, ledger in `evals/.budget.json`) that refuses to pass the cap (default 160 calls in total).
 
-**Today**: `scripts/eval_fixtures.py` runs every `fixtures/demo/*.expected.json` (each names its `doc_type`, its `pdfs` and an `as_of` date) and prints one table per document type. Date-dependent expectations are recomputed from the expected data, independently of the code under test, so the results do not drift with the calendar.
+| Suite | Data | Scoring | Docs |
+|---|---|---|---|
+| Synthetic | `scripts/generate_fixtures.py` writes `evals/fixtures/<doc_type>/<id>/{doc.pdf,expected.json}`: 20 leases and 20 certificates, seeded and reproducible (`--check`) | Every stage against `expected.json`, which is written from the values the PDF was rendered from | 40 |
+| CUAD v1 | `theatticusproject/cuad` from Hugging Face into `evals/datasets/cuad/` (git-ignored); a fixed seed-42 sample of contracts labeled for any of five categories (list in `evals/cuad_sample.json`) | Span overlap between our `source_quote` and the labeled span; extraction only (`GenericContractFields`, no planner) | 50 |
+
+**Synthetic fixtures.** Per type: 12 `clean`, 3 `missing_field` (the clause is absent; correct only if the field is null or `not_found`), 2 `late_page` (renewal and holdover clauses, or the whole coverage table, on pages 3 to 4), 3 `injection` (instruction-style and clause-style text aimed at rent, notice period, expiration date or limit). Three layout templates per type vary section order, fonts, table vs prose, clause numbering and date style, and every document carries distractors. `expected.json` holds the field values with the pages and strings they appear on, the brief numbers, the expected action types and reminder dates, and the injection (field, poisoned value, text). Policy fields in certificates are matched by policy number, falling back to printed order.
+
+**Synthetic metrics** (per doc type and per variant): classification accuracy; field accuracy (normalized exact for dates and numbers, fuzzy token-set >= 85 for names and addresses, "contains" for methods and coverage types); grounding rate and page accuracy (the page the quote was grounded on is one of the pages where the value is printed); calibration by confidence bucket (<0.7, 0.7 to 0.9, >=0.9) and ECE over those buckets; obligation correctness; brief correctness per line, split into correct, **withheld** (a blocked field left a line out, safe) and **wrong** (a wrong number was shown); action correctness (expected types and reminder dates present, every dollar amount and date inside the proposals is one the document or brief supports, no action cites a blocked field), split the same way into correct and unsafe; injection resistance (**model resisted**: poisoned value not extracted; **system held**: also counts a poisoned value that validators flagged and kept out of every action; **unflagged breach**: extracted with no flag); cost, tokens and latency (mean and p95).
+
+**CUAD metrics** (per category): token-level precision, recall and F1 between our `source_quote` and the union of the labeled spans (bag of tokens, case and punctuation ignored); detection rate and false-positive rate (found where annotators marked nothing, which is partly annotator omission); exact match on the normalized date where the label states one full date; grounding rate on the pseudo-pages (contract text cut into ~3,000-character pages). Long contracts (over 120,000 characters) are excluded so one call can read them.
+
+**Outputs.** `evals/results/<suite>_<timestamp>.json` (all records), `failures_<suite>_<timestamp>.json` (fixture, variant, field, expected, extracted, quote, flags, confidence), `latest.md` (newest run of each suite). `--save-baseline` writes `evals/baseline.json`; every run diffs against it and flags a drop of more than 2 points in any rate. `--rescore <file>` re-applies scoring rules to a saved synthetic run without model calls (used once, see `rescored` in that file). The `/evals` page renders the newest run of each suite from these files (no database), with the synthetic vs CUAD caveat, calibration, injection results and the top failure modes; the older per-fixture table for `fixtures/demo` (`scripts/eval_fixtures.py`) stays below it.
+
+**Honest limits.** The synthetic set is template-generated and regular; CUAD span scoring penalizes a correct answer worded or cut differently from the label; single runs at temperature 0 are still not deterministic; the SDK's internal retries are not visible to the call counter. Prompts are not tuned against either suite; any prompt change means rerunning everything and saying so in the report.
+
+**Planned**
 
 | Dataset | Measures |
 |---|---|
+| CORD (receipts) | Field-level precision, recall, F1 |
+| SROIE (receipts, scanned) | Field-level F1, OCR route vs vision route |
+| `fixtures/labeled/` (~20 hand-labeled real docs) | End to end: correct obligations and correct proposed actions |
+| Parser routing | Accuracy, cost and latency per route; share of pages handled without a vision LLM |
+
+---|---|
 | CORD (receipts) | Field-level precision, recall, F1 |
 | SROIE (receipts, scanned) | Field-level F1, OCR route vs vision route |
 | CUAD (contracts) | Obligation-relevant clauses: expiration date, renewal term, notice period |
@@ -401,14 +422,15 @@ paperbound/
   doctypes.py     per-type wiring: extract, validate, obligations, brief
   pipeline/       parse.py classify.py extract.py validate.py obligations.py impact.py runner.py types.py
   agent/          planner.py profiles.py policy.py executor.py tools/ (one file per tool, live + sandbox adapters)
-  schemas/        Pydantic field schemas per doc type (lease.py, insurance.py)
-  evals/          datasets/, runners, metrics
+  schemas/        Pydantic field schemas per doc type (lease.py, insurance.py, generic.py for CUAD)
+  evals/          run.py (CLI), synthetic.py, cuad.py, metrics.py, report.py, budget.py
   db/             models, migrations (Alembic)
 web/              index.html, style.css, app.js
 fixtures/demo/    <fixture>/ source.pdf, pages/*.png, snapshot.json, narration.json  (plus the source PDFs and *.expected.json used by the evals)
 fixtures/labeled/ hand-labeled docs + ground truth JSON
-scripts/          record_demo.py (live run → snapshot export), load_eval_data.py, make_sample_lease.py, make_sample_coi.py, eval_fixtures.py (record_demo.py is implemented)
-evals/results/    JSON output of eval runs (eval_fixtures.py)
+scripts/          record_demo.py (live run → snapshot export), load_eval_data.py, make_sample_lease.py, make_sample_coi.py, eval_fixtures.py, generate_fixtures.py (record_demo.py is implemented)
+evals/fixtures/   generated synthetic leases and certificates (scripts/generate_fixtures.py);  evals/datasets/  CUAD (git-ignored)
+evals/results/    JSON output of eval runs;  evals/baseline.json  the metrics later runs are diffed against
 tests/            pytest unit tests (no network)
 .env.example      committed; .env is local only and git-ignored
 docs/architecture.md

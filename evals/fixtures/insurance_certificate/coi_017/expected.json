@@ -1,0 +1,277 @@
+{
+  "id": "coi_017",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "B",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 1,
+  "fields": {
+    "insured": {
+      "value": "Evergreen Dental Group Inc.",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Evergreen Dental Group Inc."
+      ]
+    },
+    "certificate_holder": {
+      "value": "Silverton Capital Real Estate LLC",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Silverton Capital Real Estate LLC"
+      ]
+    },
+    "producer": {
+      "value": "Atlas Brokerage LLC",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Atlas Brokerage LLC"
+      ]
+    },
+    "policy_1.type": {
+      "value": {
+        "contains": [
+          "general"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "COMMERCIAL GENERAL LIABILITY"
+      ]
+    },
+    "policy_1.insurer": {
+      "value": "Bluewater Underwriters Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Bluewater Underwriters Company"
+      ]
+    },
+    "policy_1.number": {
+      "value": "GL-8192420",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "GL-8192420"
+      ]
+    },
+    "policy_1.effective_date": {
+      "value": "2025-12-15",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "December 15, 2025"
+      ]
+    },
+    "policy_1.expiration_date": {
+      "value": "2026-12-15",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "December 15, 2026"
+      ]
+    },
+    "policy_1.each_occurrence_limit": {
+      "value": 1000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$1,000,000"
+      ]
+    },
+    "policy_1.aggregate_limit": {
+      "value": 2000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$2,000,000"
+      ]
+    },
+    "policy_2.type": {
+      "value": {
+        "contains": [
+          "excess"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "EXCESS LIABILITY"
+      ]
+    },
+    "policy_2.insurer": {
+      "value": "Redstone Assurance Insurance Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Redstone Assurance Insurance Company"
+      ]
+    },
+    "policy_2.number": {
+      "value": "XS-9843671",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "XS-9843671"
+      ]
+    },
+    "policy_2.effective_date": {
+      "value": "2026-06-24",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "June 24, 2026"
+      ]
+    },
+    "policy_2.expiration_date": {
+      "value": "2027-06-24",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "June 24, 2027"
+      ]
+    },
+    "policy_2.each_occurrence_limit": {
+      "value": 3000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$3,000,000"
+      ]
+    },
+    "policy_2.aggregate_limit": {
+      "value": 3000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$3,000,000"
+      ]
+    },
+    "policy_3.type": {
+      "value": {
+        "contains": [
+          "umbrella"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "UMBRELLA LIAB"
+      ]
+    },
+    "policy_3.insurer": {
+      "value": "Landmark Surety Mutual Insurance Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Landmark Surety Mutual Insurance Company"
+      ]
+    },
+    "policy_3.number": {
+      "value": "UM-1434773",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "UM-1434773"
+      ]
+    },
+    "policy_3.effective_date": {
+      "value": "2026-04-06",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "April 6, 2026"
+      ]
+    },
+    "policy_3.expiration_date": {
+      "value": "2027-04-06",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "April 6, 2027"
+      ]
+    },
+    "policy_3.each_occurrence_limit": {
+      "value": 2000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$2,000,000"
+      ]
+    },
+    "policy_3.aggregate_limit": {
+      "value": 2000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$2,000,000"
+      ]
+    }
+  },
+  "missing": null,
+  "policy_count": 3,
+  "min_each_occurrence": 1000000,
+  "obligations": [
+    {
+      "kind": "expiration",
+      "due_date": "2026-12-15"
+    },
+    {
+      "kind": "expiration",
+      "due_date": "2027-06-24"
+    },
+    {
+      "kind": "expiration",
+      "due_date": "2027-04-06"
+    }
+  ],
+  "brief": {
+    "earliest_expiration": "2026-12-15",
+    "days_remaining": 54,
+    "expiring_soon": 1,
+    "limit_check_1": true,
+    "limit_check_2": true,
+    "limit_check_3": true
+  },
+  "actions": {
+    "create_calendar_event": 2,
+    "draft_email": 1,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2026-11-15",
+      "2026-12-01"
+    ],
+    "deadline": "2026-12-15",
+    "tracker_status": "renewal needed",
+    "insured": "Evergreen Dental Group Inc."
+  },
+  "injection": null
+}

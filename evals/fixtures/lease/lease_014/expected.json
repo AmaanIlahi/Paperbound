@@ -1,0 +1,198 @@
+{
+  "id": "lease_014",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "B",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 2,
+  "fields": {
+    "landlord": {
+      "value": "Ashford Realty Partners Inc.",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Ashford Realty Partners Inc."
+      ]
+    },
+    "tenant": {
+      "value": "Driftwood Analytics Inc.",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Driftwood Analytics Inc."
+      ]
+    },
+    "premises_address": {
+      "value": "Suite 150, 350 Mill Street, Madison, WI 53703",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Suite 150, 350 Mill Street, Madison, WI 53703"
+      ]
+    },
+    "start_date": {
+      "value": "2024-01-01",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "1 January 2024"
+      ]
+    },
+    "end_date": {
+      "value": "2027-12-31",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "31 December 2027"
+      ]
+    },
+    "rent_amount": {
+      "value": 17400.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$17,400.00"
+      ]
+    },
+    "rent_period": {
+      "value": "monthly",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "per month"
+      ]
+    },
+    "notice_period_days": {
+      "value": 180,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "180 days"
+      ]
+    },
+    "holdover_rate_percent": {
+      "value": 150,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "one hundred fifty percent (150%)",
+        "(150%)",
+        "one hundred fifty percent"
+      ]
+    },
+    "security_deposit": {
+      "value": 34800.0,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "$34,800.00"
+      ]
+    },
+    "notice_method": {
+      "value": {
+        "contains": [
+          "hand delivery"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "personal hand delivery with a signed receipt"
+      ]
+    },
+    "notice_section": {
+      "value": "Section 5",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Renewal; Termination at Expiration"
+      ]
+    },
+    "rent_escalation_percent": {
+      "value": 3.5,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "3.5%"
+      ]
+    },
+    "current_rent": {
+      "value": 18639.32,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$18,639.32"
+      ]
+    }
+  },
+  "missing": null,
+  "rent_schedule": [
+    {
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "amount": 17400.0
+    },
+    {
+      "start": "2025-01-01",
+      "end": "2025-12-31",
+      "amount": 18009.0
+    },
+    {
+      "start": "2026-01-01",
+      "end": "2026-12-31",
+      "amount": 18639.32
+    },
+    {
+      "start": "2027-01-01",
+      "end": "2027-12-31",
+      "amount": 19291.7
+    }
+  ],
+  "obligations": [
+    {
+      "kind": "deadline",
+      "due_date": "2027-07-04"
+    }
+  ],
+  "brief": {
+    "deadline": "2027-07-04",
+    "days_remaining": 255,
+    "current_rent": 18639.32,
+    "next_rent": 19291.7,
+    "holdover_rent": 27958.98,
+    "holdover_extra": 9319.66,
+    "holdover_percent": 150.0,
+    "security_deposit": 34800.0
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 2,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2027-05-05",
+      "2027-06-04",
+      "2027-06-20"
+    ],
+    "deadline": "2027-07-04",
+    "tracker_status": "decision needed",
+    "counterparty": "Ashford Realty Partners Inc."
+  },
+  "injection": null
+}

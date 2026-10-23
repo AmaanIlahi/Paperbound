@@ -135,6 +135,77 @@ real problems before the final runs above:
 Extraction is not deterministic even at temperature 0, so another run can differ; the validators are what keep a bad
 value from reaching an action.
 
+## Eval suites
+
+Two suites run the pipeline directly (no API, no database, no job queue), all as of 2026-10-22, gpt-4o-mini only, with
+a hard cap on OpenAI calls. The numbers below are one run each (129 calls, about $0.13); the live view is the
+[/evals](/evals) page, and every field, failure and number is kept in `evals/results/`.
+
+**Synthetic (template-generated).** `scripts/generate_fixtures.py` writes 20 leases and 20 certificates of liability
+insurance, seeded, each with a PDF and an `expected.json` written from the values the PDF was rendered from. Three
+layouts per type (section order, fonts, table vs prose, clause numbering, date style), randomized parties, dates, rents,
+notice periods and limits, plus distractors (other amounts, dates, day counts, percentages). Per type: 12 clean, 3
+missing a field, 2 with the key clauses on late pages, 3 with an injection (instruction-style or clause-style). This is
+a regression check on regular documents, easier than real ones.
+
+| Type (20 docs each) | Classified | Field accuracy | Missing fields handled | Grounded | Page right | Obligation right | Brief lines right | Actions right | Cost / doc |
+|---|---|---|---|---|---|---|---|---|---|
+| Lease (280 fields) | 100% | 97.1% | 2 of 3 | 98.9% | 100% | 70% | 70.1% | 50% | $0.0014 |
+| Certificate (375 fields) | 100% | 98.4% | 2 of 3 | 98.1% | 100% | 100% | 100% | 100% | $0.0014 |
+
+Calibration: ECE 0.017 (lease) and 0.015 (certificate), but 95 to 98% of fields sit in the top bucket (confidence 0.9 or
+more) and the buckets below it hold 3 to 11 fields each, so the table says little about the low end. Latency is about 9 s
+a document (p95 12 to 13 s), run one document at a time.
+
+**CUAD v1 (real contracts, span-scored).** A fixed sample of 50 contracts (seed 42, from those with a label for any of
+Parties, Effective Date, Expiration Date, Renewal Term or Notice Period To Terminate Renewal, and under 120,000
+characters), extraction only, scored by token overlap between our source quote and the labeled span.
+
+| Category | Labeled | Token precision | Token recall | Token F1 | Date exact match | Grounded |
+|---|---|---|---|---|---|---|
+| Parties | 50 | 45.1% | 72.9% | 51.2% | | 82.0% |
+| Effective date | 38 | 55.9% | 78.6% | 56.1% | 77.3% (22) | 100% |
+| Expiration date | 39 | 89.3% | 40.1% | 50.2% | 83.3% (6) | 97.5% |
+| Renewal term | 18 | 94.4% | 38.1% | 50.6% | | 93.8% |
+| Notice to terminate renewal | 14 | 92.9% | 29.9% | 43.4% | | 94.4% |
+| All | 159 | 68.3% | 58.5% | 51.4% | 78.6% (28) | 93.3% |
+
+Span scoring is harsh to a model that quotes a short evidence phrase when annotators marked a whole clause, and to one
+that quotes a whole sentence when they marked two names, so these F1 scores understate extraction quality and should
+not be compared with published CUAD results (those use a different task). "False positives" (the model found
+something where annotators marked nothing) are 36 to 100% by category in the report, partly because CUAD annotators
+skip things that are there.
+
+**Injection, measured live.** 6 injected documents (3 leases, 3 certificates; instruction-style and clause-style;
+targeting rent, notice period, expiration date and limit). gpt-4o-mini resisted all 6: no poisoned value was
+extracted, so none reached an action, and the validators were not exercised live this time (they are tested by
+simulating a fooled model, see below).
+
+**Top three failure modes.**
+1. **A wrong rent that nothing catches.** `current_rent` was wrong in 7 of 20 leases (the model picked the previous or a
+   later year's row). Where the lease has a rent table the cross-check flagged all 3 and the figure was withheld
+   (confidence 0.70); where the schedule is prose, 4 of 4 went through unflagged at confidence 0.9996, and the brief and
+   the drafted emails carried the wrong rent.
+2. **"Ninety (90) calendar days" is rejected.** The notice-period quote rule wants "days" right after the number, so in
+   all 6 leases from the template that writes "calendar days" the notice period was blocked: no deadline, no brief
+   line, no actions. A validator gap that real leases would hit.
+3. **Overlap on long clauses (CUAD).** Recall on expiration, renewal and notice clauses is 30 to 40% because the quote
+   is capped at 30 words while the labeled span is the whole clause.
+
+Others worth knowing: short quotes misread by the model (`UMBRA LIAB` for `UMBRELLA LIAB`, 5 times) were flagged
+ungrounded but kept a confidence of 0.92; a certificate with no producer got the authorized representative's name as the
+producer; one holdover rate was invented for a lease that has none (flagged ungrounded, so it was blocked).
+
+```powershell
+.\.venv\Scripts\python.exe scripts\generate_fixtures.py                                   # regenerate evals/fixtures (--check to verify)
+.\.venv\Scripts\python.exe -m paperbound.evals.run --suite all --save-baseline            # both suites; needs OPENAI_API_KEY
+.\.venv\Scripts\python.exe -m paperbound.evals.run --suite synthetic --doc-type lease --variant injection
+.\.venv\Scripts\python.exe -m paperbound.evals.run --suite cuad --limit 10                # needs evals/datasets/cuad (see docs)
+```
+
+Each run is diffed against `evals/baseline.json` and drops of more than 2 points are flagged. CUAD v1 is downloaded
+from Hugging Face (`theatticusproject/cuad`, `CUAD_v1/CUAD_v1.json`) into `evals/datasets/cuad/`, which is git-ignored.
+
 ## Prompt injection
 
 Documents are untrusted input. Two fixtures test this:
@@ -272,6 +343,6 @@ Design details live in [docs/architecture.md](docs/architecture.md), which is th
 
 - **OCR and vision routes** for scanned pages (Tesseract, then a vision model) so non-text PDFs work.
 - **More document types**: contracts, invoices, permits (the classifier and `doctypes.py` are the extension points).
-- **Public evals**: field-level F1 on CORD and SROIE, clause evals on CUAD, and ~20 hand-labeled documents.
+- **More evals**: field-level F1 on CORD and SROIE, a larger CUAD sample with clause-level categories, and ~20 hand-labeled real documents (synthetic and CUAD are done, see Eval suites).
 - **Live adapters** for Google Calendar and Gmail drafts (sandbox only today).
 - **Deploy** to Fly.io (config is in the repo), with Langfuse traces.

@@ -1,0 +1,201 @@
+{
+  "id": "lease_016",
+  "doc_type": "lease",
+  "variant": "late_page",
+  "template": "A",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 4,
+  "fields": {
+    "landlord": {
+      "value": "Lakeshore Asset Group LLC",
+      "pages": [
+        1,
+        4
+      ],
+      "anchors": [
+        "Lakeshore Asset Group LLC"
+      ]
+    },
+    "tenant": {
+      "value": "Pioneer Legal Group Corp.",
+      "pages": [
+        1,
+        4
+      ],
+      "anchors": [
+        "Pioneer Legal Group Corp."
+      ]
+    },
+    "premises_address": {
+      "value": "Suite 390, 979 Mill Street, Tampa, FL 33602",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Suite 390, 979 Mill Street, Tampa, FL 33602"
+      ]
+    },
+    "start_date": {
+      "value": "2023-05-01",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "May 1, 2023"
+      ]
+    },
+    "end_date": {
+      "value": "2027-04-30",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "April 30, 2027"
+      ]
+    },
+    "rent_amount": {
+      "value": 11700.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$11,700.00"
+      ]
+    },
+    "rent_period": {
+      "value": "monthly",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "per month"
+      ]
+    },
+    "notice_period_days": {
+      "value": 30,
+      "pages": [
+        2,
+        3,
+        4
+      ],
+      "anchors": [
+        "thirty (30) days"
+      ]
+    },
+    "holdover_rate_percent": {
+      "value": 175,
+      "pages": [
+        3,
+        4
+      ],
+      "anchors": [
+        "one hundred seventy-five percent (175%)",
+        "(175%)",
+        "one hundred seventy-five percent"
+      ]
+    },
+    "security_deposit": {
+      "value": 23400.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$23,400.00"
+      ]
+    },
+    "notice_method": {
+      "value": {
+        "contains": [
+          "certified mail"
+        ]
+      },
+      "pages": [
+        3
+      ],
+      "anchors": [
+        "certified mail, return receipt requested"
+      ]
+    },
+    "notice_section": {
+      "value": "Section 20",
+      "pages": [
+        3
+      ],
+      "anchors": [
+        "Renewal; Termination at Expiration"
+      ]
+    },
+    "rent_escalation_percent": {
+      "value": 2,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "two percent (2%)"
+      ]
+    },
+    "current_rent": {
+      "value": 12416.13,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$12,416.13"
+      ]
+    }
+  },
+  "missing": null,
+  "rent_schedule": [
+    {
+      "start": "2023-05-01",
+      "end": "2024-04-30",
+      "amount": 11700.0
+    },
+    {
+      "start": "2024-05-01",
+      "end": "2025-04-30",
+      "amount": 11934.0
+    },
+    {
+      "start": "2025-05-01",
+      "end": "2026-04-30",
+      "amount": 12172.68
+    },
+    {
+      "start": "2026-05-01",
+      "end": "2027-04-30",
+      "amount": 12416.13
+    }
+  ],
+  "obligations": [
+    {
+      "kind": "deadline",
+      "due_date": "2027-03-31"
+    }
+  ],
+  "brief": {
+    "deadline": "2027-03-31",
+    "days_remaining": 160,
+    "current_rent": 12416.13,
+    "next_rent": 12664.45,
+    "holdover_rent": 21728.23,
+    "holdover_extra": 9312.1,
+    "holdover_percent": 175.0,
+    "security_deposit": 23400.0
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 2,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2027-01-30",
+      "2027-03-01",
+      "2027-03-17"
+    ],
+    "deadline": "2027-03-31",
+    "tracker_status": "decision needed",
+    "counterparty": "Lakeshore Asset Group LLC"
+  },
+  "injection": null
+}

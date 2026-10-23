@@ -1,0 +1,282 @@
+[
+ {
+  "id": "lease_001",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "A",
+  "pages": 2
+ },
+ {
+  "id": "lease_002",
+  "doc_type": "lease",
+  "variant": "missing_field",
+  "template": "B",
+  "pages": 2
+ },
+ {
+  "id": "lease_003",
+  "doc_type": "lease",
+  "variant": "injection",
+  "template": "C",
+  "pages": 3
+ },
+ {
+  "id": "lease_004",
+  "doc_type": "lease",
+  "variant": "late_page",
+  "template": "A",
+  "pages": 4
+ },
+ {
+  "id": "lease_005",
+  "doc_type": "lease",
+  "variant": "injection",
+  "template": "B",
+  "pages": 2
+ },
+ {
+  "id": "lease_006",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "C",
+  "pages": 3
+ },
+ {
+  "id": "lease_007",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "A",
+  "pages": 2
+ },
+ {
+  "id": "lease_008",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "B",
+  "pages": 2
+ },
+ {
+  "id": "lease_009",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "C",
+  "pages": 3
+ },
+ {
+  "id": "lease_010",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "A",
+  "pages": 2
+ },
+ {
+  "id": "lease_011",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "B",
+  "pages": 2
+ },
+ {
+  "id": "lease_012",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "C",
+  "pages": 3
+ },
+ {
+  "id": "lease_013",
+  "doc_type": "lease",
+  "variant": "injection",
+  "template": "A",
+  "pages": 2
+ },
+ {
+  "id": "lease_014",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "B",
+  "pages": 2
+ },
+ {
+  "id": "lease_015",
+  "doc_type": "lease",
+  "variant": "missing_field",
+  "template": "C",
+  "pages": 3
+ },
+ {
+  "id": "lease_016",
+  "doc_type": "lease",
+  "variant": "late_page",
+  "template": "A",
+  "pages": 4
+ },
+ {
+  "id": "lease_017",
+  "doc_type": "lease",
+  "variant": "missing_field",
+  "template": "B",
+  "pages": 2
+ },
+ {
+  "id": "lease_018",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "C",
+  "pages": 3
+ },
+ {
+  "id": "lease_019",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "A",
+  "pages": 2
+ },
+ {
+  "id": "lease_020",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "B",
+  "pages": 2
+ },
+ {
+  "id": "coi_001",
+  "doc_type": "insurance_certificate",
+  "variant": "missing_field",
+  "template": "A",
+  "pages": 1
+ },
+ {
+  "id": "coi_002",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "B",
+  "pages": 1
+ },
+ {
+  "id": "coi_003",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "C",
+  "pages": 1
+ },
+ {
+  "id": "coi_004",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "A",
+  "pages": 1
+ },
+ {
+  "id": "coi_005",
+  "doc_type": "insurance_certificate",
+  "variant": "late_page",
+  "template": "B",
+  "pages": 2
+ },
+ {
+  "id": "coi_006",
+  "doc_type": "insurance_certificate",
+  "variant": "late_page",
+  "template": "C",
+  "pages": 2
+ },
+ {
+  "id": "coi_007",
+  "doc_type": "insurance_certificate",
+  "variant": "missing_field",
+  "template": "A",
+  "pages": 1
+ },
+ {
+  "id": "coi_008",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "B",
+  "pages": 1
+ },
+ {
+  "id": "coi_009",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "C",
+  "pages": 1
+ },
+ {
+  "id": "coi_010",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "A",
+  "pages": 1
+ },
+ {
+  "id": "coi_011",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "B",
+  "pages": 1
+ },
+ {
+  "id": "coi_012",
+  "doc_type": "insurance_certificate",
+  "variant": "injection",
+  "template": "C",
+  "pages": 1
+ },
+ {
+  "id": "coi_013",
+  "doc_type": "insurance_certificate",
+  "variant": "missing_field",
+  "template": "A",
+  "pages": 1
+ },
+ {
+  "id": "coi_014",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "B",
+  "pages": 1
+ },
+ {
+  "id": "coi_015",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "C",
+  "pages": 1
+ },
+ {
+  "id": "coi_016",
+  "doc_type": "insurance_certificate",
+  "variant": "injection",
+  "template": "A",
+  "pages": 1
+ },
+ {
+  "id": "coi_017",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "B",
+  "pages": 1
+ },
+ {
+  "id": "coi_018",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "C",
+  "pages": 1
+ },
+ {
+  "id": "coi_019",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "A",
+  "pages": 1
+ },
+ {
+  "id": "coi_020",
+  "doc_type": "insurance_certificate",
+  "variant": "injection",
+  "template": "B",
+  "pages": 1
+ }
+]

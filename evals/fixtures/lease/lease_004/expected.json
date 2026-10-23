@@ -1,0 +1,198 @@
+{
+  "id": "lease_004",
+  "doc_type": "lease",
+  "variant": "late_page",
+  "template": "A",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 4,
+  "fields": {
+    "landlord": {
+      "value": "Fairmont Commercial Trust Corp.",
+      "pages": [
+        1,
+        4
+      ],
+      "anchors": [
+        "Fairmont Commercial Trust Corp."
+      ]
+    },
+    "tenant": {
+      "value": "Evergreen Coffee Roasters Inc.",
+      "pages": [
+        1,
+        4
+      ],
+      "anchors": [
+        "Evergreen Coffee Roasters Inc."
+      ]
+    },
+    "premises_address": {
+      "value": "Suite 730, 544 Elm Street, Raleigh, NC 27601",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Suite 730, 544 Elm Street, Raleigh, NC 27601"
+      ]
+    },
+    "start_date": {
+      "value": "2024-10-01",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "October 1, 2024"
+      ]
+    },
+    "end_date": {
+      "value": "2028-09-30",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "September 30, 2028"
+      ]
+    },
+    "rent_amount": {
+      "value": 10150.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$10,150.00"
+      ]
+    },
+    "rent_period": {
+      "value": "monthly",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "per month"
+      ]
+    },
+    "notice_period_days": {
+      "value": 180,
+      "pages": [
+        3
+      ],
+      "anchors": [
+        "one hundred eighty (180) days"
+      ]
+    },
+    "holdover_rate_percent": {
+      "value": 200,
+      "pages": [
+        3
+      ],
+      "anchors": [
+        "two hundred percent (200%)",
+        "(200%)",
+        "two hundred percent"
+      ]
+    },
+    "security_deposit": {
+      "value": 20300.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$20,300.00"
+      ]
+    },
+    "notice_method": {
+      "value": {
+        "contains": [
+          "hand delivery"
+        ]
+      },
+      "pages": [
+        3
+      ],
+      "anchors": [
+        "personal hand delivery with a signed receipt"
+      ]
+    },
+    "notice_section": {
+      "value": "Section 20",
+      "pages": [
+        3
+      ],
+      "anchors": [
+        "Renewal; Termination at Expiration"
+      ]
+    },
+    "rent_escalation_percent": {
+      "value": 4,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "four percent (4%)"
+      ]
+    },
+    "current_rent": {
+      "value": 10978.24,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$10,978.24"
+      ]
+    }
+  },
+  "missing": null,
+  "rent_schedule": [
+    {
+      "start": "2024-10-01",
+      "end": "2025-09-30",
+      "amount": 10150.0
+    },
+    {
+      "start": "2025-10-01",
+      "end": "2026-09-30",
+      "amount": 10556.0
+    },
+    {
+      "start": "2026-10-01",
+      "end": "2027-09-30",
+      "amount": 10978.24
+    },
+    {
+      "start": "2027-10-01",
+      "end": "2028-09-30",
+      "amount": 11417.37
+    }
+  ],
+  "obligations": [
+    {
+      "kind": "deadline",
+      "due_date": "2028-04-03"
+    }
+  ],
+  "brief": {
+    "deadline": "2028-04-03",
+    "days_remaining": 529,
+    "current_rent": 10978.24,
+    "next_rent": 11417.37,
+    "holdover_rent": 21956.48,
+    "holdover_extra": 10978.24,
+    "holdover_percent": 200.0,
+    "security_deposit": 20300.0
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 2,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2028-02-03",
+      "2028-03-04",
+      "2028-03-20"
+    ],
+    "deadline": "2028-04-03",
+    "tracker_status": "decision needed",
+    "counterparty": "Fairmont Commercial Trust Corp."
+  },
+  "injection": null
+}

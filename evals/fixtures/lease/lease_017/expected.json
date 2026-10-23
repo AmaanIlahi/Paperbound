@@ -1,0 +1,173 @@
+{
+  "id": "lease_017",
+  "doc_type": "lease",
+  "variant": "missing_field",
+  "template": "B",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 2,
+  "fields": {
+    "landlord": {
+      "value": "Oakridge Properties Inc.",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Oakridge Properties Inc."
+      ]
+    },
+    "tenant": {
+      "value": "Juniper Print Works Inc.",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Juniper Print Works Inc."
+      ]
+    },
+    "premises_address": {
+      "value": "Suite 700, 142 Oak Lane, Tucson, AZ 85701",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Suite 700, 142 Oak Lane, Tucson, AZ 85701"
+      ]
+    },
+    "start_date": {
+      "value": "2024-07-01",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "1 July 2024"
+      ]
+    },
+    "end_date": {
+      "value": "2028-06-30",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "30 June 2028"
+      ]
+    },
+    "rent_amount": {
+      "value": 3400.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$3,400.00"
+      ]
+    },
+    "rent_period": {
+      "value": "monthly",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "per month"
+      ]
+    },
+    "notice_period_days": {
+      "value": null
+    },
+    "holdover_rate_percent": {
+      "value": 200,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "two hundred percent (200%)",
+        "(200%)",
+        "two hundred percent"
+      ]
+    },
+    "security_deposit": {
+      "value": 10200.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$10,200.00"
+      ]
+    },
+    "notice_method": {
+      "value": {
+        "contains": [
+          "registered mail"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "registered mail or hand delivery"
+      ]
+    },
+    "notice_section": {
+      "value": "Section 5",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Renewal; Termination at Expiration"
+      ]
+    },
+    "rent_escalation_percent": {
+      "value": 2,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "two percent (2%)"
+      ]
+    },
+    "current_rent": {
+      "value": 3537.36,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$3,537.36"
+      ]
+    }
+  },
+  "missing": "notice_period_days",
+  "rent_schedule": [
+    {
+      "start": "2024-07-01",
+      "end": "2025-06-30",
+      "amount": 3400.0
+    },
+    {
+      "start": "2025-07-01",
+      "end": "2026-06-30",
+      "amount": 3468.0
+    },
+    {
+      "start": "2026-07-01",
+      "end": "2027-06-30",
+      "amount": 3537.36
+    },
+    {
+      "start": "2027-07-01",
+      "end": "2028-06-30",
+      "amount": 3608.11
+    }
+  ],
+  "obligations": [],
+  "brief": {
+    "current_rent": 3537.36,
+    "next_rent": 3608.11,
+    "holdover_rent": 7074.72,
+    "holdover_extra": 3537.36,
+    "holdover_percent": 200.0,
+    "security_deposit": 10200.0
+  },
+  "actions": {},
+  "injection": null
+}

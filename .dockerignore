@@ -27,3 +27,7 @@ fly.toml
 fixtures/demo/*.pdf
 fixtures/demo/*.expected.json
 fixtures/demo/*/source.pdf
+
+evals/datasets
+evals/results/*.jsonl
+evals/fixtures

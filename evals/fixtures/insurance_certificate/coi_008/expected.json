@@ -1,0 +1,206 @@
+{
+  "id": "coi_008",
+  "doc_type": "insurance_certificate",
+  "variant": "clean",
+  "template": "B",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 1,
+  "fields": {
+    "insured": {
+      "value": "Sable Analytics Corp.",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Sable Analytics Corp."
+      ]
+    },
+    "certificate_holder": {
+      "value": "Summit Commercial Trust Corp.",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Summit Commercial Trust Corp."
+      ]
+    },
+    "producer": {
+      "value": "Northgate Insurance Group LLP",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Northgate Insurance Group LLP"
+      ]
+    },
+    "policy_1.type": {
+      "value": {
+        "contains": [
+          "general"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "COMMERCIAL GENERAL LIABILITY"
+      ]
+    },
+    "policy_1.insurer": {
+      "value": "Crestview Insurance Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Crestview Insurance Company"
+      ]
+    },
+    "policy_1.number": {
+      "value": "GL-7840332",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "GL-7840332"
+      ]
+    },
+    "policy_1.effective_date": {
+      "value": "2026-03-07",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "March 7, 2026"
+      ]
+    },
+    "policy_1.expiration_date": {
+      "value": "2027-03-07",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "March 7, 2027"
+      ]
+    },
+    "policy_1.each_occurrence_limit": {
+      "value": 500000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$500,000"
+      ]
+    },
+    "policy_1.aggregate_limit": {
+      "value": 1000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$1,000,000"
+      ]
+    },
+    "policy_2.type": {
+      "value": {
+        "contains": [
+          "umbrella"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "UMBRELLA LIAB"
+      ]
+    },
+    "policy_2.insurer": {
+      "value": "Alder Creek Mutual Insurance Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Alder Creek Mutual Insurance Company"
+      ]
+    },
+    "policy_2.number": {
+      "value": "UM-6444950",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "UM-6444950"
+      ]
+    },
+    "policy_2.effective_date": {
+      "value": "2026-09-14",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "September 14, 2026"
+      ]
+    },
+    "policy_2.expiration_date": {
+      "value": "2027-09-14",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "September 14, 2027"
+      ]
+    },
+    "policy_2.each_occurrence_limit": {
+      "value": 5000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$5,000,000"
+      ]
+    },
+    "policy_2.aggregate_limit": {
+      "value": 5000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$5,000,000"
+      ]
+    }
+  },
+  "missing": null,
+  "policy_count": 2,
+  "min_each_occurrence": 1000000,
+  "obligations": [
+    {
+      "kind": "expiration",
+      "due_date": "2027-03-07"
+    },
+    {
+      "kind": "expiration",
+      "due_date": "2027-09-14"
+    }
+  ],
+  "brief": {
+    "earliest_expiration": "2027-03-07",
+    "days_remaining": 136,
+    "expiring_soon": 0,
+    "limit_check_1": false,
+    "limit_check_2": true
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 1,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2027-01-06",
+      "2027-02-05",
+      "2027-02-21"
+    ],
+    "deadline": "2027-03-07",
+    "tracker_status": "renewal needed",
+    "insured": "Sable Analytics Corp."
+  },
+  "injection": null
+}

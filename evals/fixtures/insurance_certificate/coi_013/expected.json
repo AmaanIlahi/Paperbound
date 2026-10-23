@@ -1,0 +1,195 @@
+{
+  "id": "coi_013",
+  "doc_type": "insurance_certificate",
+  "variant": "missing_field",
+  "template": "A",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 1,
+  "fields": {
+    "insured": {
+      "value": "Ivory Logistics LP",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Ivory Logistics LP"
+      ]
+    },
+    "certificate_holder": {
+      "value": "Pinehurst Realty Partners LP",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Pinehurst Realty Partners LP"
+      ]
+    },
+    "producer": {
+      "value": "Compass Rose Risk Partners LLP",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Compass Rose Risk Partners LLP"
+      ]
+    },
+    "policy_1.type": {
+      "value": {
+        "contains": [
+          "general"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "COMMERCIAL GENERAL LIABILITY"
+      ]
+    },
+    "policy_1.insurer": {
+      "value": "Meridian Mutual Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Meridian Mutual Company"
+      ]
+    },
+    "policy_1.number": {
+      "value": "GL-6204893",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "GL-6204893"
+      ]
+    },
+    "policy_1.effective_date": {
+      "value": "2025-11-24",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "11/24/2025"
+      ]
+    },
+    "policy_1.expiration_date": {
+      "value": "2026-11-24",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "11/24/2026"
+      ]
+    },
+    "policy_1.each_occurrence_limit": {
+      "value": 2000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$2,000,000"
+      ]
+    },
+    "policy_1.aggregate_limit": {
+      "value": 4000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$4,000,000"
+      ]
+    },
+    "policy_2.type": {
+      "value": {
+        "contains": [
+          "umbrella"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "UMBRELLA LIAB"
+      ]
+    },
+    "policy_2.insurer": {
+      "value": "Sterling Fidelity Company",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Sterling Fidelity Company"
+      ]
+    },
+    "policy_2.number": {
+      "value": "UM-3238498",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "UM-3238498"
+      ]
+    },
+    "policy_2.effective_date": {
+      "value": "2026-08-08",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "08/08/2026"
+      ]
+    },
+    "policy_2.expiration_date": {
+      "value": null
+    },
+    "policy_2.each_occurrence_limit": {
+      "value": 2000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$2,000,000"
+      ]
+    },
+    "policy_2.aggregate_limit": {
+      "value": 2000000.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$2,000,000"
+      ]
+    }
+  },
+  "missing": "policy_2.expiration_date",
+  "policy_count": 2,
+  "min_each_occurrence": 1000000,
+  "obligations": [
+    {
+      "kind": "expiration",
+      "due_date": "2026-11-24"
+    }
+  ],
+  "brief": {
+    "earliest_expiration": "2026-11-24",
+    "days_remaining": 33,
+    "expiring_soon": 1,
+    "limit_check_1": true,
+    "limit_check_2": true
+  },
+  "actions": {
+    "create_calendar_event": 2,
+    "draft_email": 1,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2026-10-25",
+      "2026-11-10"
+    ],
+    "deadline": "2026-11-24",
+    "tracker_status": "renewal needed",
+    "insured": "Ivory Logistics LP"
+  },
+  "injection": null
+}

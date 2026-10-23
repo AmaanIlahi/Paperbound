@@ -1,0 +1,199 @@
+{
+  "id": "lease_010",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "A",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 2,
+  "fields": {
+    "landlord": {
+      "value": "Fairmont Asset Group LP",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Fairmont Asset Group LP"
+      ]
+    },
+    "tenant": {
+      "value": "Falcon Design Inc.",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Falcon Design Inc."
+      ]
+    },
+    "premises_address": {
+      "value": "Suite 150, 376 Maple Avenue, Albany, NY 12207",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Suite 150, 376 Maple Avenue, Albany, NY 12207"
+      ]
+    },
+    "start_date": {
+      "value": "2023-08-01",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "August 1, 2023"
+      ]
+    },
+    "end_date": {
+      "value": "2027-07-31",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "July 31, 2027"
+      ]
+    },
+    "rent_amount": {
+      "value": 19650.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$19,650.00"
+      ]
+    },
+    "rent_period": {
+      "value": "monthly",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "per month"
+      ]
+    },
+    "notice_period_days": {
+      "value": 60,
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "sixty (60) days"
+      ]
+    },
+    "holdover_rate_percent": {
+      "value": 175,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "one hundred seventy-five percent (175%)",
+        "(175%)",
+        "one hundred seventy-five percent"
+      ]
+    },
+    "security_deposit": {
+      "value": 58950.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$58,950.00"
+      ]
+    },
+    "notice_method": {
+      "value": {
+        "contains": [
+          "registered mail"
+        ]
+      },
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "registered mail or hand delivery"
+      ]
+    },
+    "notice_section": {
+      "value": "Section 10",
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "Renewal; Termination at Expiration"
+      ]
+    },
+    "rent_escalation_percent": {
+      "value": 2.5,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "2.5%"
+      ]
+    },
+    "current_rent": {
+      "value": 21160.9,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$21,160.90"
+      ]
+    }
+  },
+  "missing": null,
+  "rent_schedule": [
+    {
+      "start": "2023-08-01",
+      "end": "2024-07-31",
+      "amount": 19650.0
+    },
+    {
+      "start": "2024-08-01",
+      "end": "2025-07-31",
+      "amount": 20141.25
+    },
+    {
+      "start": "2025-08-01",
+      "end": "2026-07-31",
+      "amount": 20644.78
+    },
+    {
+      "start": "2026-08-01",
+      "end": "2027-07-31",
+      "amount": 21160.9
+    }
+  ],
+  "obligations": [
+    {
+      "kind": "deadline",
+      "due_date": "2027-06-01"
+    }
+  ],
+  "brief": {
+    "deadline": "2027-06-01",
+    "days_remaining": 222,
+    "current_rent": 21160.9,
+    "next_rent": 21689.92,
+    "holdover_rent": 37031.58,
+    "holdover_extra": 15870.68,
+    "holdover_percent": 175.0,
+    "security_deposit": 58950.0
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 2,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2027-04-02",
+      "2027-05-02",
+      "2027-05-18"
+    ],
+    "deadline": "2027-06-01",
+    "tracker_status": "decision needed",
+    "counterparty": "Fairmont Asset Group LP"
+  },
+  "injection": null
+}

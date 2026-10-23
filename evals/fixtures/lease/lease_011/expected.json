@@ -1,0 +1,193 @@
+{
+  "id": "lease_011",
+  "doc_type": "lease",
+  "variant": "clean",
+  "template": "B",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 2,
+  "fields": {
+    "landlord": {
+      "value": "Silverton Realty Partners LLC",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Silverton Realty Partners LLC"
+      ]
+    },
+    "tenant": {
+      "value": "Quantum Print Works LP",
+      "pages": [
+        1,
+        2
+      ],
+      "anchors": [
+        "Quantum Print Works LP"
+      ]
+    },
+    "premises_address": {
+      "value": "Suite 390, 434 Industrial Parkway, Portland, OR 97204",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Suite 390, 434 Industrial Parkway, Portland, OR 97204"
+      ]
+    },
+    "start_date": {
+      "value": "2024-11-01",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "1 November 2024"
+      ]
+    },
+    "end_date": {
+      "value": "2027-10-31",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "31 October 2027"
+      ]
+    },
+    "rent_amount": {
+      "value": 23500.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$23,500.00"
+      ]
+    },
+    "rent_period": {
+      "value": "monthly",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "per month"
+      ]
+    },
+    "notice_period_days": {
+      "value": 120,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "120 days"
+      ]
+    },
+    "holdover_rate_percent": {
+      "value": 175,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "one hundred seventy-five percent (175%)",
+        "(175%)",
+        "one hundred seventy-five percent"
+      ]
+    },
+    "security_deposit": {
+      "value": 47000.0,
+      "pages": [
+        2
+      ],
+      "anchors": [
+        "$47,000.00"
+      ]
+    },
+    "notice_method": {
+      "value": {
+        "contains": [
+          "certified mail"
+        ]
+      },
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "certified mail, return receipt requested"
+      ]
+    },
+    "notice_section": {
+      "value": "Section 5",
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "Renewal; Termination at Expiration"
+      ]
+    },
+    "rent_escalation_percent": {
+      "value": 3,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "three percent (3%)"
+      ]
+    },
+    "current_rent": {
+      "value": 24205.0,
+      "pages": [
+        1
+      ],
+      "anchors": [
+        "$24,205.00"
+      ]
+    }
+  },
+  "missing": null,
+  "rent_schedule": [
+    {
+      "start": "2024-11-01",
+      "end": "2025-10-31",
+      "amount": 23500.0
+    },
+    {
+      "start": "2025-11-01",
+      "end": "2026-10-31",
+      "amount": 24205.0
+    },
+    {
+      "start": "2026-11-01",
+      "end": "2027-10-31",
+      "amount": 24931.15
+    }
+  ],
+  "obligations": [
+    {
+      "kind": "deadline",
+      "due_date": "2027-07-03"
+    }
+  ],
+  "brief": {
+    "deadline": "2027-07-03",
+    "days_remaining": 254,
+    "current_rent": 24205.0,
+    "next_rent": 24931.15,
+    "holdover_rent": 42358.75,
+    "holdover_extra": 18153.75,
+    "holdover_percent": 175.0,
+    "security_deposit": 47000.0
+  },
+  "actions": {
+    "create_calendar_event": 3,
+    "draft_email": 2,
+    "upsert_record": 1,
+    "reminder_dates": [
+      "2027-05-04",
+      "2027-06-03",
+      "2027-06-19"
+    ],
+    "deadline": "2027-07-03",
+    "tracker_status": "decision needed",
+    "counterparty": "Silverton Realty Partners LLC"
+  },
+  "injection": null
+}
