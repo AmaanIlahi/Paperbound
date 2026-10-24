@@ -1,0 +1,115 @@
+{
+  "id": "generic_004",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 1,
+  "type_label_any": [
+    "purchase order",
+    "order"
+  ],
+  "parties": [
+    {
+      "name": "Cobalt Robotics Inc.",
+      "role_any": [
+        "buyer",
+        "purchaser",
+        "customer"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "name": "Alder Machining LLC",
+      "role_any": [
+        "seller",
+        "supplier",
+        "vendor"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "dates": [
+    {
+      "value": "2026-10-12",
+      "label_any": [
+        "order"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-10-26",
+      "label_any": [
+        "accept",
+        "confirm"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-12-10",
+      "label_any": [
+        "deliver"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "amounts": [
+    {
+      "value": 18640.0,
+      "currency": "USD",
+      "label_any": [
+        "order",
+        "total"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "obligations": [
+    {
+      "due_date": "2026-10-26",
+      "keywords": [
+        "confirm",
+        "accept"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "due_date": "2026-12-10",
+      "keywords": [
+        "deliver"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "deadlines": [
+    "2026-10-26",
+    "2026-12-10"
+  ],
+  "actions": {
+    "reminder_dates": [
+      "2026-10-26",
+      "2026-12-10"
+    ],
+    "tools_allowed": [
+      "create_calendar_event",
+      "flag_for_review"
+    ]
+  }
+}

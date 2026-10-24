@@ -21,8 +21,8 @@ from paperbound.agent.executor import execute_action
 from paperbound.agent.planner import resolve_placeholders
 from paperbound.db.models import Document, Field, Job, Obligation, ProposedAction, Run, RunEvent, Step
 from paperbound.db.session import new_session
-from paperbound.doctypes import SUPPORTED, UNSUPPORTED_MESSAGE
-from paperbound.narration import DEFAULT_ACTION_TEXT, Narrator
+from paperbound.doctypes import UNSUPPORTED_MESSAGE, spec_for
+from paperbound.narration import DEFAULT_ACTION_TEXT, GENERIC_ACTION_TEXT, Narrator
 from paperbound.pipeline.extract import MODEL
 from paperbound.pipeline.parse import ParsedPage
 from paperbound.pipeline.runner import make_parse_step, run_pipeline
@@ -85,7 +85,8 @@ def step_event(seq: int, step: StepRecord, narration: str, status: str | None = 
 
 
 def action_narration(group_key: str | None, tool: str) -> str:
-    return (DEFAULT_ACTION_TEXT.get(group_key or "") or DEFAULT_ACTION_TEXT.get("tool:" + tool) or DEFAULT_ACTION_TEXT["default"])
+    texts = {**DEFAULT_ACTION_TEXT, **GENERIC_ACTION_TEXT}
+    return texts.get(group_key or "") or texts.get("tool:" + tool) or texts["default"]
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -121,17 +122,19 @@ def _execute(session: Session, job: Job, run: Run, document: Document) -> None:
     def on_classified(step: StepRecord, result) -> str:
         nonlocal narrator
         cls = result.classification
-        spec = SUPPORTED.get(result.doc_type or "")
-        narrator = Narrator(spec.label.lower() if spec else "document", document.filename, len(pages), as_of)
+        spec = spec_for(result.doc_type)
+        generic = result.doc_type == "generic"
+        narrator = Narrator(spec.label.lower() if spec and not generic else "document", document.filename, len(pages), as_of)
         document.doc_type = result.doc_type
+        document.type_label = result.type_label
         info = {"method": cls.method, "reason": cls.reason, "scores": cls.scores} if cls else None
-        send("meta", {"doc_type": result.doc_type, "classification": info})
+        send("meta", {"doc_type": result.doc_type, "type_label": result.type_label, "classification": info})
         return narrator.classify(info, result.doc_type)
 
     def on_validated(step: StepRecord, result) -> str:
         rows = [
             Field(run_id=run.id, name=f.name, value_json=f.value, source_quote=f.source_quote, page_no=f.page_no,
-                  bbox=f.bbox, bboxes=f.bboxes, confidence=f.confidence, flags=f.flags)
+                  bbox=f.bbox, bboxes=f.bboxes, confidence=f.confidence, flags=f.flags, label=f.label)
             for f in result.fields
         ]
         session.add_all(rows)
@@ -139,7 +142,7 @@ def _execute(session: Session, job: Job, run: Run, document: Document) -> None:
         state["fields"] = {r.name: r for r in rows}
         for r in rows:
             send("field", {"phase": "extracted", "name": r.name, "value": r.value_json, "page_no": r.page_no,
-                           "source_quote": r.source_quote})
+                           "source_quote": r.source_quote, "label": r.label})
         for r in rows:
             send("field", {"phase": "validated", **field_json(r)})
         return narrator.validate([{"value": f.value, "flags": f.flags, "name": f.name} for f in result.fields])
@@ -175,7 +178,7 @@ def _execute(session: Session, job: Job, run: Run, document: Document) -> None:
                 execute_action(session, action)
             actions.append(action)
         state["actions"] = actions
-        return narrator.planner(len(actions), step.reason)
+        return narrator.planner_generic(len(actions)) if result.doc_type == "generic" else narrator.planner(len(actions), step.reason)
 
     handlers = {"classify": on_classified, "validate": on_validated, "obligations": on_obligations,
                 "impact": on_impact, "planner": on_planner}

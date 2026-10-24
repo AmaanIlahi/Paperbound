@@ -1,0 +1,95 @@
+[
+ {
+  "suite": "generic",
+  "fixture": "generic_001",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "kind": "missed_field",
+  "field": "amount",
+  "expected": 250000.0,
+  "extracted": null,
+  "quote": null,
+  "flags": [],
+  "confidence": null,
+  "page": null
+ },
+ {
+  "suite": "generic",
+  "fixture": "generic_001",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "kind": "missed_field",
+  "field": "amount",
+  "expected": 2000000.0,
+  "extracted": null,
+  "quote": null,
+  "flags": [],
+  "confidence": null,
+  "page": null
+ },
+ {
+  "suite": "generic",
+  "fixture": "generic_001",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "kind": "missed_field",
+  "field": "amount",
+  "expected": 1250000.0,
+  "extracted": null,
+  "quote": null,
+  "flags": [],
+  "confidence": null,
+  "page": null
+ },
+ {
+  "suite": "generic",
+  "fixture": "generic_001",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "kind": "extra_field",
+  "field": "amount",
+  "expected": null,
+  "extracted": 250.0,
+  "quote": "Capital call amount: $250,000.00 USD",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": null
+ },
+ {
+  "suite": "generic",
+  "fixture": "generic_001",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "kind": "extra_field",
+  "field": "amount",
+  "expected": null,
+  "extracted": 2000.0,
+  "quote": "The Investor's total commitment is $2,000,000.00, of which $1,250,000.00 remains unfunded after this call.",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": null
+ },
+ {
+  "suite": "generic",
+  "fixture": "generic_001",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "kind": "extra_field",
+  "field": "amount",
+  "expected": null,
+  "extracted": 1250.0,
+  "quote": "The Investor's total commitment is $2,000,000.00, of which $1,250,000.00 remains unfunded after this call.",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": null
+ }
+]

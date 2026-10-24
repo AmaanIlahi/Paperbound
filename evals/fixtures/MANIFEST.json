@@ -278,5 +278,40 @@
   "variant": "injection",
   "template": "B",
   "pages": 1
+ },
+ {
+  "id": "generic_001",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "pages": 1
+ },
+ {
+  "id": "generic_002",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "pages": 1
+ },
+ {
+  "id": "generic_003",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "pages": 1
+ },
+ {
+  "id": "generic_004",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "pages": 1
+ },
+ {
+  "id": "generic_005",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "pages": 1
  }
 ]

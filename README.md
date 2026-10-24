@@ -16,8 +16,8 @@ approves it, and even then only to a sandbox for now.
 
 Status: a public app for **commercial leases** and **certificates of liability insurance**. Visitors upload their own
 PDF (it runs in a background worker and streams its progress) or click **Try a sample**. A classifier routes each
-upload; any other document type stops after classification with "document type not supported yet". OCR and more
-document types are on the roadmap below.
+upload; any other document type takes a generic fallback (generic schema, confidence capped, only deadline reminders and a
+review flag can be proposed). OCR and more typed document types are on the roadmap below.
 
 <!-- Screenshots: add after the first deploy.
 ![Landing: upload or try a sample](docs/screenshots/landing.png)
@@ -44,7 +44,8 @@ flowchart LR
   W --> P[Parse<br/>PyMuPDF text layer]
   P --> C[Classify<br/>heuristics first, LLM only if unsure]
   C -->|lease or certificate| X[Extract<br/>LLM, structured output]
-  C -->|other| STOP[Stop: type not supported yet]
+  C -->|other| GX[Generic fallback<br/>generic schema, confidence capped,<br/>reminders and review flag only]
+  GX -.-> X
   X --> V[Validate + ground<br/>deterministic]
   V --> O[Obligations<br/>deterministic]
   O --> I[Decision brief<br/>deterministic]

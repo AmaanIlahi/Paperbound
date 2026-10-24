@@ -27,7 +27,7 @@ from paperbound.db.models import (
     Step,
 )
 from paperbound.db.session import get_session, session_factory
-from paperbound.doctypes import SUPPORTED, UNSUPPORTED_MESSAGE
+from paperbound.doctypes import UNSUPPORTED_MESSAGE, spec_for
 from paperbound.pipeline.parse import parse_pdf
 from paperbound.pipeline.types import ValidatedField
 from paperbound.presenters import action_json, brief_json, field_json, obligation_json, step_json
@@ -235,8 +235,9 @@ def get_run(run_id: int, session: Session = Depends(get_session), caller: str = 
         "document_id": run.document_id,
         "page_count": document.page_count if document else 0,
         "doc_type": doc_type,
+        "type_label": document.type_label if document else None,
         "classification": {"summary": classify.output_summary, "reason": classify.reason} if classify else None,
-        "message": UNSUPPORTED_MESSAGE if doc_type is not None and doc_type not in SUPPORTED else None,
+        "message": UNSUPPORTED_MESSAGE if doc_type is not None and spec_for(doc_type) is None else None,
         "status": run.status,
         "started_at": run.started_at,
         "finished_at": run.finished_at,
@@ -273,13 +274,13 @@ def get_brief(
     """Decision brief, recomputed from the stored fields (deterministic, no LLM). Every line cites its source fields."""
     run = owned_run(session, run_id, caller)
     document = session.get(Document, run.document_id)
-    spec = SUPPORTED.get((document.doc_type if document else None) or "lease")  # runs from before classification are leases
+    spec = spec_for((document.doc_type if document else None) or "lease")  # runs from before classification are leases
     if spec is None:
         return {"lines": [], "skipped": []}
     rows = list(session.scalars(select(Field).where(Field.run_id == run_id).order_by(Field.id)))
     validated = [
         ValidatedField(f.name, f.value_json, f.source_quote, f.page_no, f.bbox, f.confidence or 0.0, 0.0,
-                       list(f.flags or []), False, f.bboxes or [])
+                       list(f.flags or []), False, f.bboxes or [], f.label)
         for f in rows
     ]
     return brief_json(spec.brief(validated, today), {f.name: f for f in rows})

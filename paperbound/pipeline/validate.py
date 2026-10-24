@@ -1,9 +1,10 @@
 import re
+from dataclasses import dataclass
 from datetime import date
 
 from rapidfuzz import fuzz
 
-from paperbound import clock
+from paperbound import clock, config
 from paperbound.pipeline.types import ValidatedField
 from paperbound.schemas.lease import LeaseFields
 
@@ -14,7 +15,7 @@ SUSPICIOUS_CONFIDENCE_CAP = 0.3
 # Any of these flags means the validator weight is dropped from the confidence.
 CHECK_FLAGS = {
     "invalid_date", "end_before_start", "invalid_amount", "invalid_notice_period", "invalid_percent",
-    "value_not_in_quote", "quote_rule_failed", "conflicting_values", "notice_unit_business_days",
+    "value_not_in_quote", "quote_rule_failed", "conflicting_values", "notice_unit_business_days", "invalid_currency",
 }
 # Fields carrying any of these flags are never used for obligations or actions.
 BLOCKING_FLAGS = CHECK_FLAGS | {"ungrounded", "suspicious_instruction", "not_found"}
@@ -32,8 +33,8 @@ _UNITS = {
     "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
 }
 _TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
-DATE_FIELDS = ("start_date", "end_date", "effective_date", "expiration_date")
-AMOUNT_FIELDS = ("rent_amount", "security_deposit", "current_rent", "each_occurrence_limit", "aggregate_limit")
+DATE_FIELDS = ("start_date", "end_date", "effective_date", "expiration_date", "date", "due_date")  # last two: generic fallback
+AMOUNT_FIELDS = ("rent_amount", "security_deposit", "current_rent", "each_occurrence_limit", "aggregate_limit", "amount")
 PERCENT_FIELDS = ("holdover_rate_percent", "rent_escalation_percent")
 _PERIOD_WORDS = {
     "monthly": ("month", "monthly"),
@@ -182,6 +183,8 @@ def value_in_quote(name: str, value, quote: str | None) -> bool:
         return float(value) in _numbers_in(quote) or int(value) in _word_numbers(quote)
     if name == "rent_period":
         return any(w in quote.casefold() for w in _PERIOD_WORDS.get(value, ()))
+    if name == "description":  # a generic obligation is paraphrased; its quote is the evidence, its date is checked on its own
+        return True
     needle, haystack = _norm(str(value)), _norm(quote)
     return bool(needle) and (needle in haystack or fuzz.partial_ratio(needle, haystack) >= 90)
 
@@ -242,6 +245,8 @@ def quote_rule_ok(name: str, quote: str | None) -> bool:
     if not quote:
         return False
     if name == "number":
+        return any(ch.isdigit() for ch in quote)
+    if name == "amount":  # generic fallback: any currency, so only require a figure (value_in_quote checks which one)
         return any(ch.isdigit() for ch in quote)
     if name in AMOUNT_FIELDS:
         return bool(_CURRENCY_RE.search(quote))
@@ -401,3 +406,62 @@ def validate_coi(cert, pages, today: date | None = None) -> list[ValidatedField]
             start.flags.append("end_before_start")
             end.flags.append("end_before_start")
     return _finish(results, pages)
+
+
+# ---- generic fallback ----
+
+GENERIC_LIST_LIMIT = 10  # items kept per list, in the order returned
+_CURRENCY_CODE_RE = re.compile(r"[A-Z]{3}")
+
+
+@dataclass
+class _Item:
+    """A generic extracted value in the shape _validate_items reads."""
+
+    value: object
+    source_quote: str | None
+    page: int | None
+
+
+def validate_generic(extracted, pages, today: date | None = None) -> list[ValidatedField]:
+    """Validate a generic extraction (FallbackFields) with the same grounding, value-in-quote and instruction checks as
+    the typed schemas. Fields are named party_1.name, date_1.date, amount_1.amount, obligation_1.description and
+    obligation_1.due_date (which shares the obligation's quote). Confidence is capped (GENERIC_CONFIDENCE_CAP) so a
+    generic field never looks as trusted as a typed one."""
+    clock.today(today)  # resolving it keeps AS_OF errors loud, like the typed validators
+    items, labels, label_texts = [], {}, {}
+    limit = GENERIC_LIST_LIMIT
+    for i, party in enumerate(extracted.parties[:limit], start=1):
+        name = f"party_{i}.name"
+        items.append((name, _Item(party.name, party.source_quote, party.page)))
+        labels[name] = party.role
+    for i, item in enumerate(extracted.dates[:limit], start=1):
+        name = f"date_{i}.date"
+        items.append((name, _Item(item.value, item.source_quote, item.page)))
+        labels[name] = item.label
+    for i, item in enumerate(extracted.amounts[:limit], start=1):
+        name = f"amount_{i}.amount"
+        items.append((name, _Item(item.value, item.source_quote, item.page)))
+        labels[name] = f"{item.label} ({item.currency})" if item.currency else item.label
+        label_texts[name] = item.currency
+    for i, item in enumerate(extracted.obligations[:limit], start=1):
+        items.append((f"obligation_{i}.description", _Item(item.description, item.source_quote, item.page)))
+        if item.due_date:
+            items.append((f"obligation_{i}.due_date", _Item(item.due_date, item.source_quote, item.page)))
+            labels[f"obligation_{i}.due_date"] = "due date"
+    results = _validate_items(items, pages)
+    for r in results:
+        r.label = (" ".join(str(labels.get(r.name) or "").split()) or None)
+        if r.value is None:
+            continue
+        # The label (and an obligation's description) are the model's words about untrusted text: screen them too.
+        if looks_like_instruction(r.label) or (r.name.endswith(".description") and looks_like_instruction(str(r.value))):
+            r.flags.append("suspicious_instruction")
+        currency = label_texts.get(r.name)
+        if r.name.startswith("amount_") and currency is not None and not _CURRENCY_CODE_RE.fullmatch(currency):
+            r.flags.append("invalid_currency")
+    _finish(results, pages)
+    cap = config.generic_confidence_cap()
+    for r in results:
+        r.confidence = min(r.confidence, cap)
+    return results

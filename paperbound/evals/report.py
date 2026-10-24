@@ -5,6 +5,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from paperbound import config
+from paperbound.evals import generic as generic_eval
 from paperbound.evals import metrics
 
 RESULTS_DIR = config.ROOT / "evals" / "results"
@@ -14,6 +15,11 @@ SYNTHETIC_RATES = (
     "classification_accuracy", "field_accuracy", "field_accuracy_expected_present", "missing_field_correct", "usable_rate",
     "grounding_rate", "page_accuracy", "obligation_correct", "brief_line_correct", "brief_doc_correct",
     "action_correct", "injection_model_resisted", "injection_system_held",
+)
+GENERIC_RATES = (
+    "classification_accuracy", "type_label_ok", "field_accuracy", "field_precision", "usable_rate", "grounding_rate", "page_accuracy",
+    "label_accuracy", "party_accuracy", "date_accuracy", "amount_accuracy", "obligation_accuracy", "obligation_correct",
+    "action_correct", "confidence_cap_respected",
 )
 CUAD_RATES = ("f1", "precision", "recall", "date_exact", "grounding_rate", "detection_rate")
 
@@ -134,6 +140,14 @@ def failure_modes(log: list[dict], top: int = 8) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------------------------------------------
+# generic fallback
+# ---------------------------------------------------------------------------------------------------------------
+
+def summarize_generic(records: list[dict]) -> dict:
+    return {"generic/all": generic_eval.summarize(records)}
+
+
+# ---------------------------------------------------------------------------------------------------------------
 # CUAD
 # ---------------------------------------------------------------------------------------------------------------
 
@@ -187,7 +201,7 @@ def failures_cuad(rows: list[dict], f1_floor: float = 0.5) -> list[dict]:
 
 def flat_metrics(suite: str, groups: dict) -> dict[str, float]:
     """Higher-is-better rates keyed 'suite/group/metric', for the baseline diff."""
-    rates = SYNTHETIC_RATES if suite == "synthetic" else CUAD_RATES
+    rates = {"synthetic": SYNTHETIC_RATES, "generic": GENERIC_RATES}.get(suite, CUAD_RATES)
     flat = {}
     for group, values in groups.items():
         for name in rates:
@@ -217,7 +231,7 @@ def latest_runs(directory: Path | None = None) -> dict[str, dict]:
     run of each type; `runs` says which timestamp each type comes from.
     """
     out = {}
-    for suite in ("synthetic", "cuad"):
+    for suite in ("synthetic", "generic", "cuad"):
         files = sorted((directory or RESULTS_DIR).glob(f"{suite}_[0-9]*.json"))
         merged, records, fallback_modes = None, [], []
         for path in reversed(files):
@@ -227,7 +241,7 @@ def latest_runs(directory: Path | None = None) -> dict[str, dict]:
                 continue
             if data.get("suite") != suite or not data.get("groups"):
                 continue
-            if suite == "cuad":
+            if suite in ("cuad", "generic"):
                 out[suite] = {**data, "_file": path.name}
                 break
             types = {g.split("/")[0] for g in data["groups"]}
@@ -289,6 +303,16 @@ def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None =
             md += ["", "### Calibration (all variants)", ""]
             for doc_type in sorted({n.split("/")[0] for n in groups}):
                 md += [f"**{doc_type}**", ""] + _calibration_table(groups[f"{doc_type}/all"]["calibration"]) + [""]
+        elif suite == "generic":
+            g = groups["generic/all"]
+            md += ["| Docs | Routed generic | Field acc. | Field precision | Parties | Dates | Amounts | Obligations | Grounding | Page acc. | Oblig. set | Actions | Cap held | Cost/doc |",
+                   "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+                   f"| {g['n_docs']} | {pct(g['classification_accuracy'])} | {pct(g['field_accuracy'])} | {pct(g['field_precision'])} | "
+                   f"{pct(g['party_accuracy'])} | {pct(g['date_accuracy'])} | {pct(g['amount_accuracy'])} | {pct(g['obligation_accuracy'])} | "
+                   f"{pct(g['grounding_rate'])} | {pct(g['page_accuracy'])} | {pct(g['obligation_correct'])} | {pct(g['action_correct'])} | "
+                   f"{pct(g['confidence_cap_respected'])} | ${g['cost_usd_mean']:.4f} |",
+                   "", f"Label guess right: {pct(g['type_label_ok'])}; field label right (of matched): {pct(g['label_accuracy'])}; "
+                   f"email drafts proposed: {g['email_drafts']}; extra fields not in the ground truth: {g['n_extras']}."]
         else:
             md += ["| Category | Labeled | Token P | Token R | Token F1 | Detected | False pos. | Date exact | Grounding |",
                    "|---|---|---|---|---|---|---|---|---|"]

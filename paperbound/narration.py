@@ -16,6 +16,12 @@ DEFAULT_ACTION_TEXT = {
     "default": "A proposed action. It stays pending until you approve or reject it.",
 }
 
+# Action cards of the generic fallback (kept apart so the recorded samples' narration keys stay what they were).
+GENERIC_ACTION_TEXT = {
+    "deadline_reminders": "One reminder on the date of each grounded future deadline. Code built every title, date and quote: no model wrote any of it. Approve them together or one by one.",
+    "tool:flag_for_review": "Paperbound has no schema for this document type, so a person should check what was read. Approving only adds it to the sandbox review queue.",
+}
+
 
 @dataclass
 class Narrator:
@@ -54,6 +60,13 @@ class Narrator:
 
     def classify(self, cls: dict | None, doc_type: str | None = None) -> str:
         cls = cls or {}
+        if doc_type == "generic":
+            return (
+                "Keyword and layout heuristics did not recognise a lease or an insurance certificate, so a small LLM call decided. "
+                + cls.get("reason", "")
+                + " Instead of stopping, Paperbound reads it with a generic schema. The type guess is only a label for you: it never "
+                "chooses a schema, and every field is held to a lower confidence ceiling."
+            ).strip()
         if doc_type == "other":
             return (
                 "Keyword and layout heuristics did not recognise a lease or an insurance certificate. " + cls.get("reason", "")
@@ -113,6 +126,13 @@ class Narrator:
             "supplies every number, date and name, chooses the reminder dates, and rejects any proposal whose numbers do not match "
             f"the brief. {step_reason}"
         ).strip()
+
+    def planner_generic(self, n_actions: int) -> str:
+        return (
+            f"No model is used here. Code proposed {n_actions} action(s): a calendar reminder for each verified future deadline, and "
+            "a flag asking a person to review. There are no email drafts, because a document of an unknown type gives Paperbound no "
+            "trusted recipient, and a flagged or low-confidence field can never produce an action."
+        )
 
     def gate(self, group_keys: set[str], live: bool = False) -> str:
         return (

@@ -2,6 +2,7 @@
 
     python -m paperbound.evals.run --suite all --save-baseline
     python -m paperbound.evals.run --suite synthetic --doc-type lease --variant injection
+    python -m paperbound.evals.run --suite generic
     python -m paperbound.evals.run --suite cuad --limit 10
 
 Every run is as of AS_OF (default 2026-10-22). OpenAI calls are capped (--budget, default 160 in total across runs,
@@ -19,6 +20,7 @@ from datetime import date, datetime
 
 from paperbound import config
 from paperbound.evals import cuad, report, synthetic
+from paperbound.evals import generic as generic_eval
 from paperbound.evals.budget import DEFAULT_LIMIT, Budget, BudgetExceeded
 
 DEFAULT_AS_OF = "2026-10-22"
@@ -54,6 +56,33 @@ def run_synthetic(args, budget: Budget, as_of: date) -> dict:
             "failure_modes": report.failure_modes(log), "failure_log": f"failures_synthetic_{ts}.json", "_log": log,
             "records": records, "aborted": aborted, "notes": [
                 "Template-generated fixtures: 3 layouts per type, seeded values. Latency runs one document at a time."]}
+
+
+def run_generic(args, budget: Budget, as_of: date) -> dict:
+    folders = generic_eval.discover(args.limit)
+    print(f"generic: {len(folders)} fixtures, {budget.remaining} OpenAI calls left")
+    records, aborted = [], None
+    for folder in folders:
+        try:
+            rec = generic_eval.run_fixture(folder, as_of, budget)
+        except BudgetExceeded as exc:
+            aborted = str(exc)
+            print(f"  STOP: {aborted}")
+            break
+        records.append(rec)
+        bad = [f"{r['category']}:{r['key']}" for r in rec["fields"] if not r["match"]]
+        print(f"  {rec['id']:12} routed {'ok' if rec['classification']['match'] else 'NO'} "
+              f"fields {sum(r['match'] for r in rec['fields'])}/{len(rec['fields'])} extras {len(rec['extras'])} "
+              f"oblig {'ok' if rec['obligation']['match'] else 'NO'} actions {'ok' if rec['actions']['match'] else 'NO'} "
+              f"calls {rec['calls']} {rec['latency_ms'] / 1000:.1f}s" + (f"  wrong: {bad[:4]}" if bad else "")
+              + (f"  ERRORS {rec['errors']}" if rec["errors"] else ""))
+    ts = stamp()
+    log = generic_eval.failures(records)
+    groups = report.summarize_generic(records) if records else {}
+    return {"suite": "generic", "timestamp": ts, "as_of": as_of.isoformat(), "n_docs": len(records), "groups": groups,
+            "failure_modes": report.failure_modes(log), "failure_log": f"failures_generic_{ts}.json", "_log": log,
+            "records": records, "aborted": aborted, "notes": [
+                "Five hand-written notices, invoices and orders: a type Paperbound has no schema for. Scored by value, not label."]}
 
 
 def run_cuad(args, budget: Budget, as_of: date) -> dict | None:
@@ -135,7 +164,7 @@ def rescore_file(path) -> dict:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--suite", choices=["synthetic", "cuad", "all"], default="all")
+    parser.add_argument("--suite", choices=["synthetic", "generic", "cuad", "all"], default="all")
     parser.add_argument("--doc-type", choices=list(synthetic.DOC_TYPES), help="synthetic only")
     parser.add_argument("--variant", choices=["clean", "missing_field", "late_page", "injection"], help="synthetic only")
     parser.add_argument("--limit", type=int, help="at most this many documents per suite")
@@ -167,6 +196,8 @@ def main(argv=None) -> int:
     runs = []
     if args.suite in ("synthetic", "all"):
         runs.append(run_synthetic(args, budget, as_of))
+    if args.suite in ("generic", "all") and not (runs and runs[-1]["aborted"]):
+        runs.append(run_generic(args, budget, as_of))
     if args.suite in ("cuad", "all") and not (runs and runs[-1]["aborted"]):
         if (run := run_cuad(args, budget, as_of)) is not None:
             runs.append(run)

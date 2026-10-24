@@ -1,4 +1,4 @@
-"""A queued upload is classified first, then runs the matching schema, brief and planner. Unsupported types stop early."""
+"""A queued upload is classified first, then runs the matching schema, brief and planner. Unsupported types take the generic path."""
 
 import io
 
@@ -11,6 +11,7 @@ from paperbound.agent.planner import plan_actions
 from paperbound.db.models import Document, Field, ProposedAction
 from paperbound.pipeline.classify import Classification, classify_document
 from tests.coi_fixture import DEMO, fake_coi_extractor
+from tests.generic_fakes import empty_fallback, fake_generic_extractor
 from tests.lease_fakes import TODAY, fake_extractor, fake_planner
 from tests.live import live  # noqa: F401
 from tests.test_classify import FakeLLM, NoLLM
@@ -28,7 +29,7 @@ def recipe_pdf() -> bytes:
 
 
 def must_not_extract(pages):
-    raise AssertionError("an unsupported document must not reach extraction")
+    raise AssertionError("this document must not reach extraction")
 
 
 def use_pipeline(live, **kwargs):
@@ -42,34 +43,37 @@ def upload(live, data: bytes, name="doc.pdf"):
     return {**body, **{k: run[k] for k in ("status", "doc_type", "message")}}
 
 
-# ---- "other" stops after classify ----
+# ---- an unsupported document takes the generic path ----
 
-def test_other_stops_after_classify_with_status_done_and_the_message(live):
+def test_an_unsupported_document_is_routed_to_the_generic_fallback_not_a_typed_schema(live):
     http, Session = live.client, live.Session
-    llm = FakeLLM("other", "A pancake recipe.")
+    llm = FakeLLM("other", "A pancake recipe.", type_label="pancake recipe")
     use_pipeline(live, classifier=lambda pages: classify_document(pages, client=llm),
-                 extractor=must_not_extract, planner=lambda *a, **k: pytest.fail("planner must not run"))
+                 extractor=lambda pages: fake_generic_extractor(pages, empty_fallback()),
+                 planner=lambda *a, **k: pytest.fail("the typed planner must not run"))
     doc = upload(live, recipe_pdf())
-    assert doc["status"] == "done" and doc["doc_type"] == "other" and doc["message"] == "document type not supported yet"
+    assert doc["status"] == "done" and doc["doc_type"] == "generic" and doc["message"] is None
     run_id = doc["run_id"]
-    assert [s["stage"] for s in http.get(f"/runs/{run_id}/steps").json()] == ["parse", "classify"]
-    classify_step = http.get(f"/runs/{run_id}/steps").json()[1]
-    assert classify_step["summary"] == "other (llm)" and "pancake recipe" in classify_step["reason"]
-    assert "not supported yet" in classify_step["reason"] and classify_step["tokens"] == 300 and classify_step["cost_usd"] > 0
-    assert http.get(f"/runs/{run_id}/fields").json() == [] and http.get(f"/runs/{run_id}/actions").json() == []
+    steps = http.get(f"/runs/{run_id}/steps").json()
+    assert [s["stage"] for s in steps] == ["parse", "classify", "extract", "validate", "obligations", "impact", "planner"]
+    classify_step = steps[1]
+    assert classify_step["summary"] == "generic (llm)" and "pancake recipe" in classify_step["reason"]
+    assert "generic fallback" in classify_step["reason"] and classify_step["tokens"] == 300 and classify_step["cost_usd"] > 0
+    run = http.get(f"/runs/{run_id}").json()
+    assert run["status"] == "done" and run["doc_type"] == "generic" and run["type_label"] == "pancake recipe"
+    assert run["classification"]["summary"] == "generic (llm)"
+    with Session() as s:
+        document = s.scalar(select(Document))
+        assert document.doc_type == "generic" and document.type_label == "pancake recipe"
+        assert [a.tool for a in s.scalars(select(ProposedAction))] == ["flag_for_review"]
     assert http.get(f"/runs/{run_id}/obligations").json() == []
     assert http.get(f"/runs/{run_id}/brief").json() == {"lines": [], "skipped": []}
-    run = http.get(f"/runs/{run_id}").json()
-    assert run["status"] == "done" and run["doc_type"] == "other" and run["message"] == "document type not supported yet"
-    assert run["classification"]["summary"] == "other (llm)"
-    with Session() as s:
-        assert s.scalar(select(Document)).doc_type == "other"
-        assert s.scalars(select(Field)).all() == [] and s.scalars(select(ProposedAction)).all() == []
 
 
-def test_the_pages_of_an_unsupported_document_are_still_viewable(live):
+def test_the_pages_of_a_generic_document_are_still_viewable(live):
     http, Session = live.client, live.Session
-    use_pipeline(live, classifier=lambda pages: Classification("other", "llm", "x"), extractor=must_not_extract)
+    use_pipeline(live, classifier=lambda pages: Classification("generic", "llm", "x", type_label="recipe"),
+                 extractor=lambda pages: fake_generic_extractor(pages, empty_fallback()))
     doc = upload(live, recipe_pdf())
     page = http.get(f"/documents/{doc['document_id']}/pages/1").json()
     assert page["words"] and page["image_url"]

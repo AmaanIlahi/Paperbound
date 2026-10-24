@@ -37,6 +37,7 @@ class Document(Base):
     sha256: Mapped[str] = mapped_column(String(64), unique=True)
     page_count: Mapped[int] = mapped_column(Integer, default=0)
     doc_type: Mapped[str | None] = mapped_column(String)
+    type_label: Mapped[str | None] = mapped_column(String)  # generic documents: the classifier's guess, display only
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     # Set only for uploads made while live uploads are enabled; the cleanup job deletes only rows that have one.
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -140,6 +141,7 @@ class Field(Base):
     bboxes: Mapped[list | None] = mapped_column(Json)  # one box per matched line
     confidence: Mapped[float | None] = mapped_column(Float)
     flags: Mapped[list[str]] = mapped_column(StrArray, default=list)
+    label: Mapped[str | None] = mapped_column(String)  # generic fields: what the value is, e.g. "due date"
 
 
 class Obligation(Base):

@@ -119,7 +119,7 @@ def build_events(snapshot: dict) -> list[tuple[float, str, dict]]:
             "meta",
             {
                 "fixture": snapshot["fixture"], "label": snapshot["label"], "filename": snapshot["filename"],
-                "doc_type": snapshot["doc_type"], "classification": snapshot.get("classification"),
+                "doc_type": snapshot["doc_type"], "type_label": None, "classification": snapshot.get("classification"),
                 "recorded_at": snapshot["recorded_at"], "as_of": snapshot["as_of"], "model": snapshot["model"],
                 "page_count": snapshot["page_count"], "badge": badge(snapshot), "narration": narration.get("intro", ""),
             },
@@ -135,11 +135,11 @@ def build_events(snapshot: dict) -> list[tuple[float, str, dict]]:
             gap = budget / (len(fields) + 1)
             for f in fields:
                 events.append((gap, "field", {"phase": "extracted", "name": f["name"], "value": f["value"],
-                                              "page_no": f["page_no"], "source_quote": f["source_quote"]}))
+                                              "page_no": f["page_no"], "source_quote": f["source_quote"], "label": None}))
             events.append((gap, "step", {**base, "narration": step_text.get(stage, "")}))
         elif stage == "validate":
             for f in fields:
-                events.append((FIELD_GAP_SECONDS, "field", {"phase": "validated", **f}))
+                events.append((FIELD_GAP_SECONDS, "field", {"phase": "validated", "label": None, **f}))
             events.append((max(budget - FIELD_GAP_SECONDS * len(fields), 0.1), "step", {**base, "narration": step_text.get(stage, "")}))
         else:
             events.append((budget, "step", {**base, "narration": step_text.get(stage, "")}))

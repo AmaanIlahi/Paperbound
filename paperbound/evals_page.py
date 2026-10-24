@@ -102,6 +102,20 @@ def _synthetic_html(run: dict) -> str:
     return "".join(out)
 
 
+def _generic_html(run: dict) -> str:
+    g = run["groups"]["generic/all"]
+    head = ["Docs", "Routed generic", "Field accuracy", "Field precision", "Parties", "Dates", "Amounts", "Obligations", "Grounded",
+            "Page", "Obligation set", "Actions", "Confidence cap held", "Cost/doc"]
+    row = [str(g["n_docs"]), _pct(g["classification_accuracy"]), _pct(g["field_accuracy"]), _pct(g["field_precision"]),
+           _pct(g["party_accuracy"]), _pct(g["date_accuracy"]), _pct(g["amount_accuracy"]), _pct(g["obligation_accuracy"]),
+           _pct(g["grounding_rate"]), _pct(g["page_accuracy"]), _pct(g["obligation_correct"]), _pct(g["action_correct"]),
+           _pct(g["confidence_cap_respected"]), f"${g['cost_usd_mean']:.4f}"]
+    return ("<h3>Summary</h3>" + _table(head, [row])
+            + f'<p class="muted">Field accuracy is the share of expected parties, dates, amounts and obligations found (by value). '
+            f'Precision counts extra fields the document does not support against it ({g["n_extras"]} extra). '
+            f'Email drafts proposed: {g["email_drafts"]}.</p>')
+
+
 def _cuad_html(run: dict) -> str:
     groups = run["groups"]
     rows = []
@@ -138,6 +152,15 @@ def _suite_html(directory=None) -> str:
             f'regression check, not as accuracy on your documents. Runs: {escape(_runs(r))}; as of {escape(r["as_of"])}.</p>'
             f"{_synthetic_html(r)}{_modes_html(r)}</section>"
         )
+    if "generic" in runs:
+        r = runs["generic"]
+        out.append(
+            '<section class="eval-suite"><h2>Generic fallback</h2><p class="note"><b>Documents of an unsupported type.</b> '
+            f'{r["n_docs"]} hand-written notices, invoices and orders (including a capital call notice), run through the generic '
+            "schema. Scored separately from the typed documents above: generic fields are capped in confidence and can only "
+            f'produce reminders and a review flag. Run {escape(r["timestamp"])}; as of {escape(r["as_of"])}.</p>'
+            f"{_generic_html(r)}{_modes_html(r)}</section>"
+        )
     if "cuad" in runs:
         r = runs["cuad"]
         out.append(
@@ -168,7 +191,7 @@ def render(directory=None) -> str:
 <a href="https://github.com/AmaanIlahi/Paperbound">GitHub</a></nav></header>
 <main class="evals">
 <h1>Evals</h1>
-<p class="muted">Two suites, both run locally against the same pipeline as the app, as of 2026-10-22. Every result and failure is kept in <code>evals/results/</code>.</p>
+<p class="muted">Three suites, all run locally against the same pipeline as the app, as of 2026-10-22. Every result and failure is kept in <code>evals/results/</code>.</p>
 {suites}
 <h2>Demo fixtures</h2>
 <p class="muted">The newest saved run of each demo fixture, scored against hand-written expectations by <code>scripts/eval_fixtures.py</code>.</p>

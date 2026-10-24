@@ -26,6 +26,7 @@ def field_json(f: Field) -> dict:
         "bboxes": boxes_of(f),
         "confidence": f.confidence,
         "flags": f.flags,
+        "label": f.label,
     }
 
 

@@ -1,0 +1,122 @@
+{
+  "id": "generic_003",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 1,
+  "type_label_any": [
+    "meeting",
+    "notice"
+  ],
+  "parties": [
+    {
+      "name": "Meridian Cooperative Association",
+      "role_any": [
+        "association",
+        "cooperative",
+        "issuer",
+        "organizer"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "name": "Dana Okafor",
+      "role_any": [
+        "secretary"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "dates": [
+    {
+      "value": "2026-12-03",
+      "label_any": [
+        "meeting"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-11-26",
+      "label_any": [
+        "proxy"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-11-19",
+      "label_any": [
+        "rsvp"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-10-15",
+      "label_any": [
+        "notice",
+        "issued"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "amounts": [
+    {
+      "value": 45.0,
+      "currency": "EUR",
+      "label_any": [
+        "registration",
+        "fee"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "obligations": [
+    {
+      "due_date": "2026-11-26",
+      "keywords": [
+        "proxy"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "due_date": "2026-11-19",
+      "keywords": [
+        "rsvp"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "deadlines": [
+    "2026-11-19",
+    "2026-11-26"
+  ],
+  "actions": {
+    "reminder_dates": [
+      "2026-11-19",
+      "2026-11-26"
+    ],
+    "tools_allowed": [
+      "create_calendar_event",
+      "flag_for_review"
+    ]
+  }
+}

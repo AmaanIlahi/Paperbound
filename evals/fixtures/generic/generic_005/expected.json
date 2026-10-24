@@ -1,0 +1,109 @@
+{
+  "id": "generic_005",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 1,
+  "type_label_any": [
+    "demand",
+    "letter",
+    "notice",
+    "payment"
+  ],
+  "parties": [
+    {
+      "name": "Fenwick Realty Services",
+      "role_any": [
+        "sender",
+        "creditor",
+        "issuer",
+        "writer"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "name": "Evergreen Labs Inc.",
+      "role_any": [
+        "debtor",
+        "recipient",
+        "customer"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "dates": [
+    {
+      "value": "2026-10-20",
+      "label_any": [
+        "letter"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-09-30",
+      "label_any": [
+        "due",
+        "original"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-11-12",
+      "label_any": [
+        "pay",
+        "deadline",
+        "due"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "amounts": [
+    {
+      "value": 9250.0,
+      "currency": "USD",
+      "label_any": [
+        "unpaid",
+        "balance"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "obligations": [
+    {
+      "due_date": "2026-11-12",
+      "keywords": [
+        "pay"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "deadlines": [
+    "2026-09-30",
+    "2026-11-12"
+  ],
+  "actions": {
+    "reminder_dates": [
+      "2026-11-12"
+    ],
+    "tools_allowed": [
+      "create_calendar_event",
+      "flag_for_review"
+    ]
+  }
+}

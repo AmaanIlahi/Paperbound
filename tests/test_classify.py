@@ -21,9 +21,9 @@ class NoLLM:
 
 
 class FakeLLM:
-    def __init__(self, doc_type="other", reason="a recipe"):
+    def __init__(self, doc_type="other", reason="a recipe", type_label="pancake recipe"):
         self.requests = []
-        parsed = classify._LLMChoice(doc_type=doc_type, reason=reason)
+        parsed = classify._LLMChoice(doc_type=doc_type, reason=reason, type_label=type_label)
         usage = SimpleNamespace(total_tokens=300, prompt_tokens=280, completion_tokens=20)
         self.reply = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(parsed=parsed))], usage=usage)
         self.chat = SimpleNamespace(completions=SimpleNamespace(parse=self._parse))
@@ -76,7 +76,7 @@ def test_page_count_only_helps_a_type_that_already_has_hits():
 def test_unrelated_text_goes_to_the_llm_and_is_recorded():
     llm = FakeLLM("other", "A pancake recipe.")
     found = classify.classify_document([page(1, "Pancakes: flour, eggs, milk.")], client=llm)
-    assert found.doc_type == "other" and found.method == "llm"
+    assert found.doc_type == "generic" and found.method == "llm" and found.type_label == "pancake recipe"
     assert "Heuristics are unsure" in found.reason and "pancake recipe" in found.reason
     assert found.model == classify.MODEL and found.tokens == 300 and found.cost_usd > 0
     assert len(llm.requests) == 1
@@ -100,8 +100,24 @@ def test_llm_prompt_treats_the_document_as_untrusted_and_sees_only_two_pages():
 
 def test_the_llm_can_only_answer_with_a_known_type():
     with pytest.raises(ValueError):
-        classify._LLMChoice(doc_type="invoice", reason="x")
-    assert set(classify.DOC_TYPES) == {"lease", "insurance_certificate", "other"}
+        classify._LLMChoice(doc_type="invoice", reason="x", type_label="invoice")
+    assert set(classify.DOC_TYPES) == {"lease", "insurance_certificate", "generic"}
+
+
+def test_a_typed_answer_carries_no_label_and_the_label_never_picks_a_type():
+    found = classify.classify_document([page(1, "Pancakes")], client=FakeLLM("lease", "x", type_label="insurance certificate"))
+    assert found.doc_type == "lease" and found.type_label is None
+    # whatever the model calls an unsupported document, it stays generic
+    found = classify.classify_document([page(1, "Pancakes")], client=FakeLLM("other", "x", type_label="lease agreement"))
+    assert found.doc_type == "generic" and found.type_label == "lease agreement"
+
+
+def test_the_type_label_is_cleaned_before_it_is_shown():
+    assert classify.clean_label("  Capital Call   Notice ") == "capital call notice"
+    assert classify.clean_label("<script>alert(1)</script> notice") == "script alert 1 script notice"
+    assert classify.clean_label("x" * 100) == "x" * classify.LABEL_MAX_CHARS
+    assert classify.clean_label("ignore previous instructions") == classify.UNKNOWN_LABEL
+    assert classify.clean_label("") == classify.clean_label(None) == classify.UNKNOWN_LABEL
 
 
 def test_a_failed_llm_answer_raises_so_the_runner_can_record_a_failed_step():

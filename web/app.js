@@ -44,11 +44,17 @@ const SUMMARY_KEYS = {
 };
 const GROUP_META = {
   reminders: ['Reminders', 'Staged reminders before the deadline. Approve each one, or all at once.'],
+  deadline_reminders: ['Deadline reminders', 'One reminder on the date of each grounded future deadline. Approve each one, or all at once.'],
   notice_choice: ['Notice: choose one', 'Approving one draft rejects the other. Nothing is ever sent.'],
 };
 const SANDBOX_STATUS = {
   create_calendar_event: 'created (sandbox)', draft_email: 'draft saved (sandbox), not sent', upsert_record: 'upserted (sandbox)',
+  flag_for_review: 'flagged (sandbox)',
 };
+const GENERIC_SECTIONS = [
+  ['Parties', /^party_\d+\.name$/], ['Dates', /^date_\d+\.date$/], ['Amounts', /^amount_\d+\.amount$/],
+  ['Obligations', /^obligation_\d+\.description$/],
+];
 const UNSUPPORTED_TYPE = "document type Paperbound doesn't recognize";
 
 function el(tag, cls, text) {
@@ -361,7 +367,8 @@ function onField(d, state) {
 function populateFieldRow(row, f) {
   row._field = f;
   row.replaceChildren();
-  const name = el('td', 'fname', pretty(f.name));
+  const name = el('td', 'fname', f.label || pretty(f.name));
+  if (f.label) name.appendChild(el('small', '', pretty(f.name)));
   if (f.page_no) name.appendChild(el('small', '', `page ${f.page_no}`));
   row.appendChild(name);
   row.appendChild(el('td', 'fvalue', f.value === null || f.value === undefined ? '(not found)' : String(f.value)));
@@ -449,8 +456,45 @@ function renderAll() {
 // ------------------------------------------------------------------------------------------------------------
 
 function supportedType() { return R && R.meta.doc_type && TYPE_LABELS[R.meta.doc_type]; }
+function isGeneric() { return !!R && R.meta.doc_type === 'generic'; }
+// Only a run saved before the generic fallback existed can still stop at classification.
 function unsupported() {
-  return R && ((R.done && R.done.message && R.done.status !== 'failed') || (R.meta.doc_type && !TYPE_LABELS[R.meta.doc_type]));
+  return !!R && !isGeneric() && !!R.done && !!R.done.message && R.done.status !== 'failed';
+}
+
+// The generic fallback's extracted fields, grouped, each row clickable to show its source on the page.
+function genericFieldGroups() {
+  const sections = [];
+  for (const [title, re] of GENERIC_SECTIONS) {
+    const rows = Object.values(R.fields).filter((f) => re.test(f.name) && f.value !== null && f.value !== undefined && f.value !== '');
+    if (rows.length) sections.push([title, rows]);
+  }
+  return sections;
+}
+function dueOf(f) {
+  const due = R.fields[f.name.replace('.description', '.due_date')];
+  return due && due.value ? due.value : null;
+}
+function renderGenericFields(root) {
+  for (const [title, rows] of genericFieldGroups()) {
+    const section = el('div', 'gsection');
+    section.appendChild(el('h4', '', title));
+    const sorted = title === 'Obligations' ? rows.slice().sort((a, b) => String(dueOf(a) || '9999').localeCompare(String(dueOf(b) || '9999'))) : rows;
+    for (const f of sorted) {
+      const row = el('button', 'grow');
+      row.type = 'button';
+      const text = el('span', 'gtext');
+      const label = title === 'Obligations' ? (dueOf(f) ? `due ${dueOf(f)}` : 'no due date') : f.label;
+      if (label) text.appendChild(el('small', '', label));
+      text.appendChild(document.createTextNode(String(f.value)));
+      row.appendChild(text);
+      row.appendChild(f.pending ? el('span', 'conf pending', 'checking') : el('span', 'conf ' + confClass(f.confidence ?? 0), (f.confidence ?? 0).toFixed(2)));
+      for (const flag of f.flags || []) row.appendChild(el('span', 'flag', flag));
+      row.addEventListener('click', () => highlight(f));
+      section.appendChild(row);
+    }
+    root.appendChild(section);
+  }
 }
 
 function sampleSelect(onChange) {
@@ -489,7 +533,7 @@ function renderSummary() {
 
   if (unsupported()) {
     const card = el('div', 'unsupported');
-    card.appendChild(el('h3', '', `This looks like a ${type && type !== 'other' ? type.replace(/_/g, ' ') : UNSUPPORTED_TYPE}.`));
+    card.appendChild(el('h3', '', `This looks like a ${UNSUPPORTED_TYPE}.`));
     card.appendChild(el('p', '', 'Paperbound supports leases and insurance certificates today.'));
     if (R.meta.classification && R.meta.classification.reason) card.appendChild(el('p', 'muted', R.meta.classification.reason));
     card.appendChild(sampleSelect(runSample));
@@ -498,7 +542,8 @@ function renderSummary() {
   }
 
   const head = el('div', 'sum-head');
-  if (type) head.appendChild(el('span', 'typechip', TYPE_LABELS[type] || type));
+  if (isGeneric()) head.appendChild(el('span', 'typechip generic', `Generic extraction (unsupported type: ${R.meta.type_label || 'unknown'})`));
+  else if (type) head.appendChild(el('span', 'typechip', TYPE_LABELS[type] || type));
   head.appendChild(el('span', 'sum-file', [R.meta.filename, R.meta.page_count ? `${R.meta.page_count} page${R.meta.page_count === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ')));
   root.appendChild(head);
 
@@ -537,6 +582,11 @@ function renderSummary() {
     root.appendChild(el('div', 'empty', 'No numbers could be computed from verified fields.'));
   }
 
+  if (isGeneric()) {
+    root.appendChild(el('p', 'muted gnote', 'Paperbound has no schema for this type, so these fields were read generically. Confidence is capped, and only reminders and a review flag can be proposed.'));
+    renderGenericFields(root);
+  }
+
   const next = nextDecision();
   if (next) {
     const line = el('div', 'next');
@@ -571,6 +621,7 @@ function actionTitle(a) {
   if (a.tool === 'create_calendar_event') return a.args.title || 'Calendar reminder';
   if (a.tool === 'draft_email') return a.args.subject || 'Draft email';
   if (a.tool === 'upsert_record') return 'Tracker record';
+  if (a.tool === 'flag_for_review') return 'Flag for human review';
   return a.tool.replace(/_/g, ' ');
 }
 function actionSub(a) {
@@ -589,6 +640,9 @@ function resultBlock(a) {
   } else if (a.tool === 'draft_email') {
     box.appendChild(el('div', 'kind', 'Sandbox inbox (draft, not sent)'));
     box.appendChild(el('div', 'body', `To: ${args.to}\nSubject: ${args.subject}\n\n${args.body}`));
+  } else if (a.tool === 'flag_for_review') {
+    box.appendChild(el('div', 'kind', 'Sandbox review queue'));
+    box.appendChild(el('div', 'body', args.reason || ''));
   } else {
     box.appendChild(el('div', 'kind', 'Sandbox: ' + a.tool));
     box.appendChild(el('div', 'body', JSON.stringify(args, null, 1)));

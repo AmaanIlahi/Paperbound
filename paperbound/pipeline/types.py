@@ -29,6 +29,7 @@ class ValidatedField:
     flags: list[str] = field(default_factory=list)
     validators_passed: bool = False
     bboxes: list[list[float]] = field(default_factory=list)  # one box per matched line
+    label: str | None = None  # generic fallback fields: what the value is ("due date"), a display string from the model
 
 
 @dataclass

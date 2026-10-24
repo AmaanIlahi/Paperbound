@@ -4,8 +4,9 @@ from datetime import date
 from typing import Callable
 
 from paperbound import clock
+from paperbound.agent.generic_planner import plan_generic_actions
 from paperbound.agent.planner import PlanResult, plan_actions
-from paperbound.doctypes import SUPPORTED, UNSUPPORTED_MESSAGE
+from paperbound.doctypes import UNSUPPORTED_MESSAGE, spec_for
 from paperbound.pipeline.classify import Classification, classify_document
 from paperbound.pipeline.impact import Brief
 from paperbound.pipeline.types import DerivedObligation, StepRecord, ValidatedField
@@ -24,6 +25,7 @@ class PipelineResult:
     classification: Classification | None = None
     message: str | None = None  # set when the run stops early on purpose
     extracted_present: int = 0  # fields the model returned a value for (known before validation)
+    type_label: str | None = None  # generic documents: the classifier's guess at the type, for display only
 
     @property
     def cost_usd(self) -> float:
@@ -65,6 +67,11 @@ def count_present(model) -> int:
     return total
 
 
+def count_generic(model) -> int:
+    """Items in an extraction of the generic fallback: every entry of every list."""
+    return sum(len(getattr(model, name)) for name in type(model).model_fields)
+
+
 def _has_value(item) -> bool:
     """Top-level extracted field found? A list (policies) counts when non-empty."""
     return bool(item) if isinstance(item, list) else item.value is not None
@@ -79,11 +86,13 @@ def run_pipeline(
     today: date | None = None,
     classifier: Callable = classify_document,
     observer: Callable | None = None,
+    generic_planner: Callable = plan_generic_actions,
 ) -> PipelineResult:
     """classify -> extract -> validate -> obligations -> impact -> planner over already-parsed pages.
 
     Never raises on stage failure. `extractor(pages)` overrides the document type's own extractor (used by tests).
-    A type with no entry in doctypes.SUPPORTED stops after classification with status done.
+    A document the classifier calls unsupported is `generic` and follows the same stages with the generic schema
+    (`generic_planner` stands in for the planner; it is deterministic and calls no model).
     `observer(event, stage, step, result)` is told when a stage starts ("start", step None) and when it has been
     appended to result.steps ("end", including skipped stages); result already holds that stage's output.
     """
@@ -122,7 +131,11 @@ def run_pipeline(
         result.classification, result.doc_type = found, found.doc_type
         step.model, step.tokens, step.cost_usd = found.model, found.tokens, found.cost_usd
         step.output_summary = f"{found.doc_type} ({found.method})"
-        step.reason = found.reason + ("" if found.doc_type in SUPPORTED else f" The {UNSUPPORTED_MESSAGE}, so the run stops here.")
+        result.type_label = found.type_label
+        step.reason = found.reason + (
+            "" if found.doc_type != "generic"
+            else f" No typed schema fits ({found.type_label or 'unknown'}), so the generic fallback runs: confidence is capped and only reminders and a review flag can be proposed."
+        )
         return found
 
     result.classification = timed("classify", do_classify, input_summary=f"{len(pages)} page(s) of text")
@@ -130,7 +143,7 @@ def run_pipeline(
         skip_rest(("extract", "validate", "obligations", "impact", "planner"), "Classification failed, so the document type is unknown.")
         return result
     result.doc_type = result.classification.doc_type
-    spec = SUPPORTED.get(result.doc_type)
+    spec = spec_for(result.doc_type)
     if spec is None:
         result.message = UNSUPPORTED_MESSAGE
         return result
@@ -139,9 +152,13 @@ def run_pipeline(
         extraction = extractor(pages) if extractor else spec.extract(pages, today)
         step.model, step.tokens, step.cost_usd = extraction.model, extraction.tokens, extraction.cost_usd
         extracted = extraction.fields
-        result.extracted_present = count_present(extracted)
         names = type(extracted).model_fields
-        step.output_summary = f"{sum(1 for n in names if _has_value(getattr(extracted, n)))}/{len(names)} top-level fields returned"
+        if spec.name == "generic":
+            result.extracted_present = count_generic(extracted)
+            step.output_summary = ", ".join(f"{len(getattr(extracted, n))} {n}" for n in names) + " returned"
+        else:
+            result.extracted_present = count_present(extracted)
+            step.output_summary = f"{sum(1 for n in names if _has_value(getattr(extracted, n)))}/{len(names)} top-level fields returned"
         step.reason = f"Rules cannot read free-form {spec.label.lower()} text, so the LLM extracts fields with verbatim quotes."
         return extracted
 
@@ -198,7 +215,8 @@ def run_pipeline(
     if result.brief is None:
         result.status = "partial"
 
-    if not derived:
+    is_generic = spec.name == "generic"
+    if not derived and not is_generic:  # the generic path always proposes at least the review flag
         result.steps.append(
             StepRecord(stage="planner", status="skipped", ts_offset_ms=elapsed, reason="No obligations, so there is nothing to plan.")
         )
@@ -206,13 +224,17 @@ def run_pipeline(
         return result
 
     def do_planner(step: StepRecord):
-        plan = planner(validated, derived, existing_obligations, brief=result.brief, today=today, doc_type=spec.name)
+        if is_generic:
+            plan = generic_planner(validated, derived, existing_obligations, brief=result.brief, today=today, type_label=result.type_label)
+        else:
+            plan = planner(validated, derived, existing_obligations, brief=result.brief, today=today, doc_type=spec.name)
         result.plan = plan
         step.model, step.tokens, step.cost_usd = plan.model, plan.tokens, plan.cost_usd
         step.output_summary = f"{len(plan.actions)} action(s) proposed, {len(plan.rejected)} rejected"
         step.reason = (
-            "The agent only proposes; every side-effect action waits for approval. "
-            f"{plan.api_calls} model call(s), {plan.tool_calls} tool call(s)."
+            ("Built by code with no model: a reminder per usable future deadline and a review flag. " if is_generic
+             else "The agent only proposes; every side-effect action waits for approval. ")
+            + f"{plan.api_calls} model call(s), {plan.tool_calls} tool call(s)."
             + (f" Rejected: {'; '.join(r['tool'] + ': ' + r['reason'] for r in plan.rejected)}." if plan.rejected else "")
             + (f" {' '.join(plan.notes)}" if plan.notes else "")
         )

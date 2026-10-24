@@ -141,13 +141,13 @@ Output: `pages` rows with `route`, `text`, `words[] {text, bbox}`, `quality_scor
 A `classify` step between parse and extract records the decision, its reason, and (when used) the model, tokens and cost.
 - **Heuristics first (free)**: each type has weighted key phrases (for example "certificate of liability insurance" 4, "certificate holder" 3, "landlord" 2, "base rent" 2), each counted once. Layout signals add to a type that already has hits: a key phrase in the first four lines of page 1 (+4, the title), at most two pages for a certificate (+1), three or more pages for a lease (+1). The top type is accepted only if it scores at least 6 and leads the runner-up by at least 4.
 - **LLM fallback, only when unsure**: if the heuristics are not clear (mixed signals, or no hits at all), gpt-4o-mini classifies from the first two pages (4000 characters) into a fixed enum with a one-sentence reason. The document text is marked untrusted in the prompt, and the enum means an injected instruction cannot invent a type.
-- Types today: `lease`, `insurance_certificate`, `other`. Later types (contract, invoice, receipt, permit, notice) are added to the enum, the heuristics table and `doctypes.py`.
-- `other` stops the run after classification with status `done` and the message "document type not supported yet" (API field `message`, shown in the UI). A classifier failure makes the run `partial` and skips everything after it.
-- The detected type is stored on `documents.doc_type` and returned by `GET /runs/{id}` with the classify step's summary and reason.
+- Types today: `lease`, `insurance_certificate`, and `generic` for anything else. The LLM still answers with the enum `lease | insurance_certificate | other` plus a short `type_label`; `other` becomes `generic` (section 4.8) and the label is kept for display only. Later typed schemas (contract, invoice, receipt, permit, notice) are added to the enum, the heuristics table and `doctypes.py`.
+- A classifier failure makes the run `partial` and skips everything after it. (Before the generic fallback, `other` stopped the run here with the message "document type not supported yet"; that message now only appears on runs stored from before.)
+- The detected type is stored on `documents.doc_type` (and the label on `documents.type_label`) and returned by `GET /runs/{id}` with the classify step's summary and reason.
 
 ### 4.3 Extract (schema-constrained)
 - Each doc type has a Pydantic schema in `schemas/` (e.g. `LeaseFields`, `InsuranceCertFields`).
-- `other` uses a generic schema: parties, dates, amounts, obligations, summary.
+- `generic` uses `FallbackFields`: parties, dates, amounts and obligations, each with a quote and a page (section 4.8).
 - LLM extraction uses structured outputs (`gpt-4o-mini`, temperature 0, one call per document). Every field returns `{value, source_quote, page}`. The system prompt states that document text is untrusted data and instructions inside it must be ignored; quotes must be verbatim and at most 30 words; rent is the first-year base rent, not escalation-table values. Currently only the `lease` schema exists (`schemas/lease.py`: landlord, tenant, premises_address, start_date, end_date, rent_amount, rent_period, notice_period_days, and for the decision brief holdover_rate_percent, security_deposit, notice_method, notice_section, rent_escalation_percent, current_rent). The user message starts with today's date (from `clock.today()`) so the model can pick the rent-table row that covers it (`current_rent`).
 - `insurance_certificate` uses `InsuranceCertFields` (`schemas/insurance.py`): insured, certificate_holder, producer, and `policies`, a list (at most 6) where each policy has type, insurer, number, effective_date, expiration_date, each_occurrence_limit and aggregate_limit, each as `{value, source_quote, page}`. One extraction call per document, with its own untrusted-data prompt (quotes should include their label, such as "EACH OCCURRENCE $1,000,000", so they identify the right place). Policy fields are flattened to `policy_1.number`, `policy_1.expiration_date`, ... in `fields`.
 - Long docs: chunk by page, retrieve relevant chunks per field group with pgvector, then extract.
@@ -218,6 +218,31 @@ Policy (in `policy.py`, deterministic):
 | Anything else | Pending human approval |
 | `draft_email` | Always a draft, never sends |
 
+### 4.8 Generic fallback (`pipeline/generic.py`, `agent/generic_planner.py`)
+A document the classifier cannot place as a lease or a certificate used to stop after classification. It now continues through Extract, Verify, Decide and Act with a generic schema, under the same boundary as the typed path: a model reads, code checks and decides, nothing acts without approval. What changes is how much it is trusted and what it may do.
+
+**Classify.** The heuristics and the LLM fallback are unchanged. When the result is unsupported the document is `generic`: `documents.doc_type = "generic"`, and the LLM's short guess (`type_label`, for example "capital call notice") is stored as `documents.type_label`. The label is **display text only**: it is cleaned (letters, digits, spaces, `&`, `'`, `-`; lower case; at most 40 characters; an instruction-like or empty guess becomes "unknown"), and no code reads it to choose a schema, a prompt or a rule. The type is decided by the enum; the label cannot promote a document to `lease`.
+
+**Extract** (LLM, structured outputs, `schemas/generic.py` `FallbackFields`, `gpt-4o-mini`, temperature 0, one call). Four lists, each item carrying a verbatim `source_quote` (at most 30 words) and a `page`:
+- `parties`: `{name, role}`
+- `dates`: `{value (ISO), label, quote, page}` (labels such as "due date", "notice date")
+- `amounts`: `{value, currency, label, quote, page}`
+- `obligations`: `{description, due_date?, quote, page}`
+Lists are cut to 10 items each in code. The prompt treats the text as untrusted data, like the typed prompts, and tells the model not to guess or compute.
+
+**Verify** (code; `validate_generic`). The same machinery as the typed fields: rapidfuzz grounding with page recovery, the value-in-quote check (a date must be printed in its quote, an amount's figure must be in its quote), the quote rules, short quotes must match exactly, and the instruction detector, which here also screens the model-written label and an obligation's description. Fields are named `party_N.name`, `date_N.date`, `amount_N.amount`, `obligation_N.description` and `obligation_N.due_date` (which is checked against the obligation's own quote), and carry a `label`. A currency that is not a three-letter code gets `invalid_currency` (a blocking check flag). **Confidence is capped** at `GENERIC_CONFIDENCE_CAP` (default 0.7) after the normal formula, so a generic field never looks as trusted as a typed one (a typed field can reach 1.0). The cap is a ceiling, not a penalty: what blocks a field is its flags, not its number, and a flagged field that grounded well still shows at most 0.7 beside its flags.
+
+**Decide** (code, no model, no domain math). A deadline is a usable obligation due date, or a usable date whose label matches `due|deadline|expir*|matur*|renew*|cut-off|payable|closing` (an obligation already covering the same day wins). Usable means present, free of blocking flags, and at or above `GENERIC_ACTION_MIN_CONFIDENCE` (default 0.6). Obligations are sorted by due date. The brief lists days remaining for each **future** deadline; a deadline that is today or past is listed as skipped, with the reason. Nothing else is computed.
+
+**Act** (code; there is no planner model here). Allowed proposals, all pending approval:
+- `create_calendar_event`: one all-day reminder on the date of each usable future deadline (not staged), built from a template: the obligation text, the verbatim quote and page, a source link, and the line "Generic extraction (unsupported type: <label>)". Group `deadline_reminders` (bundle).
+- `flag_for_review` (new tool, reversible, sandbox adapter writes to a "review queue"): one proposal for every generic run, naming the fields that were flagged or low-confidence and therefore produced nothing.
+There are **no email drafts** (no trusted recipient exists for an unknown document), no tracker record and no webhook. A flagged or low-confidence field never feeds a proposal, and the flag cites no field. `flag_for_review` is never offered to the planner model of the typed path. The typed planner is unchanged.
+
+**UI.** The Summary tab shows a "Generic extraction (unsupported type: <label>)" badge, then Parties, Dates, Amounts and Obligations (each a clickable row with its confidence and flags), the days-remaining cards and the next decision. Fields, Actions and Trace work as for a typed document. The label is inserted as text, never as HTML.
+
+**Honest limits.** The extracted dates and amounts are only as good as one gpt-4o-mini read; the deadline test is a label regex, so a deadline called something unusual is not found (it stays visible in Fields, and the review flag still goes out), and one the regex wrongly accepts shows as a deadline that passes the checks above. Only dates written with a full month name are accepted by the value-in-quote check ("15 Nov 2026" is not), as for the typed fields.
+
 ---
 
 ## 5. Agent tools
@@ -253,6 +278,7 @@ Action tools have two adapters, `live` and `sandbox`, selected by `ctx.mode`.
 | `upsert_record` | `obligations` table | Session-scoped table |
 | `draft_email` | Gmail API (create draft) | Sandbox Inbox panel |
 | `fire_webhook` | HTTP POST to user URL | Logged request/response viewer |
+| `flag_for_review` | none yet | Sandbox review queue (generic fallback only; filed by code, never offered to the model) |
 
 `proposed_actions.group_key` / `group_mode` (`bundle` or `exclusive`) record grouping. Approving an action in an `exclusive` group rejects its still-pending siblings in the same run.
 
@@ -267,12 +293,12 @@ Every proposed action stores `source_refs[]` (field ids → page + bbox) so the 
 ## 6. Data model
 
 ```
-documents        id, filename, storage_key, sha256, page_count, doc_type, created_at, expires_at (the cleanup job deletes only rows that have one), session_hash (uploader)
+documents        id, filename, storage_key, sha256, page_count, doc_type, type_label (generic documents: the classifier's guess, display only), created_at, expires_at (the cleanup job deletes only rows that have one), session_hash (uploader)
 pages            id, document_id, page_no, route, text, words_json, quality_score, image_key, width_pt, height_pt  (bboxes are PDF points; width/height let the UI scale them)
 chunks           id, document_id, page_no, text, embedding vector(1536)
 runs             id, document_id, status (queued|running|done|partial|failed), started_at, finished_at, cost_usd, session_hash (owner)
 steps            id, run_id, seq, stage, status, input_summary, output_summary, reason, model, tokens, cost_usd, duration_ms, ts_offset_ms
-fields           id, run_id, name, value_json, source_quote, page_no, bbox, bboxes (one box per matched line; bbox is their union), confidence, flags[]
+fields           id, run_id, name, value_json, source_quote, page_no, bbox, bboxes (one box per matched line; bbox is their union), confidence, flags[], label (generic fields: what the value is, e.g. "due date")
 obligations      id, run_id, kind, due_date, description, source_field_ids[]
 proposed_actions id, run_id, tool, args_json, source_field_ids[], rationale, status (pending|approved|rejected|executed|failed), policy_reason, group_key, group_mode (bundle|exclusive), created_at
 usage_ledger     id, kind (upload|llm), ip_hash (sha256 of the client address), usd, created_at  (rate limit and daily LLM budget; kept after uploads expire)
@@ -296,7 +322,7 @@ Only live runs are stored in the database. Samples exist only as files in `fixtu
 
 ```
 POST   /documents                 upload PDF → {document_id, run_id, status: "queued", page_count, reused} at once; 503 if uploads are unavailable, 413/429 limits, 400 not a PDF
-GET    /runs/{id}                 run summary (status, page_count, doc_type, classification, message for unsupported types)
+GET    /runs/{id}                 run summary (status, page_count, doc_type, type_label for generic documents, classification, message only for runs stored before the generic fallback)
 GET    /runs/{id}/events          SSE: stored events, then live ones; Last-Event-ID or ?after=<seq> to resume
 GET    /runs/{id}/fields          extracted fields with provenance
 GET    /runs/{id}/steps           pipeline steps (timeline), ordered by seq
@@ -323,13 +349,13 @@ SSE events (identical for samples and live runs; each live frame also carries `i
 
 | event | data |
 |---|---|
-| `meta` | `badge`, `narration` (intro), `filename`, `page_count`, `doc_type`, `classification`, `as_of`, `model`; samples add `fixture`, `label`, `recorded_at`; live runs add `live`, `document_id`, `run_id`. May arrive twice (type known after classify); fields merge |
+| `meta` | `badge`, `narration` (intro), `filename`, `page_count`, `doc_type`, `type_label`, `classification`, `as_of`, `model`; samples add `fixture`, `label`, `recorded_at`; live runs add `live`, `document_id`, `run_id`. May arrive twice (type known after classify); fields merge |
 | `step` | `seq`, `stage`, `status` (`running`, then `done`, `failed` or `skipped`), `summary`, `reason`, `error`, `model`, `tokens`, `cost_usd`, `duration_ms`, `narration`. Stages: parse, classify, extract, validate, obligations, impact, planner, then a synthesized `gate` |
-| `field` | `phase: extracted` (name, value, page_no, source_quote), then `phase: validated` (adds id, bboxes, confidence, flags) |
+| `field` | `phase: extracted` (name, value, page_no, source_quote, label), then `phase: validated` (adds id, bboxes, confidence, flags) |
 | `obligations` | `{obligations: [{kind, due_date, description, source_field_ids}]}` |
 | `brief` | `{lines: [{key, label, value, text, note, sources}], skipped}` |
 | `action` | one proposed action with sources, group, status, `result` and a `narration` |
-| `done` | `status`, `doc_type`, `message` (set for unsupported types or a failed run), `tokens`, `cost_usd`, `narration` (closing line) |
+| `done` | `status`, `doc_type`, `message` (set for a failed run), `tokens`, `cost_usd`, `narration` (closing line) |
 
 ---
 
@@ -337,7 +363,7 @@ SSE events (identical for samples and live runs; each live frame also carries `i
 
 Files: `web/index.html` (structure), `web/style.css` (design), `web/app.js` (the one renderer). The page is tested under node on a small DOM stub (`tests/ui/`) and by reading the HTML and CSS.
 
-**Landing.** Header (Paperbound, How it works, Evals, GitHub), the line "Drop in any PDF. See what you owe, and by when.", an **Upload** button (drag and drop onto the card works too), a **Try a sample** dropdown (Lease, Insurance certificate), "Supports leases and insurance certificates", the privacy note under Upload, and a five-step strip: Read (code), Extract (LLM), Verify (code), Decide (code), Act (LLM drafts, you approve), each with a one-line explanation on hover or focus. If uploads are unavailable the button is replaced by a short note; if the daily budget is used up it reads "Daily limit reached, try a sample".
+**Landing.** Header (Paperbound, How it works, Evals, GitHub), the line "Drop in any PDF. See what you owe, and by when.", an **Upload** button (drag and drop onto the card works too), a **Try a sample** dropdown (Lease, Insurance certificate), "Supports leases and insurance certificates. Anything else gets a generic extraction.", the privacy note under Upload, and a five-step strip: Read (code), Extract (LLM), Verify (code), Decide (code), Act (LLM drafts, you approve), each with a one-line explanation on hover or focus. If uploads are unavailable the button is replaced by a short note; if the daily budget is used up it reads "Daily limit reached, try a sample".
 
 **Run view.** A compact horizontal stepper (the five steps above, mapped onto the pipeline stages: Read = parse + classify, Extract = extract, Verify = validate, Decide = obligations + impact, Act = planner + gate) with a status dot each, and the current step's narration as one line under it (click to expand). Clicking a step opens its details in the Trace tab. Below it, two columns: a document viewer on the left (each column scrolls inside itself, so the Summary needs no page scroll on a desktop) and a tabbed panel on the right:
 
@@ -346,7 +372,7 @@ Files: `web/index.html` (structure), `web/style.css` (design), `web/app.js` (the
 - **Fields**: a compact table (field, value, confidence chip, flags); a row highlights its source. Rows appear as the model returns them (`checking`) and settle once code has verified them.
 - **Trace**: the full narrated timeline, a model or code tag per step, tokens, cost, latency, and a link to `/evals`.
 
-**Unsupported types** get a friendly card ("This looks like a document type Paperbound doesn't recognize. Paperbound supports leases and insurance certificates today.") with a Try a sample dropdown.
+**Unsupported types** take the generic fallback (section 4.8): the Summary shows a "Generic extraction (unsupported type: <label>)" badge and the extracted fields grouped as Parties, Dates, Amounts and Obligations, and the Fields, Actions and Trace tabs work as for a typed document. The old "doesn't recognize" card remains only for a run stored before the fallback existed.
 
 **Routing** is by URL hash: `#run=<id>` opens a run (a reloaded or shared tab replays it from the database, if it is the same browser), `#demo=<fixture>` opens a sample, and `#run=<id>&page=<n>` / `#demo=<fixture>&page=<n>` (written into reminders) scroll to a page.
 
@@ -358,11 +384,12 @@ Files: `web/index.html` (structure), `web/style.css` (design), `web/app.js` (the
 
 ## 9. Evals
 
-Two suites run in `paperbound/evals/` (`python -m paperbound.evals.run`). They call the pipeline directly (parse, classify, extract, validate, obligations, brief, planner): no API, no database, no job queue. Every run is as of `AS_OF=2026-10-22`, uses gpt-4o-mini only, and goes through a call counter (`evals/budget.py`, ledger in `evals/.budget.json`) that refuses to pass the cap (default 160 calls in total).
+Three suites run in `paperbound/evals/` (`python -m paperbound.evals.run`). They call the pipeline directly (parse, classify, extract, validate, obligations, brief, planner): no API, no database, no job queue. Every run is as of `AS_OF=2026-10-22`, uses gpt-4o-mini only, and goes through a call counter (`evals/budget.py`, ledger in `evals/.budget.json`) that refuses to pass the cap (default 160 calls in total).
 
 | Suite | Data | Scoring | Docs |
 |---|---|---|---|
 | Synthetic | `scripts/generate_fixtures.py` writes `evals/fixtures/<doc_type>/<id>/{doc.pdf,expected.json}`: 20 leases and 20 certificates, seeded and reproducible (`--check`) | Every stage against `expected.json`, which is written from the values the PDF was rendered from | 40 |
+| Generic | five hand-written notices, invoices and orders in `evals/fixtures/generic/<id>/{doc.pdf,expected.json}` (a capital call notice, an invoice, a meeting notice, a purchase order, a past-due letter) | Parties, dates, amounts and obligations found, by value; routing, derived deadlines and proposed actions | 5 |
 | CUAD v1 | `theatticusproject/cuad` from Hugging Face into `evals/datasets/cuad/` (git-ignored); a fixed seed-42 sample of contracts labeled for any of five categories (list in `evals/cuad_sample.json`) | Span overlap between our `source_quote` and the labeled span; extraction only (`GenericContractFields`, no planner) | 50 |
 
 **Synthetic fixtures.** Per type: 12 `clean`, 3 `missing_field` (the clause is absent; correct only if the field is null or `not_found`), 2 `late_page` (renewal and holdover clauses, or the whole coverage table, on pages 3 to 4), 3 `injection` (instruction-style and clause-style text aimed at rent, notice period, expiration date or limit). Three layout templates per type vary section order, fonts, table vs prose, clause numbering and date style, and every document carries distractors. `expected.json` holds the field values with the pages and strings they appear on, the brief numbers, the expected action types and reminder dates, and the injection (field, poisoned value, text). Policy fields in certificates are matched by policy number, falling back to printed order.
@@ -374,6 +401,12 @@ Two suites run in `paperbound/evals/` (`python -m paperbound.evals.run`). They c
 **Outputs.** `evals/results/<suite>_<timestamp>.json` (all records), `failures_<suite>_<timestamp>.json` (fixture, variant, field, expected, extracted, quote, flags, confidence), `latest.md` (newest run of each suite). `--save-baseline` writes `evals/baseline.json`; every run diffs against it and flags a drop of more than 2 points in any rate. `--rescore <file>` re-applies scoring rules to a saved synthetic run without model calls (used once, see `rescored` in that file). The `/evals` page renders the newest run of each suite from these files (no database), with the synthetic vs CUAD caveat, calibration, injection results and the top failure modes; the older per-fixture table for `fixtures/demo` (`scripts/eval_fixtures.py`) stays below it.
 
 **Reruns and the baseline.** A run may cover one doc type (`--doc-type lease`); `/evals` and `latest.md` assemble the synthetic view from the newest run of each type. Part 7b is the worked example: the `notice_period_days` quote rule was fixed (`N days`, `N calendar days`, `N business days`; business days raise `notice_unit_business_days`, a blocking check flag, so no obligation is derived), only the lease suite was rerun, the diff against the saved baseline showed no metric down by more than 2 points (many up), and only then were the lease keys of `evals/baseline.json` replaced. Known open failure mode: a prose rent schedule has no cross-check for `current_rent` (see README).
+
+**Generic fixtures and metrics.** `scripts/generate_fixtures.py` also writes five hand-written documents of a type Paperbound has no schema for (`evals/fixtures/generic/generic_001..005`: a capital call notice, an invoice, a meeting notice, a purchase order, a past-due letter), each with an `expected.json` listing every party, date, amount and obligation it prints, the dates the Decide step should turn into deadlines, and the reminder dates and tools the Act step may propose. Scoring is by value (a date, an amount with its currency, a fuzzy name, an obligation's due date plus a keyword), because the model picks its own labels; labels and the type guess are scored separately as soft checks. **Generic field accuracy** is reported on its own, never mixed into the lease or certificate numbers: recall of expected items (overall and for parties, dates, amounts and obligations), precision (fields the document does not support count against it), grounding, page accuracy, routing, the derived deadline set, action correctness (only reminders and one review flag, reminders for exactly the future deadlines, no flagged or low-confidence field cited, no email draft), and whether the confidence cap held.
+
+**First generic results (2026-10-24, as of 2026-10-22, 5 documents, 43 expected items):** routed generic 5/5; field accuracy 93.0% and precision 93.0% (parties 10/10, dates 16/16, obligations 8/8, amounts 6/9); grounding 100%, page accuracy 100%; derived deadlines 5/5; actions 5/5 (no email drafts, none unsafe); confidence cap held 5/5; $0.0005 per document. The three missed amounts are one document where the model returned `250.0` for "$250,000.00" (and likewise for the other two amounts on that page): the value-in-quote check flagged all three `value_not_in_quote`, so none reached an obligation or action, which is the verification layer doing its job against an extraction error. In the first, discarded generic run the model returned `43750` for "$437.50" and `4500` for "EUR 45.00"; the prompt then gained the cents rule the typed prompts already carry, and one fixture expectation was corrected (a date the document calls a due date is a deadline even once it is past, as for the typed path). That is one adjustment of the generic prompt against its own five documents, so read the generic numbers as a smoke test, not accuracy.
+
+**Baseline diff for this change (full suite, same day).** Insurance certificates: nothing down, several metrics up. Lease: three synthetic rates fell by more than 2 points (`lease/all/action_correct` 0.85 to 0.80, `lease/clean/action_correct` 0.83 to 0.75, `lease/clean/usable_rate` 0.976 to 0.952) and two CUAD rates fell (`expiration_date` detection 0.92 to 0.87 and precision 0.89 to 0.84). None of the code these suites exercise changed on this branch (the typed prompts, validators and planner are untouched; the model is never offered the new tool), and a control run of unmodified `main` the same day scored the same or worse (`lease/all/action_correct` 0.70, `expiration_date` detection 0.85), so the drops are run-to-run model variance, not regression from this change. The baseline for lease, certificate and CUAD keys was therefore **not** replaced; only the new `generic/...` keys were added. The saved baseline looks optimistic for lease actions; a few repeated runs would give a better reference than any single one.
 
 **Honest limits.** The synthetic set is template-generated and regular; CUAD span scoring penalizes a correct answer worded or cut differently from the label; single runs at temperature 0 are still not deterministic; the SDK's internal retries are not visible to the call counter. Prompts are not tuned against either suite; any prompt change means rerunning everything and saying so in the report.
 
@@ -422,16 +455,16 @@ paperbound/
   presenters.py   JSON shapes shared by REST and the event stream;  evals_page.py  the /evals page
   clock.py        the single source of "today" (AS_OF override)
   doctypes.py     per-type wiring: extract, validate, obligations, brief
-  pipeline/       parse.py classify.py extract.py validate.py obligations.py impact.py runner.py types.py
-  agent/          planner.py profiles.py policy.py executor.py tools/ (one file per tool, live + sandbox adapters)
-  schemas/        Pydantic field schemas per doc type (lease.py, insurance.py, generic.py for CUAD)
-  evals/          run.py (CLI), synthetic.py, cuad.py, metrics.py, report.py, budget.py
+  pipeline/       parse.py classify.py extract.py validate.py obligations.py impact.py generic.py runner.py types.py
+  agent/          planner.py generic_planner.py profiles.py policy.py executor.py tools/ (one file per tool, live + sandbox adapters)
+  schemas/        Pydantic field schemas per doc type (lease.py, insurance.py, generic.py: the CUAD fields and the generic fallback's)
+  evals/          run.py (CLI), synthetic.py, generic.py, cuad.py, metrics.py, report.py, budget.py
   db/             models, migrations (Alembic)
 web/              index.html, style.css, app.js
 fixtures/demo/    <fixture>/ source.pdf, pages/*.png, snapshot.json, narration.json  (plus the source PDFs and *.expected.json used by the evals)
 fixtures/labeled/ hand-labeled docs + ground truth JSON
 scripts/          record_demo.py (live run → snapshot export), load_eval_data.py, make_sample_lease.py, make_sample_coi.py, eval_fixtures.py, generate_fixtures.py (record_demo.py is implemented)
-evals/fixtures/   generated synthetic leases and certificates (scripts/generate_fixtures.py);  evals/datasets/  CUAD (git-ignored)
+evals/fixtures/   generated synthetic leases and certificates, plus five hand-written generic documents (scripts/generate_fixtures.py);  evals/datasets/  CUAD (git-ignored)
 evals/results/    JSON output of eval runs;  evals/baseline.json  the metrics later runs are diffed against
 tests/            pytest unit tests (no network)
 .env.example      committed; .env is local only and git-ignored

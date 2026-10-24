@@ -293,6 +293,14 @@ body[data-view="run"] { overflow: hidden; }
 .next strong { color: var(--text); }
 .empty { color: var(--muted); font-size: 14px; padding: var(--s2) 0; }
 .callout { padding: var(--s2); border-radius: var(--radius); background: var(--warn-soft); color: var(--warn); font-size: 14px; margin-top: var(--s2); }
+.typechip.generic { background: var(--warn-soft); color: var(--warn); }
+.gsection { margin: var(--s2) 0; }
+.gsection h4 { font-size: 13px; margin: 0 0 var(--s1); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.grow { display: flex; align-items: center; gap: var(--s1); flex-wrap: wrap; width: 100%; text-align: left; padding: 6px 10px; margin-bottom: 4px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+.grow:hover { background: var(--surface-2); }
+.grow .gtext { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.grow small { display: block; color: var(--muted); font-size: 12px; }
+.gnote { font-size: 13px; }
 .unsupported { padding: var(--s3); border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--border); }
 .unsupported h3 { font-size: 18px; margin-bottom: var(--s1); }
 .unsupported p { margin: 0 0 var(--s2); color: var(--muted); }

@@ -19,3 +19,14 @@ DEMO_DIR = ROOT / "fixtures" / "demo"  # recorded demo runs: fixtures/demo/<fixt
 def coi_min_each_occurrence() -> float:
     """Minimum each-occurrence limit a certificate must show (COI_MIN_EACH_OCCURRENCE, default 1,000,000)."""
     return float(os.environ.get("COI_MIN_EACH_OCCURRENCE") or 1_000_000)
+
+
+def generic_confidence_cap() -> float:
+    """Highest confidence a generic-fallback field can show (GENERIC_CONFIDENCE_CAP, default 0.7), so it never looks as
+    trusted as a typed field."""
+    return float(os.environ.get("GENERIC_CONFIDENCE_CAP") or 0.7)
+
+
+def generic_action_min_confidence() -> float:
+    """Generic fields below this confidence never feed an obligation or action (GENERIC_ACTION_MIN_CONFIDENCE, default 0.6)."""
+    return float(os.environ.get("GENERIC_ACTION_MIN_CONFIDENCE") or 0.6)

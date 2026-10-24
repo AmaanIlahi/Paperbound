@@ -1,0 +1,150 @@
+{
+  "id": "generic_001",
+  "doc_type": "generic",
+  "variant": "clean",
+  "template": "generic",
+  "as_of": "2026-10-22",
+  "pdf": "doc.pdf",
+  "page_count": 1,
+  "type_label_any": [
+    "capital call",
+    "notice"
+  ],
+  "parties": [
+    {
+      "name": "Northgate Growth Fund II, L.P.",
+      "role_any": [
+        "fund",
+        "issuer",
+        "general partner",
+        "partnership"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "name": "Juniper Family Office LLC",
+      "role_any": [
+        "investor",
+        "limited partner",
+        "recipient"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "dates": [
+    {
+      "value": "2026-10-01",
+      "label_any": [
+        "notice"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-11-15",
+      "label_any": [
+        "due",
+        "payment",
+        "wire"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-11-08",
+      "label_any": [
+        "acknowledg",
+        "return",
+        "due"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": "2026-06-30",
+      "label_any": [
+        "settled",
+        "previous"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "amounts": [
+    {
+      "value": 250000.0,
+      "currency": "USD",
+      "label_any": [
+        "capital call",
+        "call"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": 2000000.0,
+      "currency": "USD",
+      "label_any": [
+        "commitment"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "value": 1250000.0,
+      "currency": "USD",
+      "label_any": [
+        "unfunded",
+        "remaining"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "obligations": [
+    {
+      "due_date": "2026-11-15",
+      "keywords": [
+        "wire"
+      ],
+      "pages": [
+        1
+      ]
+    },
+    {
+      "due_date": "2026-11-08",
+      "keywords": [
+        "acknowledg",
+        "return"
+      ],
+      "pages": [
+        1
+      ]
+    }
+  ],
+  "deadlines": [
+    "2026-11-08",
+    "2026-11-15"
+  ],
+  "actions": {
+    "reminder_dates": [
+      "2026-11-08",
+      "2026-11-15"
+    ],
+    "tools_allowed": [
+      "create_calendar_event",
+      "flag_for_review"
+    ]
+  }
+}

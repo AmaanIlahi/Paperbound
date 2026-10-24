@@ -22,6 +22,7 @@ MAX_TOOL_CALLS = 12
 MAX_ROUNDS = 4
 TIMEOUT_SECONDS = 60
 REMINDER_LEAD_DAYS = (60, 30, 14)
+CODE_ONLY_TOOLS = {"flag_for_review"}  # filed by the generic fallback planner; the model is never offered them
 SYSTEM_PROMPT = LEASE_PROMPT  # kept for callers that import the lease prompt from here
 
 
@@ -292,7 +293,7 @@ def plan_actions(
         {"role": "user", "content": state.user_message(state.profile.summary(state.refs))},
         {"role": "user", "content": "get_obligations result: " + json.dumps(existing.data)},
     ]
-    tool_schemas = [t.schema() for t in TOOLS.values()]
+    tool_schemas = [t.schema() for t in TOOLS.values() if t.name not in CODE_ONLY_TOOLS]
 
     for _ in range(MAX_ROUNDS):
         if result.tool_calls >= MAX_TOOL_CALLS:
