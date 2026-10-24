@@ -95,12 +95,22 @@ def test_obligations_are_sorted_by_date_and_a_labeled_date_is_not_double_counted
     assert dates == ["2026-10-01", "2026-11-15"]
 
 
-def test_days_remaining_for_future_deadlines_only():
+def test_days_remaining_for_future_deadlines():
     brief = build_generic_brief(check(), D)
     assert [(ln.key, ln.value) for ln in brief.lines] == [("deadline_1", 24)] and brief.due_date == date(2026, 11, 15)
     assert all(ln.source_fields for ln in brief.lines)
-    later = build_generic_brief(check(), date(2026, 11, 15))
-    assert later.lines == [] and "not in the future" in later.skipped[0]["reason"]
+    assert brief.lines[0].text == "24 days (due 2026-11-15)"
+
+
+def test_a_past_deadline_says_how_long_ago_instead_of_being_dropped():
+    today = date(2026, 11, 20)
+    brief = build_generic_brief(check(today=today), today)
+    assert [(ln.value, ln.text, ln.note) for ln in brief.lines] == [(-5, "passed 5 days ago", "Due 2026-11-15")]
+    assert brief.skipped == [] and brief.due_date is None
+    assert build_generic_brief(check(), date(2026, 11, 15)).lines[0].text == "due today"
+    assert build_generic_brief(check(), date(2026, 11, 14)).lines[0].text == "1 day (due 2026-11-15)"
+    assert build_generic_brief(check(), date(2026, 11, 14)).lines[0].value == 1
+    assert build_generic_brief(check(), date(2026, 11, 16)).lines[0].text == "passed 1 day ago"
 
 
 def test_a_flagged_field_is_never_a_deadline():
@@ -234,4 +244,25 @@ def test_a_generic_run_plays_through_the_renderer(generic_live, tmp_path):
     path.write_text(json.dumps(events), encoding="utf-8")
     script = Path(__file__).parent / "ui" / "generic.test.js"
     done = subprocess.run(["node", str(script), str(path)], capture_output=True, text=True, timeout=90)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_past_deadline_shows_passed_days_ago_in_the_summary(generic_live, tmp_path, monkeypatch):
+    import json
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    if shutil.which("node") is None:
+        pytest.skip("node is not installed")
+    monkeypatch.setenv("AS_OF", "2026-11-20")
+    generic_live.use_pipeline(lambda: {"classifier": lambda pages: Classification("generic", "llm", "x", type_label="capital call notice"),
+                                       "extractor": fake_generic_extractor})
+    events = [[n, d] for _, n, d in generic_live.events(generic_live.upload_and_run(notice_pdf(), "notice.pdf")["run_id"])]
+    brief = next(d for n, d in events if n == "brief")
+    assert [ln["text"] for ln in brief["lines"]] == ["passed 5 days ago"]
+    path = tmp_path / "events.json"
+    path.write_text(json.dumps(events), encoding="utf-8")
+    script = Path(__file__).parent / "ui" / "generic.test.js"
+    done = subprocess.run(["node", str(script), str(path), "past"], capture_output=True, text=True, timeout=90)
     assert done.returncode == 0, done.stdout + done.stderr

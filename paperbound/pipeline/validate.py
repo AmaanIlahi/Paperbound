@@ -125,7 +125,7 @@ def field_confidence(grounding: float, validators_passed: bool, page_quality: fl
 # Month names, full or abbreviated ("Nov", "Nov.", "Sept"); the month is the first three letters.
 _MONTH_WORD = (
     r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?"
-    r"|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?"
+    r"|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:\s*\.)?"
 )
 _MONTH_NUMBER = {name[:3]: number for name, number in MONTHS.items()}
 
@@ -136,15 +136,16 @@ def _month_of(word: str) -> int:
 
 def _dates_in(text: str) -> set[str]:
     """Every full calendar date a text states, as ISO: 2026-11-15, 2026/11/15, 11/15/2026 (US order), November 15, 2026,
-    Nov. 15, 2026, 15 Nov 2026, 15th of November 2026 is not accepted."""
+    Nov. 15, 2026, 15 Nov 2026, 15th of November 2026. Spacing around commas and periods is free ("March 3 , 2020",
+    "Nov.15,2026") and days may be zero-padded ("March 03,2020")."""
     found = set()
     for y, m, d in re.findall(r"\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b", text):
         found.add((int(y), int(m), int(d)))
-    for m, d, y in re.findall(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", text):
+    for m, d, y in re.findall(r"\b(\d{1,2})\s*/\s*(\d{1,2})\s*/\s*(\d{4})\b", text):
         found.add((int(y), int(m), int(d)))
-    for m, d, y in re.findall(rf"\b({_MONTH_WORD})\s*(\d{{1,2}})(?:st|nd|rd|th)?,?\s+(\d{{4}})\b", text, re.I):
+    for m, d, y in re.findall(rf"\b({_MONTH_WORD})\s*(\d{{1,2}})(?:st|nd|rd|th)?\s*,?\s*(\d{{4}})\b", text, re.I):
         found.add((int(y), _month_of(m), int(d)))
-    for d, m, y in re.findall(rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+({_MONTH_WORD}),?\s+(\d{{4}})\b", text, re.I):
+    for d, m, y in re.findall(rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+(?:of\s+)?({_MONTH_WORD})\s*,?\s*(\d{{4}})\b", text, re.I):
         found.add((int(y), _month_of(m), int(d)))
     out = set()
     for y, m, d in found:
@@ -158,7 +159,7 @@ def _dates_in(text: str) -> set[str]:
 _CURRENCY_CODES = r"(?:USD|EUR|GBP|CAD|AUD|CHF|JPY|INR|MXN|CNY)"
 _MONEY_RE = re.compile(
     rf"(?P<open>\()?\s*(?P<neg>-)?\s*(?:(?P<pre>US\$|[$€£¥]|{_CURRENCY_CODES}\b)\s*)?(?P<neg2>-)?"
-    rf"(?P<num>\d{{1,3}}(?:,\d{{3}})+(?:\.\d+)?|\d+(?:\.\d+)?)"
+    rf"(?P<num>\d+(?:,\d{{3}})+(?:\.\d+)?|\d+(?:\.\d+)?)"
     rf"(?:\s*(?P<post>{_CURRENCY_CODES}\b))?\s*(?P<close>\))?",
     re.I,
 )

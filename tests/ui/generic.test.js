@@ -27,6 +27,14 @@ const has = (node, cls) => node.find((n) => (n.className || '').split(' ').inclu
   const es = sources[sources.length - 1];
   for (const [name, data] of events) { es.emit(name, data); await settle(1); }
 
+  if (process.argv[3] === 'past') {  // every deadline has passed: the Summary says how long ago, not "no numbers"
+    const cards = byId.summary.find((n) => (n.className || '').split(' ').includes('metric-value')).map((n) => n.textContent);
+    assert.deepStrictEqual(cards, ['passed 5 days ago']);
+    assert.ok(!byId.summary.text().includes('No numbers could be computed'));
+    console.log('ok');
+    return;
+  }
+
   // the dead end is gone: a badge and the extracted fields instead
   assert.strictEqual(has(byId.summary, 'unsupported').length, 0, 'no "doesn\'t recognize" card');
   const chip = has(byId.summary, 'typechip')[0];
@@ -35,7 +43,7 @@ const has = (node, cls) => node.find((n) => (n.className || '').split(' ').inclu
   for (const heading of ['Parties', 'Dates', 'Amounts', 'Obligations']) assert.ok(text.includes(heading), heading);
   assert.ok(text.includes('Northgate Growth Fund II, L.P.') && text.includes('issuer'), 'a party and its role');
   assert.ok(text.includes('payment due date') && text.includes('2026-11-15'), 'a labelled date');
-  assert.ok(text.includes('250000') && text.includes('capital call amount (USD)'), 'a labelled amount');
+  assert.ok(text.includes('$250,000.00') && !text.includes('250000') && text.includes('capital call amount (USD)'), 'a labelled amount, shown as currency');
   assert.ok(text.includes('Wire the capital call amount') && text.includes('due 2026-11-15'), 'an obligation with its due date');
   assert.ok(has(byId.summary, 'conf').every((c) => /0\.7|0\.\d/.test(c.textContent)), 'confidence chips are shown');
   assert.ok(!has(byId.summary, 'conf').some((c) => c.textContent === '1.00'), 'nothing looks fully trusted');
@@ -47,6 +55,7 @@ const has = (node, cls) => node.find((n) => (n.className || '').split(' ').inclu
   const rows = has(byId.fieldsBody, 'frow');
   assert.strictEqual(rows.length, 8);
   assert.ok(byId.fieldsBody.text().includes('payment due date'));
+  assert.ok(byId.fieldsBody.text().includes('$250,000.00'), 'the Fields tab formats amounts too');
 
   // the Actions tab: one reminder group and the review flag
   const titles = has(byId.actions, 'atitle').map((n) => n.textContent);

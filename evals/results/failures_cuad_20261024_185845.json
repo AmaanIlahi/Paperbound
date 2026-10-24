@@ -1,0 +1,2069 @@
+[
+ {
+  "suite": "cuad",
+  "fixture": "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "the undersigned hereby agree that the Schedule 13G/A with respect to the shares of Class A Common Stock...",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "ABP TRUST and ADAM D. PORTNOY",
+  "kind": "low_overlap",
+  "expected": [
+   "ABP TRUST",
+   "ADAM D. PORTNOY"
+  ],
+  "detail": {
+   "f1": 0
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "dated as of December 31, 2019",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2019-12-31",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "terminate automatically without notice on December 31, 2022",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2022-12-31",
+  "kind": "low_overlap",
+  "expected": [
+   "The term of this Agreement will commence on the Commencement Date and will continue through December 31, 2022 or until this Agreement is otherwise terminated in accordance with its provisions (\"Term\").",
+   "This Agreement shall commence on the Effective Date and shall terminate automatically without notice on December 31, 2022, unless the Parties agree in writing to extend the term of the Agreement (the initial term and any renewal terms are referred to collectively herein as the \"Term\")."
+  ],
+  "detail": {
+   "f1": 0.188
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "unless the Parties agree in writing to extend the term of the Agreement",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "none",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Either Party may terminate this Agreement immediately without notice",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "none",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "dated November 9, 2005 (\"Agreement\")",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "the date of the last signature",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "Agency Agreement Expiration Date and Last Delivery Date:  October 31, 2006",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2006-10-31",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "upon ____________ (______30________) days written notice to the other party;",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "30",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "MBE shall have the right to elect by written notice to the Company...to extend such term for additional two (2)-year periods (each a \"Renewal Period\")",
+  "flags": [
+   "ungrounded",
+   "value_not_in_quote"
+  ],
+  "confidence": 0.5421,
+  "extracted": "two (2) years",
+  "kind": "low_overlap",
+  "expected": [
+   "MBE shall have the right to elect by written notice to the Company at any time between two (2) and six (6) months prior to the end of such initial term or any subsequent Renewal Period (as defined below), to notify the Company that MBE elects to seek to extend such term for additional two (2)-year periods (each a \"Renewal Period\") In the event of such election, MBE and the Company shall have  -------------- a period of sixty (60) days in which to negotiate commercially reasonable Basic Fees, Bounty Fees and eBay Fees (and other applicable fees) (\"Fee Schedule\")                                                               ------------ under which the Company would be willing to renew this Agreement for such Renewal Period.",
+   "If MBE notifies the Company of its intent to so renew prior to the end of such initial term or such Renewal Period, the term of this Agreement shall automatically be extended for the Renewal Period and, other than the Fee Schedule, all of the terms and conditions of this Agreement shall remain in full force and effect."
+  ],
+  "detail": {
+   "f1": 0.271
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "...at any time between two (2) and six (6) months prior to the end of such initial term or any subsequent Renewal Period...",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "between two (2) and six (6) months",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This agreement shall void and nullify any and all previous agreements to this date between Galacticomm and Horst Entertainment Inc.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "Galacticomm and Horst Entertainment Inc.",
+  "kind": "low_overlap",
+  "expected": [
+   "Horst Entertainment Inc",
+   "Galacticomm"
+  ],
+  "detail": {
+   "f1": 0.333
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "9/9/97 - -----------------------",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "the date of the last signature",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "shall terminate on June 30, 2010",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2010-06-30",
+  "kind": "low_overlap",
+  "expected": [
+   "The term of this Agreement (the \"Initial Term\") shall commence as of the Effective Date and, unless earlier terminated in accordance with this Agreement, shall terminate on June 30, 2010."
+  ],
+  "detail": {
+   "f1": 0.333
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "on sixty (60) days' prior written notice",
+  "flags": [],
+  "confidence": 0.8952,
+  "extracted": "sixty (60) days",
+  "kind": "low_overlap",
+  "expected": [
+   "Notwithstanding the foregoing, if, at the expiry of this Agreement following the Initial Term or the Renewal Term (if any), as applicable, Licensor and Rogers have not executed a new agreement governing the VOD distribution and exhibition of Licensed Programs and Rogers (or its permitted assigns) continues to distribute and exhibit Licensed Programs on the ROD Service following such expiry, such continued distribution and exhibition shall be governed by the terms of this Agreement in effect at the time of expiry, except that each of Licensor and Rogers shall have the right, on sixty (60) days' prior written notice, to terminate this Agreement, as so extended."
+  ],
+  "detail": {
+   "f1": 0.124
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": null,
+  "flags": [
+   "not_found"
+  ],
+  "confidence": 0.0,
+  "extracted": null,
+  "kind": "missed_span",
+  "expected": [
+   "The Term will commence on the Effective Date of this Agreement and      will remain in effect, unless sooner terminated under paragraphs 5.2, 5.3,      or 5.4, until the termination date specified in Exhibit A.",
+   "September 30, 1997"
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "The Term will automatically renew for successive additional periods of one (1) year each",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "one (1) year each",
+  "kind": "low_overlap",
+  "expected": [
+   "The Term will automatically renew for successive additional periods of one (1) year each, provided that: (a) Distributor has made all Guaranteed Minimum Purchases and has complied with the marketing requirements under paragraph 4.1(b); (b) the parties have agreed in writing upon the Guaranteed Minimum Purchase amounts and Product price discounts for the next subsequent one (1) year renewal period; (c) neither party provided the other party with notice of such party's intention not to renew this Agreement at least thirty (30) days prior to any year's Expiration Date; and (d) neither party provided the other party with such notice as may be required pursuant to paragraphs 5.2, 5.3 or 5.4."
+  ],
+  "detail": {
+   "f1": 0.212
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "neither party provided the other party with notice of such party's intention not to renew this Agreement at least thirty (30) days prior to any year's Expiration Date;",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "thirty (30) days",
+  "kind": "low_overlap",
+  "expected": [
+   "The Term will automatically renew for successive additional periods of one (1) year each, provided that: (a) Distributor has made all Guaranteed Minimum Purchases and has complied with the marketing requirements under paragraph 4.1(b); (b) the parties have agreed in writing upon the Guaranteed Minimum Purchase amounts and Product price discounts for the next subsequent one (1) year renewal period; (c) neither party provided the other party with notice of such party's intention not to renew this Agreement at least thirty (30) days prior to any year's Expiration Date; and (d) neither party provided the other party with such notice as may be required pursuant to paragraphs 5.2, 5.3 or 5.4."
+  ],
+  "detail": {
+   "f1": 0.405
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "CHERRYHILLMORTGAGEINVESTMENTCORP_09_26_2013-EX-10.1-Strategic Alliance Agreement",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "AGREEMENT made as of  , 2013",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "the date of the last signature",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "This Agreement is entered into for an unlimited period of time",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "null",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement is entered into for an unlimited period of time.",
+   "The term of this Agreement will begin upon acceptance of Affiliate's Program application and will end when terminated by either party of this Agreement."
+  ],
+  "detail": {
+   "f1": 0.468
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "Either party may cancel this Agreement at any time, with or without supplying a reason",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "null",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "through written notification or by making suitable settings in the respective Control Panel",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "null",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "ending on the expiration and/or termination of all Service Option Attachments",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "the expiration and/or termination of all Service Option Attachments",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement will be effective beginning on 12:01 a.m., Eastern Time, on the day after the date of last signature to these Base Terms (\"Effective Date\") and ending on the expiration and/or termination of all Service Option Attachments, unless the Agreement is terminated earlier in accordance with the terms herein."
+  ],
+  "detail": {
+   "f1": 0.369
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "will renew automatically for an additional term equal in duration to the previous term",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "equal in duration to the previous term of the applicable Service Option Attachment",
+  "kind": "low_overlap",
+  "expected": [
+   "Each Service Option Attachment will renew automatically for an additional term equal in duration to the previous term of the applicable Service Option Attachment unless either party notifies the other party in writing at least ninety (90) days prior to the end of the then-current term for the applicable Service Option Attachment that it has elected to terminate such Service Option Attachment."
+  ],
+  "detail": {
+   "f1": 0.364
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "notifies the other party in writing at least ninety (90) days prior to the end of the then-current term",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "at least ninety (90) days prior to the end of the then-current term",
+  "kind": "low_overlap",
+  "expected": [
+   "Each Service Option Attachment will renew automatically for an additional term equal in duration to the previous term of the applicable Service Option Attachment unless either party notifies the other party in writing at least ninety (90) days prior to the end of the then-current term for the applicable Service Option Attachment that it has elected to terminate such Service Option Attachment."
+  ],
+  "detail": {
+   "f1": 0.482
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This agreement is made and entered into this 30th day of November, 2017 by and between Bravatek Solutions, Inc., a corporation organized under the laws of the State of Colorado, ...",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "Bravatek Solutions, Inc. and Sibannac, Inc.",
+  "kind": "low_overlap",
+  "expected": [
+   "Sibannac, Inc.",
+   "COMPANY",
+   "Bravatek",
+   "Bravatek Solutions, Inc."
+  ],
+  "detail": {
+   "f1": 0.162
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "The term of this Agreement is twelve (12) months from the date hereof, and will be automatically renewed...",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "the date hereof",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Such notice must be given ninety (90) days prior to expiration of the original term.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "ninety (90) days prior to expiration of the original term",
+  "kind": "low_overlap",
+  "expected": [
+   "The term of this Agreement is twelve (12) months from the date hereof, and will be automatically renewed for one (1) additional twelve month period unless either party shall notify the other in writing of its intention not to renew. Such notice must be given ninety (90) days prior to expiration of the original term."
+  ],
+  "detail": {
+   "f1": 0.429
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Either party may terminate the Agreement on 60-days written notice during a renewed term",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "60-days written notice",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+  "variant": "real",
+  "field": "parties",
+  "quote": "by and between Cargill, Incorporated through its Bio Technology Development Center... and Bioamber S.A.S.",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.6495,
+  "extracted": "Cargill, Incorporated and Bioamber S.A.S.",
+  "kind": "low_overlap",
+  "expected": [
+   "Cargill, Incorporated",
+   "Bioamber",
+   "Cargill",
+   "Bioamber S.A.S.",
+   "Bioamber and Cargill shall be referred to individually as \"Party\" and collectively as \"Parties\""
+  ],
+  "detail": {
+   "f1": 0.421
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "continue for four (4) years",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "four (4) years after the Effective Date",
+  "kind": "low_overlap",
+  "expected": [
+   "This Development Agreement will begin on the Effective Date and continue for four (4) years unless earlier terminated pursuant to Section  10.2, or unless the parties extend the term by mutual written Development Agreement (\"Term\")."
+  ],
+  "detail": {
+   "f1": 0.244
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "the parties extend the term by mutual written Development Agreement",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "mutual written Development Agreement",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Either Party may terminate this Development Agreement by giving written notice to the other Party",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "written notice to the other Party",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": null,
+  "flags": [
+   "not_found"
+  ],
+  "confidence": 0.0,
+  "extracted": null,
+  "kind": "missed_span",
+  "expected": [
+   "This Agreement shall commence on the Effective Date and shall be valid until the [* * *] (the \"Initial Term\")."
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": null,
+  "flags": [
+   "not_found"
+  ],
+  "confidence": 0.0,
+  "extracted": null,
+  "kind": "missed_span",
+  "expected": [
+   "Should the Parties have not agreed to the following agreement by [* * *], this Agreement shall automatically stay in force for a maximum of [* * *] (unless otherwise mutually agreed by the Parties or as otherwise set forth in Section 18.1(a)) or until the Parties have signed the follow-on agreement (the \"Renewal Term\")."
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": null,
+  "flags": [
+   "not_found"
+  ],
+  "confidence": 0.0,
+  "extracted": null,
+  "kind": "missed_span",
+  "expected": [
+   "This Agreement is effective as of the Effective Date and will expire in accordance with Section 2.1, unless, upon the occurrence of any of the following events, this Agreement is earlier terminated in accordance with this Section 18.1:\n\na) Customer delivers written notice of termination to Supplier at least [* * *] prior to the expiration date of the Initial Term, which termination shall be effective as of the expiration date of the Initial Term;\n\nb) either Party delivers written notice of termination to the other Party at least [* * *] prior to the expiration date of the Renewal Term, which termination shall be effective as of the expiration date of the Renewal Term;"
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LIGHTBRIDGECORP_11_23_2015-EX-10.26-STRATEGIC ALLIANCE AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "the fifth (5t h) anniversary of the Effective Date",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "five (5) years after the Effective Date",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement is effective on the Effective Date and shah continue in effect until the earlier of (a) the fifth (5t h) anniversary of the Effective Date, and (b) termination by either Party for any reason upon thirty (30) days' written notice to the other Party; provided, however, that no Party shall be able to terminate this Agreement so long as such Party is a Defaulting Party under this Agreement."
+  ],
+  "detail": {
+   "f1": 0.228
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LIGHTBRIDGECORP_11_23_2015-EX-10.26-STRATEGIC ALLIANCE AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "upon thirty (30) days' written notice to the other Party",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "thirty (30) days",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "AMERICASSHOPPINGMALLINC_12_10_1999-EX-10.2-SITE DEVELOPMENT AND HOSTING AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This SITE DEVELOPMENT AND HOSTING AGREEMENT (the \"Agreement\") dated as of August 9, 1999 is made between Hanover Direct, Inc. (\"HDI\"), a New Jersey Corporation, located at 1500 Harbor Boulevard, Weehawken, NJ 07087, and The Deerskin Companies, Inc. (the \"Company\"), a Nevada corporation, located at 2500 Arrowhead Drive, Carson City, NV 89706.",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "Hanover Direct, Inc. and The Deerskin Companies, Inc.",
+  "kind": "low_overlap",
+  "expected": [
+   "Hanover Direct, Inc.",
+   "HDI",
+   "Company",
+   "The Deerskin Companies, Inc."
+  ],
+  "detail": {
+   "f1": 0.295
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "AMERICASSHOPPINGMALLINC_12_10_1999-EX-10.2-SITE DEVELOPMENT AND HOSTING AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "shall continue for a period of one (1) year from the Effective Date.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "one (1) year from the Effective Date",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement shall be effective as of that date (the \"Effective Date\") the Site becomes fully operational as set forth in writing and executed by both Parties and shall continue for a period of one (1) year from the Effective Date."
+  ],
+  "detail": {
+   "f1": 0.481
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "AMERICANPHYSICIANSCAPITALINC_03_31_2003-EX-10.26-AGENCY AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "This Agreement shall terminate, subject to any automatic renewal or extension for one year as required by law",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "one year after the Effective Date",
+  "kind": "low_overlap",
+  "expected": [
+   "This agreement shall terminate:\n\n                  a.       Automatically if any public authority cancels or                            declines to renew the Agency's license or Certificate                            of Authority.\n\n                  b.       Immediately if either party gives detailed written                            notice to the other of alleged gross and willful                            misconduct, fraud or material misrepresentation."
+  ],
+  "detail": {
+   "f1": 0.222
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "AMERICANPHYSICIANSCAPITALINC_03_31_2003-EX-10.26-AGENCY AGREEMENT",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "subject to any automatic renewal or extension for one year as required by law",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "one year",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement shall terminate, subject to any automatic                   renewal or extension for one year as required by law, upon                   either party giving at least one hundred twenty (120) days                   advance written notice to the other, if not otherwise contrary                   to applicable law or this Agreement."
+  ],
+  "detail": {
+   "f1": 0.475
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BIOFRONTERAAG_04_29_2019-EX-4.17-SUPPLY AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "by and between Cutanea Life Sciences, Inc., a corporation duly organized and existing under the laws of the State of Delaware... and Ferrer Internacional, S.A., a Spanish corporation...",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.6106,
+  "extracted": "Cutanea Life Sciences, Inc. and Ferrer Internacional, S.A.",
+  "kind": "low_overlap",
+  "expected": [
+   "CUTANEA and Ferrer taken together hereinafter are referred to as \"PARTIES\".",
+   "Cutanea Life Sciences, Inc.",
+   "hereinafter indistinctly referred to as \"Ferrer\" and/or \"Supplier\"",
+   "Ferrer Internacional, S.A.",
+   "CUTANEA"
+  ],
+  "detail": {
+   "f1": 0.345
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This Agreement is entered into as of January 21, 2005 (the \"Effective Date\") by and among VendingData Corporation, a Nevada corporation (\"Vendor\"), and Technical Casino Supplies Ltd, an English company (\"Distributor\").",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "VendingData Corporation and Technical Casino Supplies Ltd",
+  "kind": "low_overlap",
+  "expected": [
+   "Distributor",
+   "Vendor",
+   "Technical Casino Supplies Ltd",
+   "VendingData Corporation"
+  ],
+  "detail": {
+   "f1": 0.41
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "This Agreement is entered into as of January 21, 2005 (the \"Effective Date\")",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2005-01-21",
+  "kind": "low_overlap",
+  "expected": [
+   "January 21, 2005"
+  ],
+  "detail": {
+   "f1": 0.375
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "the term of this Agreement shall be for a period of five (5) years, beginning on the Effective Date",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "five (5) years after the Effective Date",
+  "kind": "low_overlap",
+  "expected": [
+   "As provided for in this Section 1, the term of this Agreement shall be for a period of five (5) years, beginning on the Effective Date (the \"Initial Term\"); provided, however, the Initial Term shall be subject to automatic successive renewal terms of three (3) years each (the \"Renewal Terms\" and together with the Initial Term, the \"Term\")."
+  ],
+  "detail": {
+   "f1": 0.494
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "the Initial Term shall be subject to automatic successive renewal terms of three (3) years each",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "three (3) years each",
+  "kind": "low_overlap",
+  "expected": [
+   "As provided for in this Section 1, the term of this Agreement shall be for a period of five (5) years, beginning on the Effective Date (the \"Initial Term\"); provided, however, the Initial Term shall be subject to automatic successive renewal terms of three (3) years each (the \"Renewal Terms\" and together with the Initial Term, the \"Term\")."
+  ],
+  "detail": {
+   "f1": 0.432
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+  "variant": "real",
+  "field": "parties",
+  "quote": "EHAVE, INC., a company incorporated under the laws of the Province of Ontario, Canada (\"Ehave\"); - and - COMPANION HEALTHCARE TECHNOLOGIES CORP, a company incorporated under the laws of the Province of Ontario (\"CHT\")",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "EHAVE, INC. and COMPANION HEALTHCARE TECHNOLOGIES CORP",
+  "kind": "low_overlap",
+  "expected": [
+   "Ehave",
+   "COMPANION HEALTHCARE TECHNOLOGIES CORP",
+   "EHAVE, INC.",
+   "CHT"
+  ],
+  "detail": {
+   "f1": 0.4
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "the date first written above",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "2018-10-30",
+  "kind": "low_overlap",
+  "expected": [
+   "October 30, 2018"
+  ],
+  "detail": {
+   "f1": 0
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "shall continue in perpetuity (the \"Term\")",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "perpetuity",
+  "kind": "low_overlap",
+  "expected": [
+   "This term of this Agreement and the rights and obligations of the Parties hereto shall commence as of the Effective Date and shall continue in perpetuity (the \"Term\"), unless terminated earlier in accordance with the provisions contained herein."
+  ],
+  "detail": {
+   "f1": 0.273
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "the duration of the Term solely in accordance with the terms and conditions of this Agreement",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "the duration of the Term",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "at least thirty (30) Business Days prior written notice to Ehave",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "thirty (30) Business Days",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "NELNETINC_04_08_2020-EX-1-JOINT FILING AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "The undersigned hereby agree to jointly prepare and file...",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "Shelby J. Butterfield and BUTTERFIELD FAMILY TRUST",
+  "kind": "low_overlap",
+  "expected": [
+   "Co-Trustee",
+   "Shelby J. Butterfield"
+  ],
+  "detail": {
+   "f1": 0
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "NELNETINC_04_08_2020-EX-1-JOINT FILING AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "Dated: March 27, 2020.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2020-03-27",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement2",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "the Parties may execute multiple SOWs should there be multiple or separate Projects",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "multiple SOWs may be executed for separate Projects",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement2",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "upon two weeks written notice to the other Party",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "two weeks written notice",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "dated December 12, 2014",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2014-12-12",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement is effective as of the date hereof",
+   ".",
+   "December 12, 2014"
+  ],
+  "detail": {
+   "f1": 0.375
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "the date which is the 60th day prior to the Company's 2016 annual meeting of stockholders",
+  "flags": [],
+  "confidence": 0.9966,
+  "extracted": "the date which is the 60th day prior to the Company's 2016 annual meeting of stockholders",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement is effective as of the date hereof and shall remain in full force and effect for the period (the \"Covered Period\") commencing on the date hereof and ending on the date that is the earliest of: (i) the Company's failure to appoint the ValueAct Designee to the Board following the ValueAct Group's written request to the Company to have the ValueAct Designee appointed to the Board pursuant to Section 1(a) of this Agreement; (ii) the failure of the Company to comply in good faith with Section 1(e) of this Agreement; or (iii) the date which is the 60t h day prior to the Company's 2016 annual meeting of stockholders."
+  ],
+  "detail": {
+   "f1": 0.241
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "PACIFICSYSTEMSCONTROLTECHNOLOGYINC_08_24_2000-EX-10.53-SPONSORSHIP AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "this Sponsorship Agreement (the \"Agreement\") dated as of April 14, 2000",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2000-04-14",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "PACIFICSYSTEMSCONTROLTECHNOLOGYINC_08_24_2000-EX-10.53-SPONSORSHIP AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "the Event is scheduled to take place on April 22, 2000",
+  "flags": [],
+  "confidence": 0.9832,
+  "extracted": "2000-04-22",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "DataCallTechnologies_20060918_SB-2A_EX-10.9_944510_EX-10.9_Content License Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "Contract end: 04-01-08",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "2008-04-01",
+  "kind": "low_overlap",
+  "expected": [
+   "Unless  otherwise  stated  in  the  Appendix  the  term of this letter           Agreement  shall  continue  for  twenty-four  (24)  months  with  the           effective  date  unless  terminated sooner or extended pursuant to the           terms hereof (\"Initial Term\")",
+   "Contract  end:  04-01-08"
+  ],
+  "detail": {
+   "f1": 0.222
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "DataCallTechnologies_20060918_SB-2A_EX-10.9_944510_EX-10.9_Content License Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "automatically be extended for an additional period of half a year",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "six (6) months",
+  "kind": "low_overlap",
+  "expected": [
+   "The Initial Term shall automatically be           extended  for  an additional period of half a year unless either party           provides  the  other party with written notification of termination of           the  letter  Agreement  at  least 60 days prior to end of such period."
+  ],
+  "detail": {
+   "f1": 0.423
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SalesforcecomInc_20171122_10-Q_EX-10.1_10961535_EX-10.1_Reseller Agreement",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "...effective as of the later of the dates beneath the Parties' signatures below...",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "the date of the last signature",
+  "kind": "low_overlap",
+  "expected": [
+   "This Sub-Reseller Agreement is effective as of the later of the dates beneath the Parties' signatures below (\"Sub-Reseller Effective Date\"), provided, however, that the dates of the Parties' signatures are not separated by a period of time greater than ten (10) business days."
+  ],
+  "detail": {
+   "f1": 0.448
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+  "variant": "real",
+  "field": "parties",
+  "quote": "...the \"Investor\"), and Rare Element Resources Ltd., a British Columbia Corporation... (Investor and Company each a \"Party\" and together the \"Parties\")...",
+  "flags": [
+   "ungrounded",
+   "value_not_in_quote"
+  ],
+  "confidence": 0.5512,
+  "extracted": "Synchron, a California corporation and Rare Element Resources Ltd.",
+  "kind": "low_overlap",
+  "expected": [
+   "Rare Element Resources Ltd.",
+   "Investor",
+   "Synchron",
+   "Company"
+  ],
+  "detail": {
+   "f1": 0.429
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "this IP Agreement and the licenses granted herein will continue in effect from the Effective Date until the expiration of the last to expire of the Patents...",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "the expiration of the last to expire of the Patents",
+  "kind": "low_overlap",
+  "expected": [
+   "Unless earlier terminated in accordance with the terms of this Article XVI, this IP Agreement and the licenses granted herein will continue in effect from the Effective Date until the expiration of the last to expire of the Patents and any additional period of time thereafter that any of the Patents remain enforceable such as in the United States where a party can sue for infringement after a patent expires and seek damages for any infringement of the patent during the six years immediately preceding the filing of a suit for infringement."
+  ],
+  "detail": {
+   "f1": 0.454
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "If the Option is not exercised prior to the expiration of the Option Period, then Company agrees to extend the license grants...",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "beyond the expiration of the Option Period, subject to an annual licensing fee paid by Investor to Company.",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Investor at any time may provide written notice to Company of a material breach of this IP Agreement.",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "thirty (30) days after the date of the notice",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This Sponsorship Agreement (\"Agreement\") is entered into as of the 14th day of May, 1999 (\"Effective Date\"), by and between Intuit Inc. a Delaware corporation...",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "Intuit Inc. and Stamps.com Inc.",
+  "kind": "low_overlap",
+  "expected": [
+   "Intuit Inc.",
+   "Client",
+   "Stamps.com Inc.",
+   "Intuit"
+  ],
+  "detail": {
+   "f1": 0.125
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "If Intuit elects to provide advertising, sponsorship or other promotional space on all or any portion of the Intuit Sites for a Client Competitor, Intuit agrees to negotiate with Client in good faith regarding such promotional opportunity.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "negotiated in good faith regarding such promotional opportunity",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Either party may terminate this Agreement if the other party materially breaches a material obligation hereunder and such breach remains uncured for thirty (30) days following the notice to the breaching party of the breach and the notifying party's intention to terminate.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "thirty (30) days following the notice to the breaching party",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "shall be effective as of _Dec. 8, 2005 (hereinafter \"Effective Date\")",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "2005-12-08",
+  "kind": "low_overlap",
+  "expected": [
+   "Dec. 8, 2005"
+  ],
+  "detail": {
+   "f1": 0.429
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "the term of this Agreement shall be two (2) years from the Effective Date",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "2007-12-08",
+  "kind": "low_overlap",
+  "expected": [
+   "The  term of this  Agreement  shall  be two (2)  years  from the          Effective  Date with  automatic  annual  renewals  thereafter  provided          either  party does not provide  sixty (60) days  notice of  termination          prior to the renewal date or the Agreement is not otherwise  terminated          as set forth in Section 8."
+  ],
+  "detail": {
+   "f1": 0.444
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "either party does not provide sixty (60) days notice of termination prior to the renewal date",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "sixty (60) days notice",
+  "kind": "low_overlap",
+  "expected": [
+   "The  term of this  Agreement  shall  be two (2)  years  from the          Effective  Date with  automatic  annual  renewals  thereafter  provided          either  party does not provide  sixty (60) days  notice of  termination          prior to the renewal date or the Agreement is not otherwise  terminated          as set forth in Section 8."
+  ],
+  "detail": {
+   "f1": 0.492
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "Effective Date means the close of business on the date specified in the preamble hereof.",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "the date of the last signature",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "Subject to early termination for material default, such Reseller Agreement shall expire either in three years or when ETI ceases to be a Subsidiary of NTL, whichever event occurs later.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "three years or when ETI ceases to be a Subsidiary of NTL",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "the non-breaching Party may terminate this Agreement by giving sixty (60) days' prior written notice to the other Party;",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "sixty (60) days' prior written notice",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+  "variant": "real",
+  "field": "parties",
+  "quote": "by and between LIQUIDMETAL TECHNOLOGIES, INC., a Delaware corporation... and EUTECTIX, LLC, a Delaware limited liability company...",
+  "flags": [
+   "ungrounded",
+   "value_not_in_quote"
+  ],
+  "confidence": 0.5427,
+  "extracted": "LIQUIDMETAL TECHNOLOGIES, INC. and EUTECTIX, LLC",
+  "kind": "low_overlap",
+  "expected": [
+   "LIQUIDMETAL TECHNOLOGIES, INC.",
+   "EUTECTIX, LLC",
+   "Liquidmetal",
+   "Eutectix"
+  ],
+  "detail": {
+   "f1": 0.417
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "effective as of , 2020 (the \"Effective Date\")",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "the date of the last signature",
+  "kind": "low_overlap",
+  "expected": [
+   ", 2020"
+  ],
+  "detail": {
+   "f1": 0.25
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "shall continue until the fifth (5th) anniversary of the Effective Date",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.6956,
+  "extracted": "five (5) years after the Effective Date",
+  "kind": "low_overlap",
+  "expected": [
+   "The initial term of this Agreement shall commence on the Effective Date and shall continue until the fifth (5t h) anniversary of the Effective Date (the \"Term\"), unless the Agreement is sooner terminated in accordance with the terms of this Agreement."
+  ],
+  "detail": {
+   "f1": 0.385
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "the Term shall automatically extend for successive 12-month periods",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "successive 12-month periods",
+  "kind": "low_overlap",
+  "expected": [
+   "Upon the expiration of the Term, the Term shall automatically extend for successive 12-month periods until one Party terminates the Agreement by providing at least 180 days prior written notice to the other Party prior to the expiration of the then-current term or unless sooner terminated in accordance with the terms of this Agreement."
+  ],
+  "detail": {
+   "f1": 0.303
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "by providing at least 180 days prior written notice to the other Party",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "at least 180 days prior written notice",
+  "kind": "low_overlap",
+  "expected": [
+   "Either Party may terminate this Agreement for any reason upon providing 180 days prior written notice to the other Party prior to the expiration of the then-current term or unless sooner terminated in accordance with the terms of this Agreement.",
+   "Upon the expiration of the Term, the Term shall automatically extend for successive 12-month periods until one Party terminates the Agreement by providing at least 180 days prior written notice to the other Party prior to the expiration of the then-current term or unless sooner terminated in accordance with the terms of this Agreement."
+  ],
+  "detail": {
+   "f1": 0.236
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "PaperexchangeComInc_20000322_S-1A_EX-10.4_5202103_EX-10.4_Co-Branding Agreement",
+  "variant": "real",
+  "field": "parties",
+  "quote": "the parties agree as follows:",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "VerticalNet, Inc. and PaperExchange.com, LLC",
+  "kind": "low_overlap",
+  "expected": [
+   "VerticalNet, Inc.",
+   "PaperExchange.com, LLC",
+   "PaperExchange",
+   "VerticalNet"
+  ],
+  "detail": {
+   "f1": 0
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "dated as of December 20, 2007",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2007-12-20",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "THIS AGREEMENT is made on this 1st day of December, 2015 by and between BOSCH INTERNATIONAL, LLC, a Nevada Limited Liability Company... and BOSCH TECHNOLOGIES, LLC, a Nevada Limited Liability Company...",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.5813,
+  "extracted": "BOSCH INTERNATIONAL, LLC and BOSCH TECHNOLOGIES, LLC",
+  "kind": "low_overlap",
+  "expected": [
+   "BOSCH INTERNATIONAL, LLC",
+   "BOSCH",
+   "CLIENT",
+   "BOSCH TECHNOLOGIES, LLC"
+  ],
+  "detail": {
+   "f1": 0.308
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "made on this 1st day of December, 2015",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "2015-12-01",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "three (3) years after the Effective Date",
+  "flags": [
+   "ungrounded"
+  ],
+  "confidence": 0.713,
+  "extracted": "three (3) years after the Effective Date",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ACCURAYINC_09_01_2010-EX-10.31-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This Multiple LINAC and Multi-Modality Distributor Agreement (\"Agreement\") is entered into by and between ACCURAY INCORPORATED... and SIEMENS AKTIENGESELLSCHAFT...",
+  "flags": [],
+  "confidence": 0.9367,
+  "extracted": "ACCURAY INCORPORATED and SIEMENS AKTIENGESELLSCHAFT",
+  "kind": "low_overlap",
+  "expected": [
+   "Siemens",
+   "Accuray",
+   "SIEMENS AKTIENGESELLSCHAFT",
+   "ACCURAY INCORPORATED"
+  ],
+  "detail": {
+   "f1": 0.308
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ACCURAYINC_09_01_2010-EX-10.31-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": null,
+  "flags": [
+   "not_found"
+  ],
+  "confidence": 0.0,
+  "extracted": null,
+  "kind": "missed_span",
+  "expected": [
+   "Unless otherwise agreed in writing by Accuray and Distributor and subject to the termination rights contained in this Agreement,  this Agreement shall begin on the Effective Date and shall continue until the termination of the Strategic Alliance Agreement;  provided, however, that if a Termination Election relating to this Agreement is made pursuant to Section 10.3 of the Strategic  Alliance Agreement prior to such termination, this Agreement shall terminate 36 months after such Termination Election (the  \"Term\")."
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This SERVICES AGREEMENT is entered into on, and effective as of, August __, 2019 (the \"Effective Date\") among TransMontaigne Management Company, LLC, a Delaware limited liability company (\"EmployeeCo\") and TLP Management Services, LLC, a Delaware limited liability company (the \"Operating Company\").",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "TransMontaigne Management Company, LLC and TLP Management Services, LLC",
+  "kind": "low_overlap",
+  "expected": [
+   "TLP Management Services, LLC",
+   "Operating Company",
+   "EmployeeCo",
+   "TransMontaigne Management Company, LLC",
+   "The above-named entities are sometimes referred to in this Agreement (as defined herein) each as a \"Party\" and collectively as the \"Parties.\""
+  ],
+  "detail": {
+   "f1": 0.486
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "This SERVICES AGREEMENT is entered into on, and effective as of, August __, 2019 (the \"Effective Date\").",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "the date of the last signature",
+  "kind": "low_overlap",
+  "expected": [
+   "August __, 2019"
+  ],
+  "detail": {
+   "f1": 0.222
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": null,
+  "flags": [
+   "not_found"
+  ],
+  "confidence": 0.0,
+  "extracted": null,
+  "kind": "missed_span",
+  "expected": [
+   "This Agreement shall remain in effect until terminated by the Parties."
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "by either Party upon 5 days written notice to the other Party.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "5 days",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "VEONEER,INC_02_21_2020-EX-10.11-JOINT VENTURE AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "effective as of October 30, 2019 (the \"Effective Date\")",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2019-10-30",
+  "kind": "low_overlap",
+  "expected": [
+   "This Amendment shall only become effective upon the VNBJ Closing with respect to Article 1.1 and the VNBZ Closing with respect to Article 1.2, and shall terminate without any force or effect in the event that the VNBJ SPA and the VNBZ SPA are terminated in accordance with the terms thereof.",
+   "October 30, 2019"
+  ],
+  "detail": {
+   "f1": 0.154
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "VEONEER,INC_02_21_2020-EX-10.11-JOINT VENTURE AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": null,
+  "flags": [
+   "not_found"
+  ],
+  "confidence": 0.0,
+  "extracted": null,
+  "kind": "missed_span",
+  "expected": [
+   "This Amendment shall only become effective upon the VNBJ Closing with respect to Article 1.1 and the VNBZ Closing with respect to Article 1.2, and shall terminate without any force or effect in the event that the VNBJ SPA and the VNBZ SPA are terminated in accordance with the terms thereof."
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "CardlyticsInc_20180112_S-1_EX-10.16_11002987_EX-10.16_Maintenance Agreement3",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "made as of the effective date set forth above",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "March 3, 2011",
+  "kind": "low_overlap",
+  "expected": [
+   "March 3, 2011"
+  ],
+  "detail": {
+   "f1": 0
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "by and between SPORT-HALEY, INC., a Colorado corporation (the \"Company\"), and _________________ (hereinafter referred to as the \"Professional\").",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "SPORT-HALEY, INC. and Professional",
+  "kind": "low_overlap",
+  "expected": [
+   "SPORT-HALEY, INC.",
+   "_________________",
+   "Professional",
+   "Company"
+  ],
+  "detail": {
+   "f1": 0.435
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "unless extended by written agreement of the parties.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "extension by written agreement of the parties",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "the non-defaulting party shall have the right to terminate this Agreement following the expiration of such 30-day notice period.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "30 days notice",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+  "variant": "real",
+  "field": "parties",
+  "quote": "(both MLX and HCI to be collectively referred to as the \"Parties\")",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "MEDIALINX INTERACTIVE, L.P. and HEALTHCENTRAL.COM INC.",
+  "kind": "low_overlap",
+  "expected": [
+   "MLX",
+   "HEALTHCENTRAL.COM INC.",
+   "MEDIALINX INTERACTIVE, L.P.",
+   "HCI"
+  ],
+  "detail": {
+   "f1": 0.19
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "THIS AGREEMENT made as of the 30th day of June 1999",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "1999-06-30",
+  "kind": "low_overlap",
+  "expected": [
+   "The effective date of the start of the Term will be from the Launch Date.",
+   "The Parties have agreed that they will mutually approve the design of the      Co-Branded Site and that the launch date of the Co-Branded Site shall be      September 1st, 1999 unless mutually extended by the Parties as agreed to in      writing."
+  ],
+  "detail": {
+   "f1": 0.147
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "THIS AGREEMENT made as of the 30th day of June 1999",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "1999-06-30",
+  "kind": "date_mismatch",
+  "expected": [
+   "The effective date of the start of the Term will be from the Launch Date.",
+   "The Parties have agreed that they will mutually approve the design of the      Co-Branded Site and that the launch date of the Co-Branded Site shall be      September 1st, 1999 unless mutually extended by the Parties as agreed to in      writing."
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "the Parties shall immediately cease using the Marks of the other Party",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "None",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Either Party may terminate this Agreement upon 30 days prior written notice",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "30 days prior written notice",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This Promotion Agreement (the \"Agreement\") is dated as of January 26, 1998 between CNET, Inc. (\"CNET\") and Cyberian Outpost, Inc. (the \"Company\").",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "CNET, Inc. and Cyberian Outpost, Inc.",
+  "kind": "low_overlap",
+  "expected": [
+   "Cyberian Outpost, Inc.",
+   "CNET, Inc.",
+   "CNET",
+   "Company"
+  ],
+  "detail": {
+   "f1": 0.483
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "This Promotion Agreement (the \"Agreement\") is dated as of January 26, 1998",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "1998-01-26",
+  "kind": "low_overlap",
+  "expected": [
+   "The term of this Agreement (the \"Term\") will begin on      February 1, 1998 and end on the first anniversary of the date of this      Agreement; provided that (a) either party may terminate this Agreement,      effective at any time after the first three\n\n       months of the Term, by giving 30 days' written notice of termination to the      other party, and (b) either party may terminate this Agreement at any time      by giving written notice of termination to the other party, if the other      party commits a material breach of its obligations hereunder that is not      cured within 30 days after notice thereof from the non-breaching party."
+  ],
+  "detail": {
+   "f1": 0.119
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "This Promotion Agreement (the \"Agreement\") is dated as of January 26, 1998",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "1998-01-26",
+  "kind": "date_mismatch",
+  "expected": [
+   "The term of this Agreement (the \"Term\") will begin on      February 1, 1998 and end on the first anniversary of the date of this      Agreement; provided that (a) either party may terminate this Agreement,      effective at any time after the first three\n\n       months of the Term, by giving 30 days' written notice of termination to the      other party, and (b) either party may terminate this Agreement at any time      by giving written notice of termination to the other party, if the other      party commits a material breach of its obligations hereunder that is not      cured within 30 days after notice thereof from the non-breaching party."
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "The term of this Agreement (the \"Term\") will begin on February 1, 1998 and end on the first anniversary of the date of this Agreement;",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "1999-01-26",
+  "kind": "low_overlap",
+  "expected": [
+   "The term of this Agreement (the \"Term\") will begin on      February 1, 1998 and end on the first anniversary of the date of this      Agreement; provided that (a) either party may terminate this Agreement,      effective at any time after the first three\n\n       months of the Term, by giving 30 days' written notice of termination to the      other party, and (b) either party may terminate this Agreement at any time      by giving written notice of termination to the other party, if the other      party commits a material breach of its obligations hereunder that is not      cured within 30 days after notice thereof from the non-breaching party."
+  ],
+  "detail": {
+   "f1": 0.382
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "The term of this Agreement (the \"Term\") will begin on February 1, 1998 and end on the first anniversary of the date of this Agreement;",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "1999-01-26",
+  "kind": "date_mismatch",
+  "expected": [
+   "The term of this Agreement (the \"Term\") will begin on      February 1, 1998 and end on the first anniversary of the date of this      Agreement; provided that (a) either party may terminate this Agreement,      effective at any time after the first three\n\n       months of the Term, by giving 30 days' written notice of termination to the      other party, and (b) either party may terminate this Agreement at any time      by giving written notice of termination to the other party, if the other      party commits a material breach of its obligations hereunder that is not      cured within 30 days after notice thereof from the non-breaching party."
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "either party may terminate this Agreement, effective at any time after the first three months of the Term, by giving 30 days' written notice of termination to the other party",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "30 days",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "THIS CONTRACT is entered into by and between ENTERPRISE TRANSPORTATION COMPANY, a division of Enterprise Products Company, (\"Carrier\"), and  ENTERPRISE PRODUCTS OPERATING L.P., a Delaware limited partnership -",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "ENTERPRISE TRANSPORTATION COMPANY and ENTERPRISE PRODUCTS OPERATING L.P.",
+  "kind": "low_overlap",
+  "expected": [
+   "ENTERPRISE PRODUCTS OPERATING L.P.",
+   "ENTERPRISE TRANSPORTATION COMPANY",
+   "(\"Shipper\")",
+   "Carrier"
+  ],
+  "detail": {
+   "f1": 0.474
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "This contract shall be for a term of one year commencing on the date first above written;",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "the date first above written",
+  "kind": "date_mismatch",
+  "expected": [
+   "This contract shall be for a term of one year commencing on the date first above written;",
+   "June 1, 1998"
+  ]
+ },
+ {
+  "suite": "cuad",
+  "fixture": "TRICITYBANKSHARESCORP_05_15_1998-EX-10-OUTSOURCING AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "This Agreement is made and entered into... as of the 16th day of February, 1998",
+  "flags": [
+   "ungrounded",
+   "value_not_in_quote"
+  ],
+  "confidence": 0.5711,
+  "extracted": "1998-02-16",
+  "kind": "low_overlap",
+  "expected": [
+   "\"Effective Date\" shall mean February 16, 1998"
+  ],
+  "detail": {
+   "f1": 0.182
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "TRICITYBANKSHARESCORP_05_15_1998-EX-10-OUTSOURCING AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Customer shall exercise its option, if at all, by delivering written notice to M&I at least five (5) months prior to expiration of the Term.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "at least five (5) months prior to expiration of the Term",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "dated as April 15, 1994",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "1994-04-15",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "initial term of one (1) year from the date first above written",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "one (1) year from the Effective Date",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement shall have an initial term of one (1) year from the date first above written (the \"Initial Term\"), and shall thereafter automatically renew for successive two (2) year periods (each a \"Renewal Term\"), unless earlier terminated in accordance with the terms of this Agreement."
+  ],
+  "detail": {
+   "f1": 0.414
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "automatically renew for successive two (2) year periods",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "two (2) year periods",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement shall have an initial term of one (1) year from the date first above written (the \"Initial Term\"), and shall thereafter automatically renew for successive two (2) year periods (each a \"Renewal Term\"), unless earlier terminated in accordance with the terms of this Agreement.",
+   "Either party may cancel this Agreement effective on the last day of the Initial Term, or",
+   "any Renewal Term, by serving written notice of such termination on the other party at least ninety (90) days prior to the end of the Initial Term or any Renewal Term as the case may be."
+  ],
+  "detail": {
+   "f1": 0.151
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "serving written notice of such termination on the other party at least ninety (90) days prior to the end of the Initial Term or any Renewal Term",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "ninety (90) days",
+  "kind": "low_overlap",
+  "expected": [
+   "This Agreement shall have an initial term of one (1) year from the date first above written (the \"Initial Term\"), and shall thereafter automatically renew for successive two (2) year periods (each a \"Renewal Term\"), unless earlier terminated in accordance with the terms of this Agreement.",
+   "Either party may cancel this Agreement effective on the last day of the Initial Term, or",
+   "any Renewal Term, by serving written notice of such termination on the other party at least ninety (90) days prior to the end of the Initial Term or any Renewal Term as the case may be."
+  ],
+  "detail": {
+   "f1": 0.432
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "continue for twenty (20) years",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "twenty (20) years after the Effective Date",
+  "kind": "low_overlap",
+  "expected": [
+   "The Term of this Agreement (the \"Term\") shall commence on the Effective Date listed above and continue for twenty (20) years, unless sooner terminated as provided in Section 7(b) [Term and Termination]."
+  ],
+  "detail": {
+   "f1": 0.263
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "this Agreement may be terminated at any time by either party",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "None",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "upon written notice if the other party materially breaches this Agreement",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "None",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "BLACKBOXSTOCKSINC_08_05_2014-EX-10.1-DISTRIBUTOR AGREEMENT",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "due notice has been given to the other of the alleged breach and such other party has not cured the breach within (30) days thereof;",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "30 days",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT",
+  "variant": "real",
+  "field": "parties",
+  "quote": "This INTELLECTUAL PROPERTY AGREEMENT, dated as of May 14, 2016 (this \"Agreement\"), is by and between WestRock Company, a Delaware corporation (\"Parent\"), and Ingevity Corporation, a Delaware corporation (\"SpinCo\").",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "WestRock Company and Ingevity Corporation",
+  "kind": "low_overlap",
+  "expected": [
+   "Ingevity Corporation",
+   "Parent",
+   "SpinCo and Parent may be individually referred to herein as a \"Party\" and collectively as the \"Parties\".",
+   "WestRock Company",
+   "SpinCo"
+  ],
+  "detail": {
+   "f1": 0.423
+  }
+ },
+ {
+  "suite": "cuad",
+  "fixture": "INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT",
+  "variant": "real",
+  "field": "effective_date",
+  "quote": "dated as of May 14, 2016",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "2016-05-14",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+  "variant": "real",
+  "field": "expiration_date",
+  "quote": "This Agreement and all rights and licenses granted under this Agreement shall terminate as soon as practicable, but no longer than thirty (30) days",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "thirty (30) days after termination",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+  "variant": "real",
+  "field": "renewal_term",
+  "quote": "Either Party may terminate this Agreement by giving the other Party thirty (30) days' prior written notice.",
+  "flags": [
+   "value_not_in_quote"
+  ],
+  "confidence": 0.7,
+  "extracted": "None",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ },
+ {
+  "suite": "cuad",
+  "fixture": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+  "variant": "real",
+  "field": "notice_to_terminate_renewal",
+  "quote": "Either Party may terminate this Agreement by giving the other Party thirty (30) days' prior written notice.",
+  "flags": [],
+  "confidence": 1.0,
+  "extracted": "thirty (30) days",
+  "kind": "unlabeled_extraction",
+  "expected": null
+ }
+]

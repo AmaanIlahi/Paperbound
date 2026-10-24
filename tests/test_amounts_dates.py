@@ -97,3 +97,26 @@ def test_the_baseline_is_the_median_of_the_saved_runs(tmp_path):
         path.write_text(json.dumps({"suite": "cuad", "groups": {"all": {"f1": value, "precision": 0.1 * (i + 1)}}}), encoding="utf-8")
         files.append(path)
     assert report.median_baseline(files) == {"cuad/all/f1": 0.7, "cuad/all/precision": 0.2}
+
+
+@pytest.mark.parametrize("text", [
+    "March 03,2020", "March 3 , 2020", "March  3,  2020", "Mar. 03 , 2020", "03 March , 2020", "3rd of March 2020", "3 March,2020",
+])
+def test_dates_tolerate_missing_and_extra_whitespace_around_commas_and_periods(text):
+    assert _dates_in(text) == {"2020-03-03"}
+
+
+def test_whitespace_around_the_period_of_an_abbreviation_and_in_numeric_dates():
+    assert _dates_in("Nov.15,2026") == _dates_in("Nov . 15 , 2026") == _dates_in("11 / 15 / 2026") == {"2026-11-15"}
+    assert _dates_in("March 2020") == set() and _dates_in("March 3") == set()
+
+
+def test_nonstandard_grouping_parses_without_a_false_flag():
+    assert amounts_in("$1000,000.00") == [1000000.0] and amounts_in("rent of 1000,000") == [1000000.0]
+    q = "Capital call amount: $1000,000.00 USD"
+    wrong = fallback(parties=[], dates=[], obligations=[], amounts=[FallbackAmount(value=1000000.0, currency="USD", label="call", source_quote=q, page=1)])
+    from paperbound.pipeline.parse import ParsedPage
+    page = ParsedPage(page_no=1, route="text_layer", text=q, words=[
+        {"text": w, "bbox": [i * 10, 0, i * 10 + 9, 10]} for i, w in enumerate(q.split())], quality_score=1.0, width_pt=600, height_pt=800, image_png=b"")
+    field = next(f for f in validate_generic(wrong, [page]) if f.name == "amount_1.amount")
+    assert field.value == 1000000.0 and field.flags == [] and field.validators_passed

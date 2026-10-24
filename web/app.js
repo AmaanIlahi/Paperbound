@@ -69,6 +69,18 @@ function button(cls, text, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
+// Display only: money values are shown as currency with separators and two decimals. The stored value is unchanged.
+const AMOUNT_NAME = /(?:^|\.)(?:amount|rent_amount|security_deposit|current_rent|each_occurrence_limit|aggregate_limit)$/;
+function displayValue(f) {
+  if (f.value === null || f.value === undefined) return '(not found)';
+  if (typeof f.value !== 'number' || !AMOUNT_NAME.test(f.name)) return String(f.value);
+  const code = (/\(([A-Z]{3})\)\s*$/.exec(f.label || '') || [])[1] || 'USD';  // a generic amount carries its currency in its label
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(f.value);
+  } catch (err) {
+    return f.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+}
 function pretty(name) { return String(name).replace(/\./g, ' · ').replace(/_/g, ' '); }
 function formatDate(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
@@ -371,7 +383,7 @@ function populateFieldRow(row, f) {
   if (f.label) name.appendChild(el('small', '', pretty(f.name)));
   if (f.page_no) name.appendChild(el('small', '', `page ${f.page_no}`));
   row.appendChild(name);
-  row.appendChild(el('td', 'fvalue', f.value === null || f.value === undefined ? '(not found)' : String(f.value)));
+  row.appendChild(el('td', 'fvalue', displayValue(f)));
   const conf = el('td');
   conf.appendChild(f.pending ? el('span', 'conf pending', 'checking') : el('span', 'conf ' + confClass(f.confidence ?? 0), (f.confidence ?? 0).toFixed(2)));
   row.appendChild(conf);
@@ -486,7 +498,7 @@ function renderGenericFields(root) {
       const text = el('span', 'gtext');
       const label = title === 'Obligations' ? (dueOf(f) ? `due ${dueOf(f)}` : 'no due date') : f.label;
       if (label) text.appendChild(el('small', '', label));
-      text.appendChild(document.createTextNode(String(f.value)));
+      text.appendChild(document.createTextNode(displayValue(f)));
       row.appendChild(text);
       row.appendChild(f.pending ? el('span', 'conf pending', 'checking') : el('span', 'conf ' + confClass(f.confidence ?? 0), (f.confidence ?? 0).toFixed(2)));
       for (const flag of f.flags || []) row.appendChild(el('span', 'flag', flag));

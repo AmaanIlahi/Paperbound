@@ -80,18 +80,26 @@ def obligation_text(d: Deadline) -> str:
     return f"{d.description.rstrip('.')} by {d.due_date.isoformat()}" if d.is_task else f"{d.description}: {d.due_date.isoformat()}"
 
 
+def days_text(due: date, today: date) -> tuple[int, str]:
+    """(signed days until the date, display text): days remaining ahead, "N days ago" once it has passed. Plain date arithmetic."""
+    days = (due - today).days
+    if days > 0:
+        return days, f"{days} day{'s' if days != 1 else ''} (due {due.isoformat()})"
+    if days == 0:
+        return 0, "due today"
+    return days, f"passed {-days} day{'s' if days != -1 else ''} ago"
+
+
 def build_generic_brief(fields: list[ValidatedField], today: date | None = None) -> Brief:
-    """Days remaining for each future deadline. A date that is today or past is listed as skipped, never as a countdown."""
+    """One line per deadline: days remaining for a future date (positive value), "passed N days ago" for a past one
+    (negative value), "due today" for today. Only the future ones set brief.due_date."""
     today = clock.today(today)
     deadlines, skipped = find_deadlines(fields)
     brief = Brief(skipped=[{"key": "deadline", "reason": r} for r in skipped])
     for i, d in enumerate(deadlines, start=1):
-        key = f"deadline_{i}"
-        if d.due_date <= today:
-            brief.skipped.append({"key": key, "reason": f"{d.due_date.isoformat()} is not in the future"})
-            continue
-        days = (d.due_date - today).days
-        brief.lines.append(BriefLine(key, d.description, days, f"{days} day{'s' if days != 1 else ''} (due {d.due_date.isoformat()})", d.source_fields))
-        if brief.due_date is None:
+        days, text = days_text(d.due_date, today)
+        note = f"Due {d.due_date.isoformat()}" if days <= 0 else None
+        brief.lines.append(BriefLine(f"deadline_{i}", d.description, days, text, d.source_fields, note))
+        if days > 0 and brief.due_date is None:
             brief.due_date = d.due_date
     return brief
