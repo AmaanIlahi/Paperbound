@@ -92,6 +92,21 @@ def require_uploads() -> None:
         raise HTTPException(503, f"Uploads are unavailable: {reason} Try a sample instead.")
 
 
+def restore_files(storage: Storage, document: Document, data: bytes) -> bool:
+    """A document is shared by its sha256, but its files live in whichever storage saved them. The database can be
+    reached from a place whose storage never got them (a local run against the same database, a restored volume), so a
+    re-upload writes back any file the stored pages point to that is missing. Returns True if it wrote anything."""
+    keys = [document.storage_key, *(p.image_key for p in document.pages)]
+    if all(storage.exists(k) for k in keys):
+        return False
+    pages = {p.page_no: p for p in parse_pdf(data)}
+    storage.save(document.storage_key, data)
+    for stored in document.pages:
+        if stored.page_no in pages and not storage.exists(stored.image_key):
+            storage.save(stored.image_key, pages[stored.page_no].image_png)
+    return True
+
+
 def guard_upload(request: Request, session: Session, storage: Storage, now: datetime) -> None:
     """Everything a public upload must pass before any work is done. Raises HTTPException."""
     try:
@@ -178,6 +193,8 @@ def upload_document(
             session.rollback()
             document = session.scalar(select(Document).where(Document.sha256 == sha256))
             reused = True
+    if reused:
+        restore_files(storage, document, data)
     if reused and document.expires_at is not None:  # a re-upload keeps an expiring document alive
         document.expires_at = expires
     parse_ms = int((time.perf_counter() - started) * 1000)

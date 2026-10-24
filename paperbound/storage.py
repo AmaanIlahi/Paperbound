@@ -8,6 +8,7 @@ from paperbound import config
 class Storage(Protocol):
     def save(self, key: str, data: bytes) -> None: ...
     def open(self, key: str) -> BinaryIO: ...
+    def exists(self, key: str) -> bool: ...
     def url(self, key: str) -> str: ...
     def delete_prefix(self, prefix: str) -> None: ...
 
@@ -30,6 +31,9 @@ class LocalStorage:
 
     def open(self, key: str) -> BinaryIO:
         return self._path(key).open("rb")
+
+    def exists(self, key: str) -> bool:
+        return self._path(key).is_file()
 
     def url(self, key: str) -> str:
         return f"/files/{key}"
