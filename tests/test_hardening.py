@@ -143,11 +143,11 @@ def test_rent_conflicting_with_table_is_flagged():
     assert rent.validators_passed is False
 
 
-def test_rent_matching_table_is_not_flagged():
+def test_a_model_value_the_quote_does_not_state_is_replaced_by_the_quotes_and_flagged():
     page = make_page(1, TABLE_PAGE_TEXT)
     quote = "Base rent shall be $1.00 per month"
     rent = {x.name: x for x in validate_fields(lease(rent_amount=f(8500.0, quote)), [page])}["rent_amount"]
-    assert "conflicting_values" not in rent.flags
+    assert rent.value == 1.0 and "amount_mismatch" in rent.flags  # the table's 8,500 cannot launder a $1.00 quote
 
 
 # ---- per-line bboxes ----

@@ -17,6 +17,7 @@ import os
 import sys
 import time
 from datetime import date, datetime
+from pathlib import Path
 
 from paperbound import config
 from paperbound.evals import cuad, report, synthetic
@@ -26,6 +27,12 @@ from paperbound.evals.budget import DEFAULT_LIMIT, Budget, BudgetExceeded
 DEFAULT_AS_OF = "2026-10-22"
 CUAD_SHRUNK_N = 25
 CUAD_HEADROOM = 10  # calls left for retries the counter cannot see
+
+
+def synthetic_model() -> str:
+    from paperbound.pipeline.extract import MODEL
+
+    return f"{MODEL} (temperature 0)"
 
 
 def stamp() -> str:
@@ -171,9 +178,22 @@ def main(argv=None) -> int:
     parser.add_argument("--save-baseline", action="store_true", help="write the metrics of this run to evals/baseline.json")
     parser.add_argument("--budget", type=int, default=DEFAULT_LIMIT, help="total OpenAI calls allowed across runs")
     parser.add_argument("--cuad-n", type=int, help="contracts to score (default 50, or 25 when the budget is tight)")
+    parser.add_argument("--median-baseline", nargs="+", metavar="RESULT_JSON",
+                        help="re-record evals/baseline.json as the per-metric median of these saved runs (no model calls)")
     parser.add_argument("--rescore", metavar="RESULT_JSON", help="re-score a saved synthetic run with the current rules; no model calls")
     parser.add_argument("--as-of", default=os.environ.get("AS_OF") or DEFAULT_AS_OF)
     args = parser.parse_args(argv)
+
+    if args.median_baseline:
+        flat = report.median_baseline(args.median_baseline)
+        runs = [json.loads(Path(f).read_text(encoding="utf-8")) for f in args.median_baseline]
+        per_suite = {s: sum(r["suite"] == s for r in runs) for s in sorted({r["suite"] for r in runs})}
+        report.save_baseline(flat, {
+            "saved": date.today().isoformat(), "as_of": args.as_of, "model": synthetic_model(),
+            "note": f"median over saved runs per suite {per_suite}: " + ", ".join(Path(f).name for f in args.median_baseline),
+        }, replace=True)
+        print(f"baseline re-recorded: {len(flat)} metrics, median of {per_suite}")
+        return 0
 
     if args.rescore:
         run = rescore_file(args.rescore)

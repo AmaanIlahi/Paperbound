@@ -52,7 +52,7 @@ def test_rent_conflict_is_judged_against_the_fixtures_own_table():
     quote = "initial rate of Eight Thousand Five Hundred Dollars ($8,500.00) per month"
     fields = validate_fields(compromised_lease(quote, 2), pages)
     rent = next(f for f in fields if f.name == "rent_amount")
-    assert "conflicting_values" in rent.flags  # a wrong value (1.0) conflicts with the real 8,500 table row
+    assert "amount_mismatch" in rent.flags and rent.value == 8500.0  # the model's wrong 1.0 is replaced by the quote's figure and flagged
     # the correct value (8500) against the same quote and table does not conflict
     ok = validate_fields(
         LeaseFields.model_validate(

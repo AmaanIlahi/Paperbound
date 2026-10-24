@@ -1,0 +1,5922 @@
+{
+ "suite": "cuad",
+ "timestamp": "20261024_170421",
+ "as_of": "2026-10-22",
+ "n_docs": 50,
+ "sample_size": 50,
+ "groups": {
+  "effective_date": {
+   "n_contracts": 50,
+   "n_labeled": 38,
+   "n_unlabeled": 12,
+   "precision": 0.5360055111093892,
+   "recall": 0.7799789835861564,
+   "f1": 0.54284504651695,
+   "detection_rate": 1.0,
+   "false_positive_rate": 1.0,
+   "n_date_exact": 23,
+   "date_exact": 0.7391304347826086,
+   "grounding_rate": 1.0,
+   "calibration": {
+    "buckets": {
+     "<0.7": {
+      "n": 2,
+      "accuracy": 0.0,
+      "mean_confidence": 0.6758500000000001
+     },
+     "0.7-0.9": {
+      "n": 20,
+      "accuracy": 0.6,
+      "mean_confidence": 0.6999999999999997
+     },
+     ">=0.9": {
+      "n": 16,
+      "accuracy": 0.6875,
+      "mean_confidence": 1.0
+     }
+    },
+    "ece": 0.21978157894736827,
+    "n": 38
+   }
+  },
+  "expiration_date": {
+   "n_contracts": 50,
+   "n_labeled": 39,
+   "n_unlabeled": 11,
+   "precision": 0.8396580515001568,
+   "recall": 0.4036091669175724,
+   "f1": 0.5017638435983215,
+   "detection_rate": 0.8717948717948718,
+   "false_positive_rate": 0.36363636363636365,
+   "n_date_exact": 6,
+   "date_exact": 0.8333333333333334,
+   "grounding_rate": 0.9473684210526315,
+   "calibration": {
+    "buckets": {
+     "<0.7": {
+      "n": 2,
+      "accuracy": 0.0,
+      "mean_confidence": 0.69465
+     },
+     "0.7-0.9": {
+      "n": 19,
+      "accuracy": 0.5263157894736842,
+      "mean_confidence": 0.7084789473684209
+     },
+     ">=0.9": {
+      "n": 13,
+      "accuracy": 0.6923076923076923,
+      "mean_confidence": 0.9961769230769231
+     }
+    },
+    "ece": 0.2588441176470587,
+    "n": 34
+   }
+  },
+  "notice_to_terminate_renewal": {
+   "n_contracts": 50,
+   "n_labeled": 14,
+   "n_unlabeled": 36,
+   "precision": 0.9285714285714286,
+   "recall": 0.2990226464226411,
+   "f1": 0.4343473292240593,
+   "detection_rate": 0.9285714285714286,
+   "false_positive_rate": 0.5833333333333334,
+   "n_date_exact": 0,
+   "date_exact": null,
+   "grounding_rate": 0.9705882352941176,
+   "calibration": {
+    "buckets": {
+     "<0.7": {
+      "n": 0,
+      "accuracy": null,
+      "mean_confidence": null
+     },
+     "0.7-0.9": {
+      "n": 1,
+      "accuracy": 0.0,
+      "mean_confidence": 0.8952
+     },
+     ">=0.9": {
+      "n": 12,
+      "accuracy": 0.4166666666666667,
+      "mean_confidence": 1.0
+     }
+    },
+    "ece": 0.6073230769230769,
+    "n": 13
+   }
+  },
+  "parties": {
+   "n_contracts": 50,
+   "n_labeled": 50,
+   "n_unlabeled": 0,
+   "precision": 0.43212773535760207,
+   "recall": 0.7252635230890228,
+   "f1": 0.49723402350109824,
+   "detection_rate": 1.0,
+   "false_positive_rate": null,
+   "n_date_exact": 0,
+   "date_exact": null,
+   "grounding_rate": 0.84,
+   "calibration": {
+    "buckets": {
+     "<0.7": {
+      "n": 11,
+      "accuracy": 0.5454545454545454,
+      "mean_confidence": 0.5743909090909092
+     },
+     "0.7-0.9": {
+      "n": 31,
+      "accuracy": 0.5806451612903226,
+      "mean_confidence": 0.7051806451612899
+     },
+     ">=0.9": {
+      "n": 8,
+      "accuracy": 0.375,
+      "mean_confidence": 0.96465
+     }
+    },
+    "ece": 0.17792199999999972,
+    "n": 50
+   }
+  },
+  "renewal_term": {
+   "n_contracts": 50,
+   "n_labeled": 18,
+   "n_unlabeled": 32,
+   "precision": 0.9444444444444444,
+   "recall": 0.3706686023094345,
+   "f1": 0.49886468521838917,
+   "detection_rate": 0.9444444444444444,
+   "false_positive_rate": 0.40625,
+   "n_date_exact": 0,
+   "date_exact": null,
+   "grounding_rate": 0.9666666666666667,
+   "calibration": {
+    "buckets": {
+     "<0.7": {
+      "n": 1,
+      "accuracy": 0.0,
+      "mean_confidence": 0.5421
+     },
+     "0.7-0.9": {
+      "n": 3,
+      "accuracy": 0.6666666666666666,
+      "mean_confidence": 0.6999999999999998
+     },
+     ">=0.9": {
+      "n": 13,
+      "accuracy": 0.5384615384615384,
+      "mean_confidence": 1.0
+     }
+    },
+    "ece": 0.39071176470588237,
+    "n": 17
+   }
+  },
+  "all": {
+   "n_contracts": 250,
+   "n_labeled": 159,
+   "n_unlabeled": 91,
+   "precision": 0.6586242779782575,
+   "recall": 0.5817703580628756,
+   "f1": 0.5038932690949771,
+   "detection_rate": 0.9559748427672956,
+   "false_positive_rate": 0.5494505494505495,
+   "n_date_exact": 29,
+   "date_exact": 0.7586206896551724,
+   "grounding_rate": 0.9405940594059405,
+   "calibration": {
+    "buckets": {
+     "<0.7": {
+      "n": 16,
+      "accuracy": 0.375,
+      "mean_confidence": 0.6000875
+     },
+     "0.7-0.9": {
+      "n": 74,
+      "accuracy": 0.5675675675675675,
+      "mean_confidence": 0.7069851351351361
+     },
+     ">=0.9": {
+      "n": 62,
+      "accuracy": 0.5645161290322581,
+      "mean_confidence": 0.9946370967741938
+     }
+    },
+    "ece": 0.2670118421052637,
+    "n": 152
+   },
+   "n_docs": 50,
+   "cost_usd_mean": 0.00138818,
+   "cost_usd_total": 0.069409,
+   "tokens_mean": 8605.4,
+   "latency_ms_mean": 3238.88,
+   "latency_ms_p95": 4506,
+   "calls_total": 50
+  }
+ },
+ "failure_modes": [
+  {
+   "mode": "low_overlap: parties",
+   "count": 23,
+   "examples": [
+    "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+    "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+    "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement"
+   ]
+  },
+  {
+   "mode": "unlabeled_extraction: notice_to_terminate_renewal",
+   "count": 21,
+   "examples": [
+    "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+    "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+    "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement"
+   ]
+  },
+  {
+   "mode": "low_overlap: expiration_date",
+   "count": 15,
+   "examples": [
+    "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+    "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+    "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT"
+   ]
+  },
+  {
+   "mode": "low_overlap: effective_date",
+   "count": 15,
+   "examples": [
+    "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+    "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+    "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)"
+   ]
+  },
+  {
+   "mode": "unlabeled_extraction: renewal_term",
+   "count": 13,
+   "examples": [
+    "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+    "CHERRYHILLMORTGAGEINVESTMENTCORP_09_26_2013-EX-10.1-Strategic Alliance Agreement",
+    "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement"
+   ]
+  },
+  {
+   "mode": "unlabeled_extraction: effective_date",
+   "count": 12,
+   "examples": [
+    "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+    "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+    "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT"
+   ]
+  },
+  {
+   "mode": "low_overlap: renewal_term",
+   "count": 8,
+   "examples": [
+    "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+    "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+    "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement"
+   ]
+  },
+  {
+   "mode": "low_overlap: notice_to_terminate_renewal",
+   "count": 8,
+   "examples": [
+    "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+    "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+    "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement"
+   ]
+  }
+ ],
+ "failure_log": "failures_cuad_20261024_170421.json",
+ "records": [
+  {
+   "title": "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+   "pages": 1,
+   "chars": 645,
+   "cost_usd": 0.000287,
+   "tokens": 1514,
+   "latency_ms": 1754,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+   "pages": 13,
+   "chars": 42473,
+   "cost_usd": 0.001574,
+   "tokens": 9899,
+   "latency_ms": 3541,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+   "pages": 4,
+   "chars": 11355,
+   "cost_usd": 0.000647,
+   "tokens": 3717,
+   "latency_ms": 2535,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+   "pages": 25,
+   "chars": 87014,
+   "cost_usd": 0.002801,
+   "tokens": 17828,
+   "latency_ms": 4506,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+   "pages": 1,
+   "chars": 1660,
+   "cost_usd": 0.000324,
+   "tokens": 1686,
+   "latency_ms": 2088,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+   "pages": 7,
+   "chars": 30050,
+   "cost_usd": 0.001241,
+   "tokens": 7680,
+   "latency_ms": 2808,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+   "pages": 18,
+   "chars": 56952,
+   "cost_usd": 0.001955,
+   "tokens": 12395,
+   "latency_ms": 3060,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "CHERRYHILLMORTGAGEINVESTMENTCORP_09_26_2013-EX-10.1-Strategic Alliance Agreement",
+   "pages": 9,
+   "chars": 27741,
+   "cost_usd": 0.001157,
+   "tokens": 6938,
+   "latency_ms": 4050,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+   "pages": 7,
+   "chars": 22721,
+   "cost_usd": 0.000957,
+   "tokens": 5833,
+   "latency_ms": 3303,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+   "pages": 12,
+   "chars": 37351,
+   "cost_usd": 0.001364,
+   "tokens": 8439,
+   "latency_ms": 3203,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+   "pages": 3,
+   "chars": 8380,
+   "cost_usd": 0.000588,
+   "tokens": 3153,
+   "latency_ms": 2865,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT",
+   "pages": 9,
+   "chars": 28463,
+   "cost_usd": 0.001148,
+   "tokens": 7031,
+   "latency_ms": 2826,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+   "pages": 12,
+   "chars": 38733,
+   "cost_usd": 0.001567,
+   "tokens": 9764,
+   "latency_ms": 3744,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+   "pages": 36,
+   "chars": 114893,
+   "cost_usd": 0.004,
+   "tokens": 26112,
+   "latency_ms": 3810,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "LIGHTBRIDGECORP_11_23_2015-EX-10.26-STRATEGIC ALLIANCE AGREEMENT",
+   "pages": 6,
+   "chars": 19386,
+   "cost_usd": 0.000895,
+   "tokens": 5331,
+   "latency_ms": 3083,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "AMERICASSHOPPINGMALLINC_12_10_1999-EX-10.2-SITE DEVELOPMENT AND HOSTING AGREEMENT",
+   "pages": 7,
+   "chars": 19351,
+   "cost_usd": 0.000946,
+   "tokens": 5310,
+   "latency_ms": 3908,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "AMERICANPHYSICIANSCAPITALINC_03_31_2003-EX-10.26-AGENCY AGREEMENT",
+   "pages": 8,
+   "chars": 23999,
+   "cost_usd": 0.000956,
+   "tokens": 5694,
+   "latency_ms": 3009,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "BIOFRONTERAAG_04_29_2019-EX-4.17-SUPPLY AGREEMENT",
+   "pages": 13,
+   "chars": 63723,
+   "cost_usd": 0.002279,
+   "tokens": 14524,
+   "latency_ms": 3401,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+   "pages": 14,
+   "chars": 44702,
+   "cost_usd": 0.001656,
+   "tokens": 10281,
+   "latency_ms": 4512,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+   "pages": 20,
+   "chars": 87070,
+   "cost_usd": 0.003024,
+   "tokens": 19251,
+   "latency_ms": 4501,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "NELNETINC_04_08_2020-EX-1-JOINT FILING AGREEMENT",
+   "pages": 1,
+   "chars": 1081,
+   "cost_usd": 0.000298,
+   "tokens": 1567,
+   "latency_ms": 2136,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement2",
+   "pages": 9,
+   "chars": 32093,
+   "cost_usd": 0.001263,
+   "tokens": 7889,
+   "latency_ms": 2658,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT",
+   "pages": 10,
+   "chars": 32826,
+   "cost_usd": 0.001367,
+   "tokens": 8262,
+   "latency_ms": 4205,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "PACIFICSYSTEMSCONTROLTECHNOLOGYINC_08_24_2000-EX-10.53-SPONSORSHIP AGREEMENT",
+   "pages": 2,
+   "chars": 4066,
+   "cost_usd": 0.000416,
+   "tokens": 2267,
+   "latency_ms": 2530,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "DataCallTechnologies_20060918_SB-2A_EX-10.9_944510_EX-10.9_Content License Agreement",
+   "pages": 5,
+   "chars": 14171,
+   "cost_usd": 0.000783,
+   "tokens": 4725,
+   "latency_ms": 2213,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "SalesforcecomInc_20171122_10-Q_EX-10.1_10961535_EX-10.1_Reseller Agreement",
+   "pages": 1,
+   "chars": 2935,
+   "cost_usd": 0.000358,
+   "tokens": 1990,
+   "latency_ms": 3061,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+   "pages": 9,
+   "chars": 34461,
+   "cost_usd": 0.001459,
+   "tokens": 8930,
+   "latency_ms": 3509,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+   "pages": 13,
+   "chars": 40856,
+   "cost_usd": 0.001535,
+   "tokens": 9505,
+   "latency_ms": 3326,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+   "pages": 5,
+   "chars": 15113,
+   "cost_usd": 0.00082,
+   "tokens": 4712,
+   "latency_ms": 3354,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+   "pages": 14,
+   "chars": 45879,
+   "cost_usd": 0.001598,
+   "tokens": 9802,
+   "latency_ms": 4506,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+   "pages": 21,
+   "chars": 83972,
+   "cost_usd": 0.002925,
+   "tokens": 18889,
+   "latency_ms": 4050,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "PaperexchangeComInc_20000322_S-1A_EX-10.4_5202103_EX-10.4_Co-Branding Agreement",
+   "pages": 29,
+   "chars": 92875,
+   "cost_usd": 0.003021,
+   "tokens": 19484,
+   "latency_ms": 3544,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "GIGGLESN_HUGS,INC_06_23_2016-EX-10.2-STRATEGIC ALLIANCE AGREEMENT",
+   "pages": 5,
+   "chars": 22359,
+   "cost_usd": 0.000965,
+   "tokens": 5702,
+   "latency_ms": 3449,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT",
+   "pages": 2,
+   "chars": 5046,
+   "cost_usd": 0.000443,
+   "tokens": 2414,
+   "latency_ms": 2946,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+   "pages": 2,
+   "chars": 5712,
+   "cost_usd": 0.000471,
+   "tokens": 2585,
+   "latency_ms": 3730,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "ACCURAYINC_09_01_2010-EX-10.31-DISTRIBUTOR AGREEMENT",
+   "pages": 23,
+   "chars": 89484,
+   "cost_usd": 0.003158,
+   "tokens": 20507,
+   "latency_ms": 2654,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+   "pages": 2,
+   "chars": 5886,
+   "cost_usd": 0.000463,
+   "tokens": 2529,
+   "latency_ms": 2128,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "VEONEER,INC_02_21_2020-EX-10.11-JOINT VENTURE AGREEMENT",
+   "pages": 3,
+   "chars": 8257,
+   "cost_usd": 0.000669,
+   "tokens": 3546,
+   "latency_ms": 4376,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "CardlyticsInc_20180112_S-1_EX-10.16_11002987_EX-10.16_Maintenance Agreement3",
+   "pages": 1,
+   "chars": 1707,
+   "cost_usd": 0.000329,
+   "tokens": 1767,
+   "latency_ms": 2105,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+   "pages": 4,
+   "chars": 11930,
+   "cost_usd": 0.000592,
+   "tokens": 3458,
+   "latency_ms": 2274,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+   "pages": 15,
+   "chars": 45042,
+   "cost_usd": 0.001671,
+   "tokens": 10529,
+   "latency_ms": 2796,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+   "pages": 8,
+   "chars": 25288,
+   "cost_usd": 0.001045,
+   "tokens": 6256,
+   "latency_ms": 2907,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT",
+   "pages": 23,
+   "chars": 74915,
+   "cost_usd": 0.002617,
+   "tokens": 16646,
+   "latency_ms": 3712,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "TRICITYBANKSHARESCORP_05_15_1998-EX-10-OUTSOURCING AGREEMENT",
+   "pages": 31,
+   "chars": 101639,
+   "cost_usd": 0.003497,
+   "tokens": 22519,
+   "latency_ms": 4788,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+   "pages": 12,
+   "chars": 37682,
+   "cost_usd": 0.001358,
+   "tokens": 8380,
+   "latency_ms": 4047,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+   "pages": 12,
+   "chars": 40866,
+   "cost_usd": 0.001575,
+   "tokens": 10002,
+   "latency_ms": 2394,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "BLACKBOXSTOCKSINC_08_05_2014-EX-10.1-DISTRIBUTOR AGREEMENT",
+   "pages": 6,
+   "chars": 17234,
+   "cost_usd": 0.000828,
+   "tokens": 4887,
+   "latency_ms": 2641,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT",
+   "pages": 17,
+   "chars": 63376,
+   "cost_usd": 0.002284,
+   "tokens": 14697,
+   "latency_ms": 3162,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "WELLSFARGOMORTGAGEBACKEDSECURITIES2006-6TRUST_05_11_2006-EX-10.3-Yield Maintenance Agreement",
+   "pages": 11,
+   "chars": 37683,
+   "cost_usd": 0.00139,
+   "tokens": 8760,
+   "latency_ms": 2202,
+   "calls": 1,
+   "error": null
+  },
+  {
+   "title": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+   "pages": 3,
+   "chars": 14313,
+   "cost_usd": 0.000845,
+   "tokens": 4684,
+   "latency_ms": 4034,
+   "calls": 1,
+   "error": null
+  }
+ ],
+ "rows": [
+  {
+   "title": "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "ABP TRUST",
+    "ADAM D. PORTNOY"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "ABP TRUST and ADAM D. PORTNOY",
+   "quote": "the undersigned hereby agree that the Schedule 13G/A with respect to the shares of Class A Common Stock",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "2019-12-31",
+   "quote": "dated as of December 31, 2019",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "RMRGROUPINC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+   "category": "parties",
+   "gold": [
+    "(each a \"Party\", collectively, the \"Parties\").",
+    "Premier",
+    "Stremicks Heritage Foods, LLC",
+    "PREMIER NUTRITION CORPORATION",
+    "Heritage"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Stremicks Heritage Foods, LLC and PREMIER NUTRITION CORPORATION",
+   "quote": "between Stremicks Heritage Foods, LLC (\"Heritage\"), a Delaware limited liability company... and PREMIER NUTRITION CORPORATION (\"Premier\"), a Delaware corporation...",
+   "page": 1,
+   "confidence": 0.5489,
+   "flags": [
+    "ungrounded",
+    "value_not_in_quote"
+   ],
+   "grounded": false,
+   "precision": 0.5263157894736842,
+   "recall": 0.6666666666666666,
+   "f1": 0.5882352941176471,
+   "date_exact": null
+  },
+  {
+   "title": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+   "category": "effective_date",
+   "gold": [
+    "first day of July, 2017"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2017-07-01",
+   "quote": "this first day of July, 2017 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5555555555555556,
+   "recall": 1.0,
+   "f1": 0.7142857142857143,
+   "date_exact": null
+  },
+  {
+   "title": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+   "category": "expiration_date",
+   "gold": [
+    "The term of this Agreement will commence on the Commencement Date and will continue through December 31, 2022 or until this Agreement is otherwise terminated in accordance with its provisions (\"Term\").",
+    "This Agreement shall commence on the Effective Date and shall terminate automatically without notice on December 31, 2022, unless the Parties agree in writing to extend the term of the Agreement (the initial term and any renewal terms are referred to collectively herein as the \"Term\")."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2022-12-31",
+   "quote": "terminate automatically without notice on December 31, 2022",
+   "page": 9,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.1038961038961039,
+   "f1": 0.18823529411764706,
+   "date_exact": true
+  },
+  {
+   "title": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "none",
+   "quote": "unless the Parties agree in writing to extend the term of the Agreement",
+   "page": 9,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "none",
+   "quote": "Either Party may terminate this Agreement immediately without notice",
+   "page": 9,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Lessor",
+    "together with its successors and assigns, if any, \"Lessor\"",
+    "Duckwall-Alco Stores, Inc.",
+    "Company",
+    "General Electric Capital Corporation"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "General Electric Capital Corporation and Duckwall-Alco Stores, Inc.",
+   "quote": "between General Electric Capital Corporation, a Delaware corporation (together with its successors and assigns, if any, \"Lessor\"), and Duckwall-Alco Stores, Inc., a Kansas corporation (the \"Company\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.6666666666666666,
+   "recall": 0.9473684210526315,
+   "f1": 0.782608695652174,
+   "date_exact": null
+  },
+  {
+   "title": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "dated November 9, 2005 (\"Agreement\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "2006-10-31",
+   "quote": "Agency Agreement Expiration Date and Last Delivery Date:  October 31, 2006",
+   "page": 3,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ALCOSTORESINC_12_14_2005-EX-10.26-AGENCY AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "30",
+   "quote": "upon ____________ (______30________) days written notice to the other party;",
+   "page": 3,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+   "category": "parties",
+   "gold": [
+    "Company",
+    "MBE",
+    "iShip.com, Inc.",
+    "Mail                                                         ------- Boxes Etc. USA, Inc.",
+    "MAILBOXES ETC. USA, INC."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "iShip.com, Inc. and Mail Boxes Etc. USA, Inc.",
+   "quote": "...by and between iShip.com, Inc., a Washington corporation (the \"Company\"), and Mail Boxes Etc. USA, Inc., a California corporation (\"MBE\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.47619047619047616,
+   "recall": 0.7142857142857143,
+   "f1": 0.5714285714285714,
+   "date_exact": null
+  },
+  {
+   "title": "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+   "category": "effective_date",
+   "gold": [
+    "April 27, 1999"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1999-04-27",
+   "quote": "as of April 27, 1999 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.375,
+   "recall": 1.0,
+   "f1": 0.5454545454545454,
+   "date_exact": true
+  },
+  {
+   "title": "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "The initial term of this Agreement shall          ----------------------- commence on the Effective Date and end on the fifth anniversary of the Effective Date."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2004-04-27",
+   "quote": "the initial term of this Agreement shall commence on the Effective Date and end on the fifth anniversary of the Effective Date.",
+   "page": 18,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "date_exact": null
+  },
+  {
+   "title": "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+   "category": "renewal_term",
+   "gold": [
+    "MBE shall have the right to elect by written notice to the Company at any time between two (2) and six (6) months prior to the end of such initial term or any subsequent Renewal Period (as defined below), to notify the Company that MBE elects to seek to extend such term for additional two (2)-year periods (each a \"Renewal Period\") In the event of such election, MBE and the Company shall have  -------------- a period of sixty (60) days in which to negotiate commercially reasonable Basic Fees, Bounty Fees and eBay Fees (and other applicable fees) (\"Fee Schedule\")                                                               ------------ under which the Company would be willing to renew this Agreement for such Renewal Period.",
+    "If MBE notifies the Company of its intent to so renew prior to the end of such initial term or such Renewal Period, the term of this Agreement shall automatically be extended for the Renewal Period and, other than the Fee Schedule, all of the terms and conditions of this Agreement shall remain in full force and effect."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "two (2) years",
+   "quote": "MBE shall have the right to elect by written notice to the Company...to extend such term for additional two (2)-year periods (each a \"Renewal Period\")",
+   "page": 18,
+   "confidence": 0.5421,
+   "flags": [
+    "ungrounded",
+    "value_not_in_quote"
+   ],
+   "grounded": false,
+   "precision": 1.0,
+   "recall": 0.1569767441860465,
+   "f1": 0.271356783919598,
+   "date_exact": null
+  },
+  {
+   "title": "StampscomInc_20001114_10-Q_EX-10.47_2631630_EX-10.47_Co-Branding Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "between two (2) and six (6) months",
+   "quote": "...to notify the Company that MBE elects to seek to extend such term for additional two (2)-year periods...between two (2) and six (6) months prior to the end of such initial term or any subsequent Renewal Period",
+   "page": 18,
+   "confidence": 0.8566,
+   "flags": [
+    "ungrounded"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Horst Entertainment Inc",
+    "Galacticomm"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Galacticomm and Horst Entertainment Inc.",
+   "quote": "This agreement shall void and nullify any and all previous agreements to this date between Galacticomm and Horst Entertainment Inc.",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.2,
+   "recall": 1.0,
+   "f1": 0.33333333333333337,
+   "date_exact": null
+  },
+  {
+   "title": "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "1997-09-09",
+   "quote": "9/9/97 - -----------------------",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "GALACTICOMMTECHNOLOGIESINC_11_07_1997-EX-10.46-WEB HOSTING AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+   "category": "parties",
+   "gold": [
+    "Rogers",
+    "Rogers Cable Communications Inc.",
+    "Licensor",
+    "EuroMedia Holdings Corp."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Rogers Cable Communications Inc. and EuroMedia Holdings Corp.",
+   "quote": "VIDEO-ON-DEMAND CONTENT LICENSE AGREEMENT between Rogers Cable Communications Inc. (\"Rogers\") and EuroMedia Holdings Corp. (\"Licensor\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5294117647058824,
+   "recall": 1.0,
+   "f1": 0.6923076923076924,
+   "date_exact": null
+  },
+  {
+   "title": "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+   "category": "effective_date",
+   "gold": [
+    "July 11 , 2006"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2006-07-11",
+   "quote": "made as of July 11 , 2006 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.3333333333333333,
+   "recall": 1.0,
+   "f1": 0.5,
+   "date_exact": null
+  },
+  {
+   "title": "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "The term of this Agreement (the \"Initial Term\") shall commence as of the Effective Date and, unless earlier terminated in accordance with this Agreement, shall terminate on June 30, 2010."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2010-06-30",
+   "quote": "shall terminate on June 30, 2010",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2,
+   "f1": 0.33333333333333337,
+   "date_exact": true
+  },
+  {
+   "title": "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+   "category": "renewal_term",
+   "gold": [
+    "At Rogers' option, this Agreement shall renew for a subsequent term of two (2) years on the terms and conditions herein (the \"Renewal Term\")."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "two (2) years",
+   "quote": "this Agreement shall renew for a subsequent term of two (2) years",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.5,
+   "f1": 0.6666666666666666,
+   "date_exact": null
+  },
+  {
+   "title": "EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "Notwithstanding the foregoing, if, at the expiry of this Agreement following the Initial Term or the Renewal Term (if any), as applicable, Licensor and Rogers have not executed a new agreement governing the VOD distribution and exhibition of Licensed Programs and Rogers (or its permitted assigns) continues to distribute and exhibit Licensed Programs on the ROD Service following such expiry, such continued distribution and exhibition shall be governed by the terms of this Agreement in effect at the time of expiry, except that each of Licensor and Rogers shall have the right, on sixty (60) days' prior written notice, to terminate this Agreement, as so extended."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "sixty (60) days",
+   "quote": "on sixty (60) days' prior written notice",
+   "page": 1,
+   "confidence": 0.8952,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.0660377358490566,
+   "f1": 0.1238938053097345,
+   "date_exact": null
+  },
+  {
+   "title": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Distributor",
+    "WGT",
+    "European Micro",
+    "WatchGuard Technologies, Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "WatchGuard Technologies, Inc. and European Micro",
+   "quote": "by and between WatchGuard Technologies, Inc., a Delaware corporation (\"WGT\"), and European Micro (\"Distributor\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5,
+   "recall": 1.0,
+   "f1": 0.6666666666666666,
+   "date_exact": null
+  },
+  {
+   "title": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "November 5, 1997"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1997-11-05",
+   "quote": "effective as of November 5, 1997 (the \"effective Date)",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.3333333333333333,
+   "recall": 1.0,
+   "f1": 0.5,
+   "date_exact": true
+  },
+  {
+   "title": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "The Term will commence on the Effective Date of this Agreement and      will remain in effect, unless sooner terminated under paragraphs 5.2, 5.3,      or 5.4, until the termination date specified in Exhibit A.",
+    "September 30, 1997"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "September 30, 1997",
+   "quote": "termination date specified in Exhibit A.",
+   "page": 4,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.15384615384615385,
+   "f1": 0.2666666666666667,
+   "date_exact": true
+  },
+  {
+   "title": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "The Term will automatically renew for successive additional periods of one (1) year each, provided that: (a) Distributor has made all Guaranteed Minimum Purchases and has complied with the marketing requirements under paragraph 4.1(b); (b) the parties have agreed in writing upon the Guaranteed Minimum Purchase amounts and Product price discounts for the next subsequent one (1) year renewal period; (c) neither party provided the other party with notice of such party's intention not to renew this Agreement at least thirty (30) days prior to any year's Expiration Date; and (d) neither party provided the other party with such notice as may be required pursuant to paragraphs 5.2, 5.3 or 5.4."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "one (1) year each",
+   "quote": "The Term will automatically renew for successive additional periods of one (1) year each",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.11864406779661017,
+   "f1": 0.21212121212121215,
+   "date_exact": null
+  },
+  {
+   "title": "EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "The Term will automatically renew for successive additional periods of one (1) year each, provided that: (a) Distributor has made all Guaranteed Minimum Purchases and has complied with the marketing requirements under paragraph 4.1(b); (b) the parties have agreed in writing upon the Guaranteed Minimum Purchase amounts and Product price discounts for the next subsequent one (1) year renewal period; (c) neither party provided the other party with notice of such party's intention not to renew this Agreement at least thirty (30) days prior to any year's Expiration Date; and (d) neither party provided the other party with such notice as may be required pursuant to paragraphs 5.2, 5.3 or 5.4."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "thirty (30) days",
+   "quote": "neither party provided the other party with notice of such party's intention not to renew this Agreement at least thirty (30) days prior to any year's Expiration Date",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2542372881355932,
+   "f1": 0.4054054054054054,
+   "date_exact": null
+  },
+  {
+   "title": "CHERRYHILLMORTGAGEINVESTMENTCORP_09_26_2013-EX-10.1-Strategic Alliance Agreement",
+   "category": "parties",
+   "gold": [
+    "Freedom Mortgage",
+    "Cherry Hill Mortgage Investment Corp.",
+    "Freedom Mortgage Corporation",
+    "Cherry Hill"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Freedom Mortgage Corporation and Cherry Hill Mortgage Investment Corp.",
+   "quote": "AGREEMENT made as of  , 2013, between Freedom Mortgage Corporation, a New Jersey corporation (\"Freedom Mortgage\"), and Cherry Hill Mortgage Investment Corp., a Maryland corporation (\"Cherry Hill\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.46153846153846156,
+   "recall": 1.0,
+   "f1": 0.631578947368421,
+   "date_exact": null
+  },
+  {
+   "title": "CHERRYHILLMORTGAGEINVESTMENTCORP_09_26_2013-EX-10.1-Strategic Alliance Agreement",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "AGREEMENT made as of  , 2013",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "CHERRYHILLMORTGAGEINVESTMENTCORP_09_26_2013-EX-10.1-Strategic Alliance Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "Unless earlier terminated as provided below, this Agreement shall remain in effect until the later to occur of the date that is (x) three (3) years from the date hereof and (y) the date on which an affiliate of Freedom Mortgage is not acting as the external manager of Cherry Hill."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "three (3) years from the date hereof",
+   "quote": "this Agreement shall remain in effect until the later to occur of the date that is (x) three (3) years from the date hereof",
+   "page": 6,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.47058823529411764,
+   "f1": 0.6399999999999999,
+   "date_exact": null
+  },
+  {
+   "title": "CHERRYHILLMORTGAGEINVESTMENTCORP_09_26_2013-EX-10.1-Strategic Alliance Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "three (3) years from the date hereof",
+   "quote": "this Agreement shall remain in effect until the later to occur of the date that is (x) three (3) years from the date hereof",
+   "page": 6,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "CHERRYHILLMORTGAGEINVESTMENTCORP_09_26_2013-EX-10.1-Strategic Alliance Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "30 days",
+   "quote": "the other party may give written notice of the breach requiring the same to be remedied within 30 days of receipt of such notice.",
+   "page": 7,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+   "category": "parties",
+   "gold": [
+    "Software Publishers",
+    "element 5 GmbH, Vogelsanger Strasse 78, 50823 Cologne, Germany and its subsidiaries (together hereafter, \"element 5\")",
+    "Web site owners (hereafter, \"Affiliates\")",
+    "who wish to make use of the additional service provided by element 5 (hereafter, \"Affiliate Management\""
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "element 5 GmbH and its subsidiaries",
+   "quote": "element 5 GmbH, Vogelsanger Strasse 78, 50823 Cologne, Germany and its subsidiaries (together hereafter, \"element 5\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.41025641025641024,
+   "f1": 0.5818181818181819,
+   "date_exact": null
+  },
+  {
+   "title": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+   "category": "effective_date",
+   "gold": [
+    "The term of this Agreement will begin upon acceptance of Affiliate's Program application and will end when terminated by either party of this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of acceptance of Affiliate's Program application",
+   "quote": "upon acceptance of Affiliate's Program application",
+   "page": 6,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.28,
+   "f1": 0.43750000000000006,
+   "date_exact": null
+  },
+  {
+   "title": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement is entered into for an unlimited period of time.",
+    "The term of this Agreement will begin upon acceptance of Affiliate's Program application and will end when terminated by either party of this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "null",
+   "quote": "this Agreement is entered into for an unlimited period of time",
+   "page": 6,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.3055555555555556,
+   "f1": 0.46808510638297873,
+   "date_exact": null
+  },
+  {
+   "title": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "null",
+   "quote": "Either party may cancel this Agreement at any time, with or without supplying a reason",
+   "page": 6,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "SouthernStarEnergyInc_20051202_SB-2A_EX-9_801890_EX-9_Affiliate Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "null",
+   "quote": "through written notification or by making suitable settings in the respective Control Panel",
+   "page": 6,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+   "category": "parties",
+   "gold": [
+    "Customer",
+    "International Business Machines Corporation",
+    "Services",
+    "IBM",
+    "Bluefly, Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "International Business Machines Corporation and Bluefly, Inc.",
+   "quote": "between International Business Machines Corporation (\"IBM\") and Bluefly, Inc. (\"Customer\")",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.8,
+   "recall": 0.8888888888888888,
+   "f1": 0.8421052631578948,
+   "date_exact": null
+  },
+  {
+   "title": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+   "category": "effective_date",
+   "gold": [
+    "This Agreement will be effective beginning on 12:01 a.m., Eastern Time, on the day after the date of last signature to these Base Terms (\"Effective Date\") and ending on the expiration and/or termination of all Service Option Attachments, unless the Agreement is terminated earlier in accordance with the terms herein."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "on the day after the date of last signature to these Base Terms (\"Effective Date\")",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2830188679245283,
+   "f1": 0.4411764705882353,
+   "date_exact": null
+  },
+  {
+   "title": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement will be effective beginning on 12:01 a.m., Eastern Time, on the day after the date of last signature to these Base Terms (\"Effective Date\") and ending on the expiration and/or termination of all Service Option Attachments, unless the Agreement is terminated earlier in accordance with the terms herein."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the expiration and/or termination of all Service Option Attachments",
+   "quote": "ending on the expiration and/or termination of all Service Option Attachments",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.22641509433962265,
+   "f1": 0.36923076923076925,
+   "date_exact": null
+  },
+  {
+   "title": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+   "category": "renewal_term",
+   "gold": [
+    "Each Service Option Attachment will renew automatically for an additional term equal in duration to the previous term of the applicable Service Option Attachment unless either party notifies the other party in writing at least ninety (90) days prior to the end of the then-current term for the applicable Service Option Attachment that it has elected to terminate such Service Option Attachment."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "an additional term equal in duration to the previous term",
+   "quote": "will renew automatically for an additional term equal in duration to the previous term",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2222222222222222,
+   "f1": 0.3636363636363636,
+   "date_exact": null
+  },
+  {
+   "title": "BLUEFLYINC_03_27_2002-EX-10.27-e-business Hosting Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "Each Service Option Attachment will renew automatically for an additional term equal in duration to the previous term of the applicable Service Option Attachment unless either party notifies the other party in writing at least ninety (90) days prior to the end of the then-current term for the applicable Service Option Attachment that it has elected to terminate such Service Option Attachment."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "ninety (90) days prior to the end of the then-current term",
+   "quote": "notifies the other party in writing at least ninety (90) days prior to the end of the then-current term",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.31746031746031744,
+   "f1": 0.4819277108433735,
+   "date_exact": null
+  },
+  {
+   "title": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+   "category": "parties",
+   "gold": [
+    "Sibannac, Inc.",
+    "COMPANY",
+    "Bravatek",
+    "Bravatek Solutions, Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Bravatek Solutions, Inc. and Sibannac, Inc.",
+   "quote": "This agreement is made and entered into this 30th day of November, 2017 by and between Bravatek Solutions, Inc., a corporation organized under the laws of the State of Colorado, ...",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.1,
+   "recall": 0.42857142857142855,
+   "f1": 0.16216216216216217,
+   "date_exact": null
+  },
+  {
+   "title": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "the date hereof",
+   "quote": "The term of this Agreement is twelve (12) months from the date hereof, and will be automatically renewed...",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "The term of this Agreement is twelve (12) months from the date hereof, and will be automatically renewed for one (1) additional twelve month period unless either party shall notify the other in writing of its intention not to renew."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "twelve (12) months from the date hereof",
+   "quote": "The term of this Agreement is twelve (12) months from the date hereof, and will be automatically renewed...",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.45,
+   "f1": 0.6206896551724138,
+   "date_exact": null
+  },
+  {
+   "title": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+   "category": "renewal_term",
+   "gold": [
+    "The term of this Agreement is twelve (12) months from the date hereof, and will be automatically renewed for one (1) additional twelve month period unless either party shall notify the other in writing of its intention not to renew."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "one (1) additional twelve month period",
+   "quote": "...will be automatically renewed for one (1) additional twelve month period unless either party shall notify the other...",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.45,
+   "f1": 0.6206896551724138,
+   "date_exact": null
+  },
+  {
+   "title": "SIBANNAC,INC_12_04_2017-EX-2.1-Strategic Alliance Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "The term of this Agreement is twelve (12) months from the date hereof, and will be automatically renewed for one (1) additional twelve month period unless either party shall notify the other in writing of its intention not to renew. Such notice must be given ninety (90) days prior to expiration of the original term."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "ninety (90) days prior to expiration of the original term",
+   "quote": "Such notice must be given ninety (90) days prior to expiration of the original term.",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2727272727272727,
+   "f1": 0.42857142857142855,
+   "date_exact": null
+  },
+  {
+   "title": "OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "International Direct Response, Inc.",
+    "MEDIANET GROUP TECHNOLOGIES",
+    "RESELLER",
+    "MediaNet Group Technologies, Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "MediaNet Group Technologies, Inc. and International Direct Response, Inc.",
+   "quote": "MediaNet Group Technologies, Inc., a Nevada corporation... and International Direct Response, Inc., a Pennsylvania Corporation...",
+   "page": 1,
+   "confidence": 0.5938,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5333333333333333,
+   "recall": 0.6666666666666666,
+   "f1": 0.5925925925925926,
+   "date_exact": null
+  },
+  {
+   "title": "OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "19 day of March, 2004"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2004-03-19",
+   "quote": "entered into as of the 19 day of March, 2004",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5,
+   "recall": 1.0,
+   "f1": 0.6666666666666666,
+   "date_exact": true
+  },
+  {
+   "title": "OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "The term of this Agreement shall commence on the Effective Date      and continue for a period of 1 year after the Effective Date, unless      earlier terminated as set forth herein (the \"TERM\")."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2005-03-19",
+   "quote": "continue for a period of 1 year after the Effective Date",
+   "page": 4,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.34375,
+   "f1": 0.5116279069767442,
+   "date_exact": null
+  },
+  {
+   "title": "OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "This Agreement shall      renew for successive 1-year periods, after the initial 1 Year Term, if      agreed by both parties in writing within 30 days of license expiration."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1 year, if agreed by both parties in writing within 30 days of license expiration.",
+   "quote": "shall renew for successive 1-year periods, after the initial 1 Year Term",
+   "page": 4,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.4642857142857143,
+   "f1": 0.6341463414634146,
+   "date_exact": null
+  },
+  {
+   "title": "OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "60-days written notice",
+   "quote": "Either party may terminate the Agreement on 60-days written notice during a renewed term.",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+   "category": "parties",
+   "gold": [
+    "Cargill, Incorporated",
+    "Bioamber",
+    "Cargill",
+    "Bioamber S.A.S.",
+    "Bioamber and Cargill shall be referred to individually as \"Party\" and collectively as \"Parties\""
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Cargill, Incorporated and Bioamber S.A.S.",
+   "quote": "This Development Agreement is entered into on April 15 , 2010 (\"EffectiveDate\") by and between Cargill, Incorporated... and Bioamber S.A.S.",
+   "page": 1,
+   "confidence": 0.9355,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.38095238095238093,
+   "recall": 0.36363636363636365,
+   "f1": 0.37209302325581395,
+   "date_exact": null
+  },
+  {
+   "title": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+   "category": "effective_date",
+   "gold": [
+    "April 15 , 2010"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2010-04-15",
+   "quote": "This Development Agreement is entered into on April 15 , 2010 (\"EffectiveDate\")",
+   "page": 1,
+   "confidence": 0.6787,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.2727272727272727,
+   "recall": 1.0,
+   "f1": 0.42857142857142855,
+   "date_exact": null
+  },
+  {
+   "title": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+   "category": "expiration_date",
+   "gold": [
+    "This Development Agreement will begin on the Effective Date and continue for four (4) years unless earlier terminated pursuant to Section  10.2, or unless the parties extend the term by mutual written Development Agreement (\"Term\")."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2014-04-15",
+   "quote": "This Development Agreement will begin on the Effective Date and continue for four (4) years",
+   "page": 9,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.4166666666666667,
+   "f1": 0.5882352941176471,
+   "date_exact": null
+  },
+  {
+   "title": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "four (4) years unless earlier terminated or extended by mutual agreement",
+   "quote": "unless earlier terminated pursuant to Section 10.2, or unless the parties extend the term by mutual written Development Agreement",
+   "page": 9,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "written notice",
+   "quote": "Either Party may terminate this Development Agreement by giving written notice to the other Party",
+   "page": 9,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+   "category": "parties",
+   "gold": [
+    "Paratek Pharmaceuticals, Inc.",
+    "Customer",
+    "CARBOGEN AMCIS AG",
+    "\"Supplier\" and, collectively with Customer, the \"Parties\", and each, a \"Party"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Paratek Pharmaceuticals, Inc. and CARBOGEN AMCIS AG",
+   "quote": "Paratek Pharmaceuticals, Inc. and CARBOGEN AMCIS AG",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.3888888888888889,
+   "f1": 0.56,
+   "date_exact": null
+  },
+  {
+   "title": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+   "category": "effective_date",
+   "gold": [
+    "December 30, 2016"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2016-12-30",
+   "quote": "dated December 30, 2016 (the \"Effective Date\")",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.42857142857142855,
+   "recall": 1.0,
+   "f1": 0.6,
+   "date_exact": true
+  },
+  {
+   "title": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement shall commence on the Effective Date and shall be valid until the [* * *] (the \"Initial Term\")."
+   ],
+   "labeled": true,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+   "category": "renewal_term",
+   "gold": [
+    "Should the Parties have not agreed to the following agreement by [* * *], this Agreement shall automatically stay in force for a maximum of [* * *] (unless otherwise mutually agreed by the Parties or as otherwise set forth in Section 18.1(a)) or until the Parties have signed the follow-on agreement (the \"Renewal Term\")."
+   ],
+   "labeled": true,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "ParatekPharmaceuticalsInc_20170505_10-KA_EX-10.29_10323872_EX-10.29_Outsourcing Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "This Agreement is effective as of the Effective Date and will expire in accordance with Section 2.1, unless, upon the occurrence of any of the following events, this Agreement is earlier terminated in accordance with this Section 18.1:\n\na) Customer delivers written notice of termination to Supplier at least [* * *] prior to the expiration date of the Initial Term, which termination shall be effective as of the expiration date of the Initial Term;\n\nb) either Party delivers written notice of termination to the other Party at least [* * *] prior to the expiration date of the Renewal Term, which termination shall be effective as of the expiration date of the Renewal Term;"
+   ],
+   "labeled": true,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "LIGHTBRIDGECORP_11_23_2015-EX-10.26-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Lloyds",
+    "Lloyds Register FNMA",
+    "Lightbridge",
+    "Lightbridge Corporation"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Lightbridge Corporation and Lloyds Register FNMA",
+   "quote": "by and between Lightbridge Corporation, a Nevada Corporation  (\"Lightbridge\"), and Lloyds Register FNMA, acting through its office in Abu Dhabi (\"Lloyds\"",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.3333333333333333,
+   "recall": 1.0,
+   "f1": 0.5,
+   "date_exact": null
+  },
+  {
+   "title": "LIGHTBRIDGECORP_11_23_2015-EX-10.26-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "16 day of August. 2012"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2012-08-16",
+   "quote": "this 16 day of August. 2012 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5555555555555556,
+   "recall": 1.0,
+   "f1": 0.7142857142857143,
+   "date_exact": null
+  },
+  {
+   "title": "LIGHTBRIDGECORP_11_23_2015-EX-10.26-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement is effective on the Effective Date and shah continue in effect until the earlier of (a) the fifth (5t h) anniversary of the Effective Date, and (b) termination by either Party for any reason upon thirty (30) days' written notice to the other Party; provided, however, that no Party shall be able to terminate this Agreement so long as such Party is a Defaulting Party under this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2017-08-16",
+   "quote": "the fifth (5th) anniversary of the Effective Date",
+   "page": 4,
+   "confidence": 0.6937,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.875,
+   "recall": 0.1,
+   "f1": 0.17948717948717952,
+   "date_exact": null
+  },
+  {
+   "title": "LIGHTBRIDGECORP_11_23_2015-EX-10.26-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "30 days' written notice",
+   "quote": "termination by either Party for any reason upon thirty (30) days' written notice to the other Party",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "LIGHTBRIDGECORP_11_23_2015-EX-10.26-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "30 days' written notice",
+   "quote": "upon thirty (30) days' written notice to the other Party",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICASSHOPPINGMALLINC_12_10_1999-EX-10.2-SITE DEVELOPMENT AND HOSTING AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Hanover Direct, Inc.",
+    "HDI",
+    "Company",
+    "The Deerskin Companies, Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Hanover Direct, Inc. and The Deerskin Companies, Inc.",
+   "quote": "This SITE DEVELOPMENT AND HOSTING AGREEMENT (the \"Agreement\") dated as of August 9, 1999 is made between Hanover Direct, Inc. (\"HDI\"), a New Jersey Corporation, located at 1500 Harbor Boulevard, Weehawken, NJ 07087, and The Deerskin Companies, Inc. (the \"Company\"), a Nevada corporation, located at 2500 Arrowhead Drive, Carson City, NV 89706.",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.17307692307692307,
+   "recall": 1.0,
+   "f1": 0.29508196721311475,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICASSHOPPINGMALLINC_12_10_1999-EX-10.2-SITE DEVELOPMENT AND HOSTING AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "This Agreement shall be effective as of that date (the \"Effective Date\") the Site becomes fully operational as set forth in writing and executed by both Parties and shall continue for a period of one (1) year from the Effective Date."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date the Site becomes fully operational",
+   "quote": "This Agreement shall be effective as of that date (the \"Effective Date\") the Site becomes fully operational as set forth in writing and executed by both Parties",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.6585365853658537,
+   "f1": 0.7941176470588235,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICASSHOPPINGMALLINC_12_10_1999-EX-10.2-SITE DEVELOPMENT AND HOSTING AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement shall be effective as of that date (the \"Effective Date\") the Site becomes fully operational as set forth in writing and executed by both Parties and shall continue for a period of one (1) year from the Effective Date."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "one (1) year from the Effective Date",
+   "quote": "This Agreement shall continue for a period of one (1) year from the Effective Date.",
+   "page": 2,
+   "confidence": 0.9503,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.36585365853658536,
+   "f1": 0.5357142857142857,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICASSHOPPINGMALLINC_12_10_1999-EX-10.2-SITE DEVELOPMENT AND HOSTING AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "This Agreement shall be automatically renewed for an additional one year period on each anniversary of the Effective Date, unless terminated by either Party hereto upon ninety (90) days written notice to the other."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "automatically renewed for an additional one year period on each anniversary of the Effective Date",
+   "quote": "This Agreement shall be automatically renewed for an additional one year period on each anniversary of the Effective Date, unless terminated by either Party hereto upon ninety (90) days written notice to the other.",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICASSHOPPINGMALLINC_12_10_1999-EX-10.2-SITE DEVELOPMENT AND HOSTING AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "This Agreement shall be automatically renewed for an additional one year period on each anniversary of the Effective Date, unless terminated by either Party hereto upon ninety (90) days written notice to the other."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "ninety (90) days written notice",
+   "quote": "unless terminated by either Party hereto upon ninety (90) days written notice to the other.",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.4411764705882353,
+   "f1": 0.6122448979591837,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICANPHYSICIANSCAPITALINC_03_31_2003-EX-10.26-AGENCY AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "MICOA",
+    "Mutual Insurance Corporation of America",
+    "Stratton, Cheeseman & Walsh-Nevada, Inc.",
+    "sometimes commonly referred to as the Parties",
+    "Agency"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Mutual Insurance Corporation of America and Stratton, Cheeseman & Walsh-Nevada, Inc.",
+   "quote": "Mutual Insurance Corporation of America, a Michigan insurance corporation (MICOA) and Stratton, Cheeseman & Walsh-Nevada, Inc., a Nevada corporation, (\"Agency\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.6,
+   "recall": 0.631578947368421,
+   "f1": 0.6153846153846154,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICANPHYSICIANSCAPITALINC_03_31_2003-EX-10.26-AGENCY AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "Signed and effective this 25th day of May, 1999."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1999-05-25",
+   "quote": "Signed and effective this 25th day of May, 1999.",
+   "page": 6,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "date_exact": true
+  },
+  {
+   "title": "AMERICANPHYSICIANSCAPITALINC_03_31_2003-EX-10.26-AGENCY AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "This agreement shall terminate:\n\n                  a.       Automatically if any public authority cancels or                            declines to renew the Agency's license or Certificate                            of Authority.\n\n                  b.       Immediately if either party gives detailed written                            notice to the other of alleged gross and willful                            misconduct, fraud or material misrepresentation."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "one year after the Effective Date",
+   "quote": "This Agreement shall terminate, subject to any automatic renewal or extension for one year as required by law",
+   "page": 4,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.3888888888888889,
+   "recall": 0.15555555555555556,
+   "f1": 0.22222222222222218,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICANPHYSICIANSCAPITALINC_03_31_2003-EX-10.26-AGENCY AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "This Agreement shall terminate, subject to any automatic                   renewal or extension for one year as required by law, upon                   either party giving at least one hundred twenty (120) days                   advance written notice to the other, if not otherwise contrary                   to applicable law or this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "one year",
+   "quote": "subject to any automatic renewal or extension for one year as required by law",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.3111111111111111,
+   "f1": 0.4745762711864407,
+   "date_exact": null
+  },
+  {
+   "title": "AMERICANPHYSICIANSCAPITALINC_03_31_2003-EX-10.26-AGENCY AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "This Agreement shall terminate, subject to any automatic                   renewal or extension for one year as required by law, upon                   either party giving at least one hundred twenty (120) days                   advance written notice to the other, if not otherwise contrary                   to applicable law or this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "at least one hundred twenty (120) days",
+   "quote": "upon either party giving at least one hundred twenty (120) days advance written notice to the other",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.37777777777777777,
+   "f1": 0.5483870967741935,
+   "date_exact": null
+  },
+  {
+   "title": "BIOFRONTERAAG_04_29_2019-EX-4.17-SUPPLY AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "CUTANEA and Ferrer taken together hereinafter are referred to as \"PARTIES\".",
+    "Cutanea Life Sciences, Inc.",
+    "hereinafter indistinctly referred to as \"Ferrer\" and/or \"Supplier\"",
+    "Ferrer Internacional, S.A.",
+    "CUTANEA"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Cutanea Life Sciences, Inc. and Ferrer Internacional, S.A.",
+   "quote": "by and between Cutanea Life Sciences, Inc., a corporation duly organized and existing under the laws of the State of Delaware... and Ferrer Internacional, S.A., a Spanish corporation...",
+   "page": 1,
+   "confidence": 0.6106,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.3448275862068966,
+   "recall": 0.3448275862068966,
+   "f1": 0.3448275862068966,
+   "date_exact": null
+  },
+  {
+   "title": "BIOFRONTERAAG_04_29_2019-EX-4.17-SUPPLY AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "this ____ day of March, 2018"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "made as of this ____ day of March, 2018 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.45454545454545453,
+   "recall": 1.0,
+   "f1": 0.625,
+   "date_exact": null
+  },
+  {
+   "title": "BIOFRONTERAAG_04_29_2019-EX-4.17-SUPPLY AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement comes into force as of the Effective Date and shall remain valid during the term of the LSA."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the term of the LSA",
+   "quote": "this Agreement comes into force as of the Effective Date and shall remain valid during the term of the LSA.",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "date_exact": null
+  },
+  {
+   "title": "BIOFRONTERAAG_04_29_2019-EX-4.17-SUPPLY AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "None",
+   "quote": "if the LSA to be signed by the Parties is terminated for any reason whatsoever, the present Agreement will automatically terminate and be extinguished.",
+   "page": 4,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "BIOFRONTERAAG_04_29_2019-EX-4.17-SUPPLY AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "None",
+   "quote": "the present Agreement will automatically terminate and be extinguished.",
+   "page": 4,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Distributor",
+    "Vendor",
+    "Technical Casino Supplies Ltd",
+    "VendingData Corporation"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "VendingData Corporation and Technical Casino Supplies Ltd",
+   "quote": "This Agreement is entered into as of January 21, 2005 (the \"Effective Date\") by and among VendingData Corporation, a Nevada corporation (\"Vendor\"), and Technical Casino Supplies Ltd, an English company (\"Distributor\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.25806451612903225,
+   "recall": 1.0,
+   "f1": 0.41025641025641024,
+   "date_exact": null
+  },
+  {
+   "title": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "January 21, 2005"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2005-01-21",
+   "quote": "This Agreement is entered into as of January 21, 2005 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.23076923076923078,
+   "recall": 1.0,
+   "f1": 0.375,
+   "date_exact": true
+  },
+  {
+   "title": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "As provided for in this Section 1, the term of this Agreement shall be for a period of five (5) years, beginning on the Effective Date (the \"Initial Term\"); provided, however, the Initial Term shall be subject to automatic successive renewal terms of three (3) years each (the \"Renewal Terms\" and together with the Initial Term, the \"Term\")."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "five (5) years after the Effective Date",
+   "quote": "the term of this Agreement shall be for a period of five (5) years, beginning on the Effective Date",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.3275862068965517,
+   "f1": 0.49350649350649356,
+   "date_exact": null
+  },
+  {
+   "title": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "As provided for in this Section 1, the term of this Agreement shall be for a period of five (5) years, beginning on the Effective Date (the \"Initial Term\"); provided, however, the Initial Term shall be subject to automatic successive renewal terms of three (3) years each (the \"Renewal Terms\" and together with the Initial Term, the \"Term\")."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "three (3) years each",
+   "quote": "the Initial Term shall be subject to automatic successive renewal terms of three (3) years each",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.27586206896551724,
+   "f1": 0.4324324324324324,
+   "date_exact": null
+  },
+  {
+   "title": "ENTERTAINMENTGAMINGASIAINC_02_15_2005-EX-10.5-DISTRIBUTOR AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "By either Vendor or Distributor, upon written notice of termination of this Agreement no later than ninety (90) calendar days prior to the expiration of the relevant Term, then in effect;"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "ninety (90) calendar days",
+   "quote": "upon written notice of termination of this Agreement no later than ninety (90) calendar days prior to the expiration of the relevant Term",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.7419354838709677,
+   "f1": 0.8518518518518519,
+   "date_exact": null
+  },
+  {
+   "title": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+   "category": "parties",
+   "gold": [
+    "Ehave",
+    "COMPANION HEALTHCARE TECHNOLOGIES CORP",
+    "EHAVE, INC.",
+    "CHT"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "EHAVE, INC. and COMPANION HEALTHCARE TECHNOLOGIES CORP",
+   "quote": "THIS LICENSE AND RESELLER AGREEMENT dated as of the October 30, 2018 is made BETWEEN: EHAVE, INC., a company incorporated under the laws of the Province of Ontario, Canada (\"Ehave\"); - and - COMPANION HEALTHCARE TECHNOLOGIES CORP, a company incorporated under the laws of the Province of Ontario (\"CHT\")",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.1702127659574468,
+   "recall": 1.0,
+   "f1": 0.2909090909090909,
+   "date_exact": null
+  },
+  {
+   "title": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+   "category": "effective_date",
+   "gold": [
+    "October 30, 2018"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "Effective Date means the date first written above.",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": false
+  },
+  {
+   "title": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "This term of this Agreement and the rights and obligations of the Parties hereto shall commence as of the Effective Date and shall continue in perpetuity (the \"Term\"), unless terminated earlier in accordance with the provisions contained herein."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "in perpetuity",
+   "quote": "the rights and obligations of the Parties hereto shall commence as of the Effective Date and shall continue in perpetuity (the \"Term\")",
+   "page": 10,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.5789473684210527,
+   "f1": 0.7333333333333334,
+   "date_exact": null
+  },
+  {
+   "title": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "exclusive appointment for the duration of the Term",
+   "quote": "the foregoing appointment is exclusive such that Ehave shall not appoint any other Person to, nor may Ehave itself, sell or resell the use of the Ehave Companion Solution within the Field of Use anywhere in the Territory.",
+   "page": 4,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "thirty (30) Business Days prior written notice",
+   "quote": "at any time without cause, by providing at least thirty (30) Business Days prior written notice to Ehave",
+   "page": 11,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "NELNETINC_04_08_2020-EX-1-JOINT FILING AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Co-Trustee",
+    "Shelby J. Butterfield"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Shelby J. Butterfield and BUTTERFIELD FAMILY TRUST",
+   "quote": "The undersigned hereby agree to jointly prepare and file with the applicable regulatory authorities this Schedule 13G or Schedule 13D",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "NELNETINC_04_08_2020-EX-1-JOINT FILING AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "2020-03-27",
+   "quote": "Dated: March 27, 2020.",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "NELNETINC_04_08_2020-EX-1-JOINT FILING AGREEMENT",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "NELNETINC_04_08_2020-EX-1-JOINT FILING AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "NELNETINC_04_08_2020-EX-1-JOINT FILING AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement2",
+   "category": "parties",
+   "gold": [
+    "Client",
+    "(Developer and Client are individually referred to herein as a Party, and collectively as the Parties",
+    "Developer",
+    "Pelican Delivers Inc.",
+    "DOT COM LLC, OBA Seattle Software Developers"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "DOT COM LLC, OBA Seattle Software Developers and Pelican Delivers Inc.",
+   "quote": "by and between DOT COM LLC, OBA Seattle Software Developers, a Delaware limited liability company (Developer), and (Client) Pelican Delivers Inc.",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.7142857142857143,
+   "recall": 0.5357142857142857,
+   "f1": 0.6122448979591837,
+   "date_exact": null
+  },
+  {
+   "title": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement2",
+   "category": "effective_date",
+   "gold": [
+    "December 3rd, 2018"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2018-12-03",
+   "quote": "December 3rd, 2018 (the Effective Date)",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.5,
+   "recall": 1.0,
+   "f1": 0.6666666666666666,
+   "date_exact": true
+  },
+  {
+   "title": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement2",
+   "category": "expiration_date",
+   "gold": [
+    "Unless otherwise provided herein, this Agreement will commence on the Effective Date and continue through the completion or termination of Developer's services and work product as mutually agreed upon between the Parties (the Project)."
+   ],
+   "labeled": true,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement2",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement2",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "two weeks",
+   "quote": "upon two weeks written notice to the other Party",
+   "page": 7,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "persons and entities listed on Schedule A",
+    "Allison Transmission Holdings, Inc.",
+    "collectively, the \"ValueAct Group\", and individually a \"member\" of the ValueAct Group",
+    "Schedule A\n\nMembers of ValueAct Group\n\nVA Partners I, LLC\n\nValueAct Capital Master Fund, L.P.\n\nValueAct Capital Management, L.P.\n\nValueAct Capital Management, LLC\n\nValueAct Holdings, L.P.\n\nValueAct Holdings GP, LLC\n\nGregory P. Spivy",
+    "Company",
+    "the \"ValueAct Designee\"",
+    "Gregory P. Spivy"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Allison Transmission Holdings, Inc., Gregory P. Spivy, and the members of the ValueAct Group",
+   "quote": "This Cooperation Agreement (this \"Agreement\") dated December 12, 2014, is by and among the persons and entities listed on Schedule A (collectively, the \"ValueAct Group\", and individually a \"member\" of the ValueAct Group), Allison Transmission Holdings, Inc. (the \"Company\") and Gregory P. Spivy, in his individual capacity and as a member of the ValueAct Group (the \"ValueAct Designee\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5862068965517241,
+   "recall": 0.5151515151515151,
+   "f1": 0.5483870967741935,
+   "date_exact": null
+  },
+  {
+   "title": "ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "This Agreement is effective as of the date hereof",
+    ".",
+    "December 12, 2014"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date hereof",
+   "quote": "This Agreement is effective as of the date hereof",
+   "page": 6,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.75,
+   "f1": 0.8571428571428571,
+   "date_exact": false
+  },
+  {
+   "title": "ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement is effective as of the date hereof and shall remain in full force and effect for the period (the \"Covered Period\") commencing on the date hereof and ending on the date that is the earliest of: (i) the Company's failure to appoint the ValueAct Designee to the Board following the ValueAct Group's written request to the Company to have the ValueAct Designee appointed to the Board pursuant to Section 1(a) of this Agreement; (ii) the failure of the Company to comply in good faith with Section 1(e) of this Agreement; or (iii) the date which is the 60t h day prior to the Company's 2016 annual meeting of stockholders."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date which is the 60th day prior to the Company's 2016 annual meeting of stockholders",
+   "quote": "the date that is the earliest of: (i) the Company's failure to appoint the ValueAct Designee to the Board... (iii) the date which is the 60th day prior to the Company's 2016 annual meeting of stockholders.",
+   "page": 6,
+   "confidence": 0.8611,
+   "flags": [
+    "ungrounded"
+   ],
+   "grounded": false,
+   "precision": 0.9736842105263158,
+   "recall": 0.31896551724137934,
+   "f1": 0.48051948051948057,
+   "date_exact": null
+  },
+  {
+   "title": "ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "PACIFICSYSTEMSCONTROLTECHNOLOGYINC_08_24_2000-EX-10.53-SPONSORSHIP AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "American Champion Media, Inc.",
+    "Shun Li De Commerce & Trading Ltd",
+    "(\"SLD\")",
+    "ACM",
+    "the \"Event\""
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Shun Li De Commerce & Trading Ltd and American Champion Media, Inc.",
+   "quote": "made by and between Shun Li De Commerce & Trading Ltd (\"SLD\") a Beijing company... and ACM.",
+   "page": 1,
+   "confidence": 0.6688,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5,
+   "recall": 0.5714285714285714,
+   "f1": 0.5333333333333333,
+   "date_exact": null
+  },
+  {
+   "title": "PACIFICSYSTEMSCONTROLTECHNOLOGYINC_08_24_2000-EX-10.53-SPONSORSHIP AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "2000-04-14",
+   "quote": "this Sponsorship Agreement (the \"Agreement\") dated as of April 14, 2000",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "PACIFICSYSTEMSCONTROLTECHNOLOGYINC_08_24_2000-EX-10.53-SPONSORSHIP AGREEMENT",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "2000-04-22",
+   "quote": "the Event is scheduled to take place on April 22, 2000",
+   "page": 1,
+   "confidence": 0.9832,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "PACIFICSYSTEMSCONTROLTECHNOLOGYINC_08_24_2000-EX-10.53-SPONSORSHIP AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "PACIFICSYSTEMSCONTROLTECHNOLOGYINC_08_24_2000-EX-10.53-SPONSORSHIP AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "DataCallTechnologies_20060918_SB-2A_EX-10.9_944510_EX-10.9_Content License Agreement",
+   "category": "parties",
+   "gold": [
+    "plan_b",
+    "Licensor",
+    "PLAN_B MEDIA AG",
+    "Data Call Technologies, Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Data Call Technologies, Inc. and PLAN_B MEDIA AG",
+   "quote": "between Data Call Technologies, Inc. and PLAN_B MEDIA AG",
+   "page": 1,
+   "confidence": 0.8606,
+   "flags": [
+    "ungrounded"
+   ],
+   "grounded": false,
+   "precision": 0.8,
+   "recall": 0.7272727272727273,
+   "f1": 0.761904761904762,
+   "date_exact": null
+  },
+  {
+   "title": "DataCallTechnologies_20060918_SB-2A_EX-10.9_944510_EX-10.9_Content License Agreement",
+   "category": "effective_date",
+   "gold": [
+    "Contract  start:  04-01-06"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2006-04-01",
+   "quote": "Contract start: 04-01-06",
+   "page": 5,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "date_exact": null
+  },
+  {
+   "title": "DataCallTechnologies_20060918_SB-2A_EX-10.9_944510_EX-10.9_Content License Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "Unless  otherwise  stated  in  the  Appendix  the  term of this letter           Agreement  shall  continue  for  twenty-four  (24)  months  with  the           effective  date  unless  terminated sooner or extended pursuant to the           terms hereof (\"Initial Term\")",
+    "Contract  end:  04-01-08"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2008-04-01",
+   "quote": "Contract end: 04-01-08",
+   "page": 5,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.125,
+   "f1": 0.2222222222222222,
+   "date_exact": null
+  },
+  {
+   "title": "DataCallTechnologies_20060918_SB-2A_EX-10.9_944510_EX-10.9_Content License Agreement",
+   "category": "renewal_term",
+   "gold": [
+    "The Initial Term shall automatically be           extended  for  an additional period of half a year unless either party           provides  the  other party with written notification of termination of           the  letter  Agreement  at  least 60 days prior to end of such period."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "six (6) months",
+   "quote": "automatically be extended for an additional period of half a year",
+   "page": 3,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2682926829268293,
+   "f1": 0.4230769230769231,
+   "date_exact": null
+  },
+  {
+   "title": "DataCallTechnologies_20060918_SB-2A_EX-10.9_944510_EX-10.9_Content License Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "The Initial Term shall automatically be           extended  for  an additional period of half a year unless either party           provides  the  other party with written notification of termination of           the  letter  Agreement  at  least 60 days prior to end of such period."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "60 days",
+   "quote": "at least 60 days prior to end of such period",
+   "page": 3,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.24390243902439024,
+   "f1": 0.39215686274509803,
+   "date_exact": null
+  },
+  {
+   "title": "SalesforcecomInc_20171122_10-Q_EX-10.1_10961535_EX-10.1_Reseller Agreement",
+   "category": "parties",
+   "gold": [
+    "Salesforce.org",
+    "\"SFDC\" or \"Salesforce\"",
+    "salesforce.com, inc.",
+    "the Reseller named above"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "salesforce.com, inc. and Salesforce.org",
+   "quote": "...between salesforce.com, inc., a Delaware corporation... and the Reseller named above...",
+   "page": 1,
+   "confidence": 0.5737,
+   "flags": [
+    "ungrounded",
+    "value_not_in_quote"
+   ],
+   "grounded": false,
+   "precision": 0.5833333333333334,
+   "recall": 0.5833333333333334,
+   "f1": 0.5833333333333334,
+   "date_exact": null
+  },
+  {
+   "title": "SalesforcecomInc_20171122_10-Q_EX-10.1_10961535_EX-10.1_Reseller Agreement",
+   "category": "effective_date",
+   "gold": [
+    "This Sub-Reseller Agreement is effective as of the later of the dates beneath the Parties' signatures below (\"Sub-Reseller Effective Date\"), provided, however, that the dates of the Parties' signatures are not separated by a period of time greater than ten (10) business days."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "effective as of the later of the dates beneath the Parties' signatures below",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.28888888888888886,
+   "f1": 0.4482758620689655,
+   "date_exact": null
+  },
+  {
+   "title": "SalesforcecomInc_20171122_10-Q_EX-10.1_10961535_EX-10.1_Reseller Agreement",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "SalesforcecomInc_20171122_10-Q_EX-10.1_10961535_EX-10.1_Reseller Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "SalesforcecomInc_20171122_10-Q_EX-10.1_10961535_EX-10.1_Reseller Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+   "category": "parties",
+   "gold": [
+    "Rare Element Resources Ltd.",
+    "Investor",
+    "Synchron",
+    "Company"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Synchron, a California corporation and Rare Element Resources Ltd.",
+   "quote": "...the \"Investor\"), and Rare Element Resources Ltd., a British Columbia Corporation... (Investor and Company each a \"Party\" and together the \"Parties\")...",
+   "page": 1,
+   "confidence": 0.5512,
+   "flags": [
+    "ungrounded",
+    "value_not_in_quote"
+   ],
+   "grounded": false,
+   "precision": 0.2857142857142857,
+   "recall": 0.8571428571428571,
+   "f1": 0.42857142857142855,
+   "date_exact": null
+  },
+  {
+   "title": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+   "category": "effective_date",
+   "gold": [
+    "\"Effective Date\" has the meaning of the \"Closing Date\" set forth in the Investment Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "\"Effective Date\" has the meaning of the \"Closing Date\" set forth in the Investment Agreement.",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "date_exact": null
+  },
+  {
+   "title": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "Unless earlier terminated in accordance with the terms of this Article XVI, this IP Agreement and the licenses granted herein will continue in effect from the Effective Date until the expiration of the last to expire of the Patents and any additional period of time thereafter that any of the Patents remain enforceable such as in the United States where a party can sue for infringement after a patent expires and seek damages for any infringement of the patent during the six years immediately preceding the filing of a suit for infringement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the expiration of the last to expire of the Patents",
+   "quote": "this IP Agreement and the licenses granted herein will continue in effect from the Effective Date until the expiration of the last to expire of the Patents...",
+   "page": 7,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.29347826086956524,
+   "f1": 0.45378151260504207,
+   "date_exact": null
+  },
+  {
+   "title": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "beyond the expiration of the Option Period, subject to an annual licensing fee paid by Investor to Company.",
+   "quote": "If the Option is not exercised prior to the expiration of the Option Period, then Company agrees to extend the license grants...",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "RareElementResourcesLtd_20171019_SC 13D_EX-99.4_10897534_EX-99.4_Intellectual Property Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "thirty (30) days after the date of the notice",
+   "quote": "Investor at any time may provide written notice to Company of a material breach of this IP Agreement.",
+   "page": 7,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Intuit Inc.",
+    "Client",
+    "Stamps.com Inc.",
+    "Intuit"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Intuit Inc. and Stamps.com Inc.",
+   "quote": "This Sponsorship Agreement (\"Agreement\") is entered into as of the 14th day of May, 1999 (\"Effective Date\"), by and between Intuit Inc. a Delaware corporation...",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.08,
+   "recall": 0.2857142857142857,
+   "f1": 0.125,
+   "date_exact": null
+  },
+  {
+   "title": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "14th day of May, 1999"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1999-05-14",
+   "quote": "14th day of May, 1999 (\"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.7142857142857143,
+   "recall": 1.0,
+   "f1": 0.8333333333333333,
+   "date_exact": true
+  },
+  {
+   "title": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "Unless otherwise terminated as specified in this Section 12, the      ----      term of this Agreement shall begin on the Effective Date and will not end      until the later of (a) twelve (12) months from the Launch Date; or (2) the      date Intuit displays a total of 176,717,916 Impressions in accordance with      the terms set forth herein (\"Term\")."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "twelve (12) months from the Launch Date",
+   "quote": "the later of (a) twelve (12) months from the Launch Date; or (2) the date Intuit displays a total of 176,717,916 Impressions",
+   "page": 8,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.41379310344827586,
+   "f1": 0.5853658536585366,
+   "date_exact": null
+  },
+  {
+   "title": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "negotiated in good faith",
+   "quote": "Intuit agrees to negotiate with Client in good faith regarding such promotional opportunity.",
+   "page": 8,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "STAMPSCOMINC_06_24_1999-EX-10.18-SPONSORSHIP AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "thirty (30) days following the notice",
+   "quote": "Either party may terminate this Agreement if the other party materially breaches a material obligation hereunder",
+   "page": 8,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "SIERRA",
+    "ENVISION",
+    "Sierra Mountain Minerals, Inc.",
+    "LifeUSA/  Envision  Health,  Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "LifeUSA/Envision Health, Inc. and Sierra Mountain Minerals, Inc.",
+   "quote": "by and between LifeUSA/ Envision Health, Inc., a corporation (hereinafter collectively \"ENVISION\"), and Sierra Mountain Minerals, Inc., a Canadian company (hereinafter \"SIERRA\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.45454545454545453,
+   "recall": 1.0,
+   "f1": 0.625,
+   "date_exact": null
+  },
+  {
+   "title": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "Dec. 8, 2005"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2005-12-08",
+   "quote": "shall be effective as of _Dec. 8, 2005 (hereinafter \"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.2727272727272727,
+   "recall": 1.0,
+   "f1": 0.42857142857142855,
+   "date_exact": true
+  },
+  {
+   "title": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "The  term of this  Agreement  shall  be two (2)  years  from the          Effective  Date with  automatic  annual  renewals  thereafter  provided          either  party does not provide  sixty (60) days  notice of  termination          prior to the renewal date or the Agreement is not otherwise  terminated          as set forth in Section 8."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2007-12-08",
+   "quote": "The term of this Agreement shall be two (2) years from the Effective Date",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2857142857142857,
+   "f1": 0.4444444444444445,
+   "date_exact": null
+  },
+  {
+   "title": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "The  term of this  Agreement  shall  be two (2)  years  from the          Effective  Date with  automatic  annual  renewals  thereafter  provided          either  party does not provide  sixty (60) days  notice of  termination          prior to the renewal date or the Agreement is not otherwise  terminated          as set forth in Section 8."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "automatic annual renewals unless terminated with sixty (60) days notice",
+   "quote": "with automatic annual renewals thereafter provided either party does not provide sixty (60) days notice of termination prior to the renewal date",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.4489795918367347,
+   "f1": 0.6197183098591549,
+   "date_exact": null
+  },
+  {
+   "title": "LEGACYTECHNOLOGYHOLDINGS,INC_12_09_2005-EX-10.2-DISTRIBUTOR AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "The  term of this  Agreement  shall  be two (2)  years  from the          Effective  Date with  automatic  annual  renewals  thereafter  provided          either  party does not provide  sixty (60) days  notice of  termination          prior to the renewal date or the Agreement is not otherwise  terminated          as set forth in Section 8."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "sixty (60) days notice",
+   "quote": "either party does not provide sixty (60) days notice of termination prior to the renewal date",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.32653061224489793,
+   "f1": 0.4923076923076923,
+   "date_exact": null
+  },
+  {
+   "title": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "NTL",
+    "ENTRUST TECHNOLOGIES INC.",
+    "NORTHERN TELECOM LIMITED",
+    "ETI"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "NORTHERN TELECOM LIMITED and ENTRUST TECHNOLOGIES INC.",
+   "quote": "between NORTHERN TELECOM LIMITED, a Canadian corporation (\"NTL\"), and ENTRUST TECHNOLOGIES INC., a Maryland corporation (\"ETI\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5,
+   "recall": 1.0,
+   "f1": 0.6666666666666666,
+   "date_exact": null
+  },
+  {
+   "title": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "1996-12-31",
+   "quote": "is made as of 31 December, 1996",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "Except as otherwise provided in this Agreement, this                ----                                                       Agreement shall terminate on the later of (i) the third anniversary of the Effective Date or (ii) the date on which ETI ceases to be a Subsidiary of NTL."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "three years after the Effective Date",
+   "quote": "this Agreement shall terminate on the later of (i) the third anniversary of the Effective Date or (ii) the date on which ETI ceases to be a Subsidiary of NTL.",
+   "page": 11,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.8108108108108109,
+   "f1": 0.8955223880597014,
+   "date_exact": null
+  },
+  {
+   "title": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "three years or when ETI ceases to be a Subsidiary of NTL",
+   "quote": "Subject to early termination for material default, such Reseller Agreement shall expire either in three years or when ETI ceases to be a Subsidiary of NTL, whichever event occurs later.",
+   "page": 5,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ENTRUSTINC_07_24_1998-EX-10.5-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "sixty (60) days' prior written notice",
+   "quote": "the non-breaching Party may terminate this Agreement by giving sixty (60) days' prior written notice to the other Party;",
+   "page": 11,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+   "category": "parties",
+   "gold": [
+    "LIQUIDMETAL TECHNOLOGIES, INC.",
+    "EUTECTIX, LLC",
+    "Liquidmetal",
+    "Eutectix"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "LIQUIDMETAL TECHNOLOGIES, INC. and EUTECTIX, LLC",
+   "quote": "by and between LIQUIDMETAL TECHNOLOGIES, INC., a Delaware corporation... and EUTECTIX, LLC, a Delaware limited liability company...",
+   "page": 1,
+   "confidence": 0.5427,
+   "flags": [
+    "ungrounded",
+    "value_not_in_quote"
+   ],
+   "grounded": false,
+   "precision": 0.29411764705882354,
+   "recall": 0.7142857142857143,
+   "f1": 0.4166666666666667,
+   "date_exact": null
+  },
+  {
+   "title": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+   "category": "effective_date",
+   "gold": [
+    ", 2020"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "is effective as of , 2020 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.125,
+   "recall": 1.0,
+   "f1": 0.2222222222222222,
+   "date_exact": null
+  },
+  {
+   "title": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "The initial term of this Agreement shall commence on the Effective Date and shall continue until the fifth (5t h) anniversary of the Effective Date (the \"Term\"), unless the Agreement is sooner terminated in accordance with the terms of this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "five (5) years after the Effective Date",
+   "quote": "shall continue until the fifth (5th) anniversary of the Effective Date",
+   "page": 1,
+   "confidence": 0.6956,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.9090909090909091,
+   "recall": 0.24390243902439024,
+   "f1": 0.38461538461538464,
+   "date_exact": null
+  },
+  {
+   "title": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+   "category": "renewal_term",
+   "gold": [
+    "Upon the expiration of the Term, the Term shall automatically extend for successive 12-month periods until one Party terminates the Agreement by providing at least 180 days prior written notice to the other Party prior to the expiration of the then-current term or unless sooner terminated in accordance with the terms of this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "12-month periods",
+   "quote": "the Term shall automatically extend for successive 12-month periods",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.17857142857142858,
+   "f1": 0.30303030303030304,
+   "date_exact": null
+  },
+  {
+   "title": "LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "Either Party may terminate this Agreement for any reason upon providing 180 days prior written notice to the other Party prior to the expiration of the then-current term or unless sooner terminated in accordance with the terms of this Agreement.",
+    "Upon the expiration of the Term, the Term shall automatically extend for successive 12-month periods until one Party terminates the Agreement by providing at least 180 days prior written notice to the other Party prior to the expiration of the then-current term or unless sooner terminated in accordance with the terms of this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "180 days",
+   "quote": "by providing at least 180 days prior written notice to the other Party",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.13402061855670103,
+   "f1": 0.23636363636363636,
+   "date_exact": null
+  },
+  {
+   "title": "PaperexchangeComInc_20000322_S-1A_EX-10.4_5202103_EX-10.4_Co-Branding Agreement",
+   "category": "parties",
+   "gold": [
+    "VerticalNet, Inc.",
+    "PaperExchange.com, LLC",
+    "PaperExchange",
+    "VerticalNet"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "VerticalNet, Inc. and PaperExchange.com, LLC",
+   "quote": "the parties agree as follows: VerticalNet, Inc., a Pennsylvania corporation... and PaperExchange.com, LLC, a Delaware limited liability company...",
+   "page": 1,
+   "confidence": 0.5355,
+   "flags": [
+    "ungrounded",
+    "value_not_in_quote"
+   ],
+   "grounded": false,
+   "precision": 0.2631578947368421,
+   "recall": 0.7142857142857143,
+   "f1": 0.3846153846153846,
+   "date_exact": null
+  },
+  {
+   "title": "PaperexchangeComInc_20000322_S-1A_EX-10.4_5202103_EX-10.4_Co-Branding Agreement",
+   "category": "effective_date",
+   "gold": [
+    "September 30, 1999"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1999-09-30",
+   "quote": "dated September 30, 1999 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.42857142857142855,
+   "recall": 1.0,
+   "f1": 0.6,
+   "date_exact": true
+  },
+  {
+   "title": "PaperexchangeComInc_20000322_S-1A_EX-10.4_5202103_EX-10.4_Co-Branding Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "Initial Term shall mean the Effective Date through the day prior to the fourth anniversary of the Effective Date, unless earlier terminated pursuant to Section 8"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2003-09-29",
+   "quote": "Initial Term shall mean the Effective Date through the day prior to the fourth anniversary of the Effective Date",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.7307692307692307,
+   "f1": 0.8444444444444443,
+   "date_exact": null
+  },
+  {
+   "title": "PaperexchangeComInc_20000322_S-1A_EX-10.4_5202103_EX-10.4_Co-Branding Agreement",
+   "category": "renewal_term",
+   "gold": [
+    "This Agreement will automatically renew at the end of the Initial Term or a subsequent renewal term on a year to year basis (each, a \"Renewal Term\"), unless either party notifies the other at least 30 days prior to the end of the Initial Term or then current Renewal Term, as applicable, of its intention not to renew this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "year to year basis",
+   "quote": "this Agreement will automatically renew at the end of the Initial Term or a subsequent renewal term on a year to year basis",
+   "page": 14,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.38333333333333336,
+   "f1": 0.5542168674698795,
+   "date_exact": null
+  },
+  {
+   "title": "PaperexchangeComInc_20000322_S-1A_EX-10.4_5202103_EX-10.4_Co-Branding Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "This Agreement will automatically renew at the end of the Initial Term or a subsequent renewal term on a year to year basis (each, a \"Renewal Term\"), unless either party notifies the other at least 30 days prior to the end of the Initial Term or then current Renewal Term, as applicable, of its intention not to renew this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "30 days",
+   "quote": "unless either party notifies the other at least 30 days prior to the end of the Initial Term or then current Renewal Term",
+   "page": 14,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.38333333333333336,
+   "f1": 0.5542168674698795,
+   "date_exact": null
+  },
+  {
+   "title": "GIGGLESN_HUGS,INC_06_23_2016-EX-10.2-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Consultant",
+    "Giggles N' Hugs, Inc.",
+    "Company\"",
+    "Kiddo, Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Giggles N' Hugs, Inc. and Kiddo, Inc.",
+   "quote": "by and between Giggles N' Hugs, Inc., a Nevada corporation (the \"Company\"), and Kiddo, Inc., a Florida corporation, Inc., (\"Consultant\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.4,
+   "recall": 1.0,
+   "f1": 0.5714285714285715,
+   "date_exact": null
+  },
+  {
+   "title": "GIGGLESN_HUGS,INC_06_23_2016-EX-10.2-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "May 17, 2016"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2016-05-17",
+   "quote": "This Strategic Alliance Agreement (this \"Agreement\") is made and entered into as of May 17, 2016, (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.15789473684210525,
+   "recall": 1.0,
+   "f1": 0.2727272727272727,
+   "date_exact": true
+  },
+  {
+   "title": "GIGGLESN_HUGS,INC_06_23_2016-EX-10.2-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "Either party may terminate this agreement after 3 years following the effective date."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2019-05-17",
+   "quote": "Either party may terminate this agreement after 3 years following the effective date.",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "date_exact": null
+  },
+  {
+   "title": "GIGGLESN_HUGS,INC_06_23_2016-EX-10.2-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "None",
+   "quote": "This Agreement will terminate upon the following: (1) Completion of work or period of work provided in this agreement.",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "GIGGLESN_HUGS,INC_06_23_2016-EX-10.2-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "30 days",
+   "quote": "Termination by Company or Consultant for any material breach, which is not cured within 30 days after written notice of any such material breach",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "VERSO BACKHAUL SOLUTIONS, INC.",
+    "Seller",
+    "NMS COMMUNICATIONS CORP.",
+    "Backhaul"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "NMS COMMUNICATIONS CORP. and VERSO BACKHAUL SOLUTIONS, INC.",
+   "quote": "made by and between NMS COMMUNICATIONS CORP., a Delaware corporation (\"Seller\"), and VERSO BACKHAUL SOLUTIONS, INC., a Georgia corporation (\"Backhaul\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.45,
+   "recall": 1.0,
+   "f1": 0.6206896551724138,
+   "date_exact": null
+  },
+  {
+   "title": "VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "2007-12-20",
+   "quote": "dated as of December 20, 2007",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "BOSCH INTERNATIONAL, LLC",
+    "BOSCH",
+    "CLIENT",
+    "BOSCH TECHNOLOGIES, LLC"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "BOSCH INTERNATIONAL, LLC and BOSCH TECHNOLOGIES, LLC",
+   "quote": "THIS AGREEMENT is made on this 1st day of December, 2015 by and between BOSCH INTERNATIONAL, LLC, a Nevada Limited Liability Company... and BOSCH TECHNOLOGIES, LLC, a Nevada Limited Liability Company...",
+   "page": 1,
+   "confidence": 0.5813,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.1935483870967742,
+   "recall": 0.75,
+   "f1": 0.30769230769230765,
+   "date_exact": null
+  },
+  {
+   "title": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "2015-12-01",
+   "quote": "THIS AGREEMENT is made on this 1st day of December, 2015",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "three (3) years after the Effective Date",
+   "quote": "three (3) years after the Effective Date",
+   "page": 2,
+   "confidence": 0.713,
+   "flags": [
+    "ungrounded"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "XLITECHNOLOGIES,INC_12_02_2015-EX-10.02-STRATEGIC ALLIANCE AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ACCURAYINC_09_01_2010-EX-10.31-DISTRIBUTOR AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Siemens",
+    "Accuray",
+    "SIEMENS AKTIENGESELLSCHAFT",
+    "ACCURAY INCORPORATED"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "ACCURAY INCORPORATED and SIEMENS AKTIENGESELLSCHAFT",
+   "quote": "This Multiple LINAC and Multi-Modality Distributor Agreement (\"Agreement\") is entered into by and between ACCURAY INCORPORATED... and SIEMENS AKTIENGESELLSCHAFT...",
+   "page": 1,
+   "confidence": 0.9367,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.2,
+   "recall": 0.6666666666666666,
+   "f1": 0.30769230769230765,
+   "date_exact": null
+  },
+  {
+   "title": "ACCURAYINC_09_01_2010-EX-10.31-DISTRIBUTOR AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "June 8, 2010"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2010-06-08",
+   "quote": "as of June 8, 2010 (\"Effective Date\").",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.42857142857142855,
+   "recall": 1.0,
+   "f1": 0.6,
+   "date_exact": true
+  },
+  {
+   "title": "ACCURAYINC_09_01_2010-EX-10.31-DISTRIBUTOR AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "Unless otherwise agreed in writing by Accuray and Distributor and subject to the termination rights contained in this Agreement,  this Agreement shall begin on the Effective Date and shall continue until the termination of the Strategic Alliance Agreement;  provided, however, that if a Termination Election relating to this Agreement is made pursuant to Section 10.3 of the Strategic  Alliance Agreement prior to such termination, this Agreement shall terminate 36 months after such Termination Election (the  \"Term\")."
+   ],
+   "labeled": true,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "ACCURAYINC_09_01_2010-EX-10.31-DISTRIBUTOR AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ACCURAYINC_09_01_2010-EX-10.31-DISTRIBUTOR AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "TLP Management Services, LLC",
+    "Operating Company",
+    "EmployeeCo",
+    "TransMontaigne Management Company, LLC",
+    "The above-named entities are sometimes referred to in this Agreement (as defined herein) each as a \"Party\" and collectively as the \"Parties.\""
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "TransMontaigne Management Company, LLC and TLP Management Services, LLC",
+   "quote": "among TransMontaigne Management Company, LLC, a Delaware limited liability company (\"EmployeeCo\") and TLP Management Services, LLC, a Delaware limited liability company (the \"Operating Company\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.5833333333333334,
+   "recall": 0.4117647058823529,
+   "f1": 0.4827586206896552,
+   "date_exact": null
+  },
+  {
+   "title": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "August __, 2019"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "effective as of, August __, 2019 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.25,
+   "recall": 1.0,
+   "f1": 0.4,
+   "date_exact": null
+  },
+  {
+   "title": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement shall remain in effect until terminated by the Parties."
+   ],
+   "labeled": true,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "TRANSMONTAIGNEPARTNERSLLC_03_13_2020-EX-10.9-SERVICES AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "5 days",
+   "quote": "by either Party upon 5 days written notice to the other Party.",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "VEONEER,INC_02_21_2020-EX-10.11-JOINT VENTURE AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Nissin Kogyo Co., Ltd.",
+    "\"NBZ\" and together with Nissin and Nissin Holding, the \"Nissin Parties\"",
+    "Nissin",
+    "Nissin Kogyo Holdings",
+    "\"Nissin Holding\")",
+    "USA, Inc.",
+    "Veoneer US, Inc.",
+    "\"Veoneer US\" and together with Veoneer AB, the \"Veoneer Parties\"",
+    "Zhongshan Nissin Industry Co., Ltd.",
+    "Veoneer AB"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Veoneer AB, Veoneer US, Nissin Kogyo Co., Ltd., Nissin Kogyo Holdings USA, Inc., Zhongshan Nissin Industry Co., Ltd.",
+   "quote": "by and among (1) Veoneer AB, a Swedish corporation (\"Veoneer AB\") and Veoneer US, Inc., a Delaware corporation (\"Veoneer US\" and together with Veoneer AB, the \"Veoneer Parties\"), and (2) Nissin Kogyo Co., Ltd., a Japanese corporation (\"Nissin\"), Nissin Kogyo Holdings USA, Inc., an Ohio corporation (\"Nissin Holding\") and Zhongshan Nissin Industry Co., Ltd., a Peoples' Republic of China company (\"NBZ\" and together with Nissin and Nissin Holding, the \"Nissin Parties\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.6056338028169014,
+   "recall": 1.0,
+   "f1": 0.7543859649122806,
+   "date_exact": null
+  },
+  {
+   "title": "VEONEER,INC_02_21_2020-EX-10.11-JOINT VENTURE AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "This Amendment shall only become effective upon the VNBJ Closing with respect to Article 1.1 and the VNBZ Closing with respect to Article 1.2, and shall terminate without any force or effect in the event that the VNBJ SPA and the VNBZ SPA are terminated in accordance with the terms thereof.",
+    "October 30, 2019"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2019-10-30",
+   "quote": "effective as of October 30, 2019 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.5555555555555556,
+   "recall": 0.08928571428571429,
+   "f1": 0.15384615384615385,
+   "date_exact": true
+  },
+  {
+   "title": "VEONEER,INC_02_21_2020-EX-10.11-JOINT VENTURE AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "This Amendment shall only become effective upon the VNBJ Closing with respect to Article 1.1 and the VNBZ Closing with respect to Article 1.2, and shall terminate without any force or effect in the event that the VNBJ SPA and the VNBZ SPA are terminated in accordance with the terms thereof."
+   ],
+   "labeled": true,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": null
+  },
+  {
+   "title": "VEONEER,INC_02_21_2020-EX-10.11-JOINT VENTURE AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "VEONEER,INC_02_21_2020-EX-10.11-JOINT VENTURE AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "CardlyticsInc_20180112_S-1_EX-10.16_11002987_EX-10.16_Maintenance Agreement3",
+   "category": "parties",
+   "gold": [
+    "Bank of America, N. A",
+    "Supplier",
+    "Bank of America",
+    "Cardlytics, Inc."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Cardlytics, Inc. and Bank of America, N. A",
+   "quote": "by and between Cardlytics, Inc. (\"Supplier\") and Bank of America, N. A, (\"Bank of America\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.7333333333333333,
+   "recall": 1.0,
+   "f1": 0.846153846153846,
+   "date_exact": null
+  },
+  {
+   "title": "CardlyticsInc_20180112_S-1_EX-10.16_11002987_EX-10.16_Maintenance Agreement3",
+   "category": "effective_date",
+   "gold": [
+    "March 3, 2011"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "made as of the effective date set forth above",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "date_exact": false
+  },
+  {
+   "title": "CardlyticsInc_20180112_S-1_EX-10.16_11002987_EX-10.16_Maintenance Agreement3",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "CardlyticsInc_20180112_S-1_EX-10.16_11002987_EX-10.16_Maintenance Agreement3",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "CardlyticsInc_20180112_S-1_EX-10.16_11002987_EX-10.16_Maintenance Agreement3",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "SPORT-HALEY, INC.",
+    "_________________",
+    "Professional",
+    "Company"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "SPORT-HALEY, INC. and Professional",
+   "quote": "by and between SPORT-HALEY, INC., a Colorado corporation (the \"Company\"), and _________________ (hereinafter referred to as the \"Professional\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.2777777777777778,
+   "recall": 1.0,
+   "f1": 0.4347826086956522,
+   "date_exact": null
+  },
+  {
+   "title": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "this day of ___________________, 19__"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of execution",
+   "quote": "effective this day of ___________________, 19__,",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.8,
+   "recall": 1.0,
+   "f1": 0.888888888888889,
+   "date_exact": null
+  },
+  {
+   "title": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "The term of this Agreement shall extend from the date of          execution hereof through and until _______, unless extended by written          agreement of the parties."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "until the date of execution",
+   "quote": "the term of this Agreement shall extend from the date of execution hereof through and until _______,",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.6666666666666666,
+   "f1": 0.8,
+   "date_exact": null
+  },
+  {
+   "title": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+   "category": "parties",
+   "gold": [
+    "MLX",
+    "HEALTHCENTRAL.COM INC.",
+    "MEDIALINX INTERACTIVE, L.P.",
+    "HCI"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "MEDIALINX INTERACTIVE, L.P. and HEALTHCENTRAL.COM INC.",
+   "quote": "(both MLX and HCI to be collectively referred to as the \"Parties\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.16666666666666666,
+   "recall": 0.2222222222222222,
+   "f1": 0.1904761904761905,
+   "date_exact": null
+  },
+  {
+   "title": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+   "category": "effective_date",
+   "gold": [
+    "The effective date of the start of the Term will be from the Launch Date.",
+    "The Parties have agreed that they will mutually approve the design of the      Co-Branded Site and that the launch date of the Co-Branded Site shall be      September 1st, 1999 unless mutually extended by the Parties as agreed to in      writing."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1999-06-30",
+   "quote": "THIS AGREEMENT made as of the 30th day of June 1999",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.45454545454545453,
+   "recall": 0.08771929824561403,
+   "f1": 0.14705882352941174,
+   "date_exact": false
+  },
+  {
+   "title": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "The term of this Agreement shall be for a period of two (2) years (the \"Term\")."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "two (2) years after the Effective Date",
+   "quote": "The term of this Agreement shall be for a period of two (2) years (the \"Term\").",
+   "page": 7,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "date_exact": null
+  },
+  {
+   "title": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "None stated",
+   "quote": "the Parties shall discuss how to present both web guides to the user",
+   "page": 6,
+   "confidence": 0.6531,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "30 days prior written notice",
+   "quote": "Either Party may terminate this Agreement upon 30 days prior written notice",
+   "page": 7,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Cyberian Outpost, Inc.",
+    "CNET, Inc.",
+    "CNET",
+    "Company"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "CNET, Inc. and Cyberian Outpost, Inc.",
+   "quote": "This Promotion Agreement (the \"Agreement\") is dated as of January 26, 1998 between CNET, Inc. (\"CNET\") and Cyberian Outpost, Inc. (the \"Company\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.3181818181818182,
+   "recall": 1.0,
+   "f1": 0.4827586206896552,
+   "date_exact": null
+  },
+  {
+   "title": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "The term of this Agreement (the \"Term\") will begin on      February 1, 1998 and end on the first anniversary of the date of this      Agreement; provided that (a) either party may terminate this Agreement,      effective at any time after the first three\n\n       months of the Term, by giving 30 days' written notice of termination to the      other party, and (b) either party may terminate this Agreement at any time      by giving written notice of termination to the other party, if the other      party commits a material breach of its obligations hereunder that is not      cured within 30 days after notice thereof from the non-breaching party."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1998-01-26",
+   "quote": "This Promotion Agreement (the \"Agreement\") is dated as of January 26, 1998",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.5833333333333334,
+   "recall": 0.0660377358490566,
+   "f1": 0.11864406779661019,
+   "date_exact": false
+  },
+  {
+   "title": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "The term of this Agreement (the \"Term\") will begin on      February 1, 1998 and end on the first anniversary of the date of this      Agreement; provided that (a) either party may terminate this Agreement,      effective at any time after the first three\n\n       months of the Term, by giving 30 days' written notice of termination to the      other party, and (b) either party may terminate this Agreement at any time      by giving written notice of termination to the other party, if the other      party commits a material breach of its obligations hereunder that is not      cured within 30 days after notice thereof from the non-breaching party."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1999-01-26",
+   "quote": "The term of this Agreement (the \"Term\") will begin on February 1, 1998 and end on the first anniversary of the date of this Agreement;",
+   "page": 4,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2358490566037736,
+   "f1": 0.38167938931297707,
+   "date_exact": false
+  },
+  {
+   "title": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "30 days",
+   "quote": "either party may terminate this Agreement, effective at any time after the first three months of the Term, by giving 30 days' written notice of termination to the other party",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT",
+   "category": "parties",
+   "gold": [
+    "ENTERPRISE PRODUCTS OPERATING L.P.",
+    "ENTERPRISE TRANSPORTATION COMPANY",
+    "(\"Shipper\")",
+    "Carrier"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "ENTERPRISE TRANSPORTATION COMPANY and ENTERPRISE PRODUCTS OPERATING L.P.",
+   "quote": "THIS CONTRACT is entered into by and between ENTERPRISE TRANSPORTATION COMPANY, a division of Enterprise Products Company, (\"Carrier\"), and ENTERPRISE PRODUCTS OPERATING L.P., a Delaware limited partnership -",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.32142857142857145,
+   "recall": 0.9,
+   "f1": 0.4736842105263158,
+   "date_exact": null
+  },
+  {
+   "title": "ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT",
+   "category": "effective_date",
+   "gold": [
+    "This contract shall be for a term of one year commencing on the date first above written;",
+    "June 1, 1998"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date first above written",
+   "quote": "This contract shall be for a term of one year commencing on the date first above written;",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.85,
+   "f1": 0.9189189189189189,
+   "date_exact": false
+  },
+  {
+   "title": "ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT",
+   "category": "expiration_date",
+   "gold": [
+    "This contract shall be for a term of one year commencing on the date first above written; thereafter, it shall automatically continue until terminated by either party upon not less than thirty (30) days prior written notice to the other party."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "one year from the Effective Date",
+   "quote": "This contract shall be for a term of one year commencing on the date first above written; thereafter, it shall automatically continue until terminated by either party",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.6585365853658537,
+   "f1": 0.7941176470588235,
+   "date_exact": null
+  },
+  {
+   "title": "ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT",
+   "category": "renewal_term",
+   "gold": [
+    "This contract shall be for a term of one year commencing on the date first above written; thereafter, it shall automatically continue until terminated by either party upon not less than thirty (30) days prior written notice to the other party."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "automatically continue until terminated by either party upon not less than thirty (30) days prior written notice",
+   "quote": "thereafter, it shall automatically continue until terminated by either party upon not less than thirty (30) days prior written notice to the other party.",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.5853658536585366,
+   "f1": 0.7384615384615384,
+   "date_exact": null
+  },
+  {
+   "title": "ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "This contract shall be for a term of one year commencing on the date first above written; thereafter, it shall automatically continue until terminated by either party upon not less than thirty (30) days prior written notice to the other party."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "thirty (30) days prior written notice",
+   "quote": "upon not less than thirty (30) days prior written notice to the other party.",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.34146341463414637,
+   "f1": 0.5090909090909091,
+   "date_exact": null
+  },
+  {
+   "title": "TRICITYBANKSHARESCORP_05_15_1998-EX-10-OUTSOURCING AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "M&I",
+    "Tri City National Bank",
+    "Customer",
+    "Marshall & Ilsley Corporation"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Tri City National Bank and Marshall & Ilsley Corporation",
+   "quote": "This Agreement is made as of the 16th day of February, 1998, by and between Tri City National Bank... and Marshall & Ilsley Corporation...",
+   "page": 2,
+   "confidence": 0.9333,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.30434782608695654,
+   "recall": 0.7,
+   "f1": 0.42424242424242425,
+   "date_exact": null
+  },
+  {
+   "title": "TRICITYBANKSHARESCORP_05_15_1998-EX-10-OUTSOURCING AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "\"Effective Date\" shall mean February 16, 1998"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "1998-02-16",
+   "quote": "This Agreement is made as of the 16th day of February, 1998",
+   "page": 2,
+   "confidence": 0.673,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.16666666666666666,
+   "recall": 0.2857142857142857,
+   "f1": 0.2105263157894737,
+   "date_exact": true
+  },
+  {
+   "title": "TRICITYBANKSHARESCORP_05_15_1998-EX-10-OUTSOURCING AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "\"Term\" shall mean the period commencing on the Effective Date and terminating on the eighth anniversary of the Commencement Date, unless the Agreement is extended in accordance with its provisions."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the eighth anniversary of the Commencement Date",
+   "quote": "Term shall mean the period commencing on the Effective Date and terminating on the eighth anniversary of the Commencement Date",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.6666666666666666,
+   "f1": 0.8,
+   "date_exact": null
+  },
+  {
+   "title": "TRICITYBANKSHARESCORP_05_15_1998-EX-10-OUTSOURCING AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "If M&I and Customer are unable to agree upon the terms for renewal of this Agreement at least six (6) months prior to the expiration of the Term, then Customer may, at its option, renew this Agreement for one (1) twelve month period at the then-current terms and conditions of this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "one (1) twelve month period at the then-current terms and conditions of this Agreement",
+   "quote": "Customer may, at its option, renew this Agreement for one (1) twelve month period at the then-current terms and conditions of this Agreement.",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.4444444444444444,
+   "f1": 0.6153846153846153,
+   "date_exact": null
+  },
+  {
+   "title": "TRICITYBANKSHARESCORP_05_15_1998-EX-10-OUTSOURCING AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "at least five (5) months prior to expiration of the Term",
+   "quote": "Customer shall exercise its option, if at all, by delivering written notice to M&I at least five (5) months prior to expiration of the Term.",
+   "page": 4,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Delteq Pte Ltd",
+    "Distributor",
+    "Developer",
+    "d/b/a IMRS INC.",
+    "IMRS OPERATIONS INC."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "IMRS OPERATIONS INC. d/b/a IMRS INC. and Delteq Pte Ltd",
+   "quote": "by and between IMRS OPERATIONS INC. d/b/a IMRS INC., a Delaware corporation... and Delteq Pte Ltd, a Singapore company",
+   "page": 1,
+   "confidence": 0.5754,
+   "flags": [
+    "ungrounded",
+    "value_not_in_quote"
+   ],
+   "grounded": false,
+   "precision": 0.5238095238095238,
+   "recall": 0.8461538461538461,
+   "f1": 0.6470588235294118,
+   "date_exact": null
+  },
+  {
+   "title": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "1994-04-15",
+   "quote": "dated as April 15, 1994",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "This Agreement shall have an initial term of one (1) year from the date first above written (the \"Initial Term\"), and shall thereafter automatically renew for successive two (2) year periods (each a \"Renewal Term\"), unless earlier terminated in accordance with the terms of this Agreement."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "one (1) year from the date first above written",
+   "quote": "This Agreement shall have an initial term of one (1) year",
+   "page": 9,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2391304347826087,
+   "f1": 0.3859649122807018,
+   "date_exact": null
+  },
+  {
+   "title": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "This Agreement shall have an initial term of one (1) year from the date first above written (the \"Initial Term\"), and shall thereafter automatically renew for successive two (2) year periods (each a \"Renewal Term\"), unless earlier terminated in accordance with the terms of this Agreement.",
+    "Either party may cancel this Agreement effective on the last day of the Initial Term, or",
+    "any Renewal Term, by serving written notice of such termination on the other party at least ninety (90) days prior to the end of the Initial Term or any Renewal Term as the case may be."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "two (2) year periods",
+   "quote": "shall thereafter automatically renew for successive two (2) year periods",
+   "page": 9,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.10204081632653061,
+   "f1": 0.1851851851851852,
+   "date_exact": null
+  },
+  {
+   "title": "HYPERIONSOFTWARECORP_09_28_1994-EX-10.47-EXCLUSIVE DISTRIBUTOR AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [
+    "This Agreement shall have an initial term of one (1) year from the date first above written (the \"Initial Term\"), and shall thereafter automatically renew for successive two (2) year periods (each a \"Renewal Term\"), unless earlier terminated in accordance with the terms of this Agreement.",
+    "Either party may cancel this Agreement effective on the last day of the Initial Term, or",
+    "any Renewal Term, by serving written notice of such termination on the other party at least ninety (90) days prior to the end of the Initial Term or any Renewal Term as the case may be."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "ninety (90) days",
+   "quote": "by serving written notice of such termination on the other party at least ninety (90) days prior to the end of the Initial Term or any Renewal Term",
+   "page": 9,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.2857142857142857,
+   "f1": 0.4444444444444445,
+   "date_exact": null
+  },
+  {
+   "title": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+   "category": "parties",
+   "gold": [
+    "Beijing Sun Seven Stars Culture Development Limited",
+    "YOU ON DEMAND HOLDINGS, INC.",
+    "Licensor",
+    "Licensee"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Beijing Sun Seven Stars Culture Development Limited and YOU ON DEMAND HOLDINGS, INC.",
+   "quote": "entered into between Beijing Sun Seven Stars Culture Development Limited, ... and YOU ON DEMAND HOLDINGS, INC.",
+   "page": 1,
+   "confidence": 0.9117,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.75,
+   "recall": 0.8571428571428571,
+   "f1": 0.7999999999999999,
+   "date_exact": null
+  },
+  {
+   "title": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+   "category": "effective_date",
+   "gold": [
+    "December 21, 2015"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2015-12-21",
+   "quote": "dated as of December 21, 2015 (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.3333333333333333,
+   "recall": 1.0,
+   "f1": 0.5,
+   "date_exact": true
+  },
+  {
+   "title": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "The Term of this Agreement (the \"Term\") shall commence on the Effective Date listed above and continue for twenty (20) years, unless sooner terminated as provided in Section 7(b) [Term and Termination]."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2035-12-21",
+   "quote": "shall commence on the Effective Date listed above and continue for twenty (20) years",
+   "page": 6,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.42424242424242425,
+   "f1": 0.5957446808510638,
+   "date_exact": null
+  },
+  {
+   "title": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "IdeanomicsInc_20160330_10-K_EX-10.26_9512211_EX-10.26_Content License Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "BLACKBOXSTOCKSINC_08_05_2014-EX-10.1-DISTRIBUTOR AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Distributor",
+    "Snotarator LLC",
+    "\"Company",
+    "SMSA Ballinger Acquisition Corp."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "Snotarator LLC and SMSA Ballinger Acquisition Corp.",
+   "quote": "by and between Snotarator LLC, a Texas limited liability company, ... and SMSA Ballinger Acquisition Corp., a Nevada corporation, ...",
+   "page": 1,
+   "confidence": 0.5364,
+   "flags": [
+    "ungrounded",
+    "value_not_in_quote"
+   ],
+   "grounded": false,
+   "precision": 0.3888888888888889,
+   "recall": 0.875,
+   "f1": 0.5384615384615385,
+   "date_exact": null
+  },
+  {
+   "title": "BLACKBOXSTOCKSINC_08_05_2014-EX-10.1-DISTRIBUTOR AGREEMENT",
+   "category": "effective_date",
+   "gold": [
+    "1st day of August, 2013"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2013-08-01",
+   "quote": "1st day of August, 2013, (the \"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.625,
+   "recall": 1.0,
+   "f1": 0.7692307692307693,
+   "date_exact": true
+  },
+  {
+   "title": "BLACKBOXSTOCKSINC_08_05_2014-EX-10.1-DISTRIBUTOR AGREEMENT",
+   "category": "expiration_date",
+   "gold": [
+    "The term of this Agreement shall terminate on May 31, 2015, unless sooner terminated."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2015-05-31",
+   "quote": "shall terminate on May 31, 2015",
+   "page": 3,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.42857142857142855,
+   "f1": 0.6,
+   "date_exact": true
+  },
+  {
+   "title": "BLACKBOXSTOCKSINC_08_05_2014-EX-10.1-DISTRIBUTOR AGREEMENT",
+   "category": "renewal_term",
+   "gold": [
+    "The term of this Agreement may be extended for an additional two year period with the written consent of both parties."
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "two year period with the written consent of both parties",
+   "quote": "may be extended for an additional two year period with the written consent of both parties",
+   "page": 3,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 1.0,
+   "recall": 0.7619047619047619,
+   "f1": 0.8648648648648648,
+   "date_exact": null
+  },
+  {
+   "title": "BLACKBOXSTOCKSINC_08_05_2014-EX-10.1-DISTRIBUTOR AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "due notice has been given to the other of the alleged breach",
+   "quote": "due notice has been given to the other of the alleged breach",
+   "page": 3,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "parties",
+   "gold": [
+    "Ingevity Corporation",
+    "Parent",
+    "SpinCo and Parent may be individually referred to herein as a \"Party\" and collectively as the \"Parties\".",
+    "WestRock Company",
+    "SpinCo"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "WestRock Company and Ingevity Corporation",
+   "quote": "This INTELLECTUAL PROPERTY AGREEMENT, dated as of May 14, 2016 (this \"Agreement\"), is by and between WestRock Company, a Delaware corporation (\"Parent\"), and Ingevity Corporation, a Delaware corporation (\"SpinCo\").",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.3793103448275862,
+   "recall": 0.4782608695652174,
+   "f1": 0.4230769230769231,
+   "date_exact": null
+  },
+  {
+   "title": "INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "effective_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "2016-05-14",
+   "quote": "dated as of May 14, 2016",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "WELLSFARGOMORTGAGEBACKEDSECURITIES2006-6TRUST_05_11_2006-EX-10.3-Yield Maintenance Agreement",
+   "category": "parties",
+   "gold": [
+    "Wells Fargo Bank",
+    "Counterparty",
+    "UBS AG",
+    "Wells Fargo Mortgage Backed Securities 2006-6 Trust",
+    "on behalf of Wells Fargo Mortgage Backed Securities 2006-6 Trust"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "UBS AG, London Branch and Wells Fargo Bank, N.A.",
+   "quote": "Wells Fargo Bank, N.A., not individually, but solely as Master Servicer on behalf of Wells Fargo Mortgage Backed Securities 2006-6 Trust (\"Counterparty\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.625,
+   "recall": 0.6,
+   "f1": 0.6122448979591836,
+   "date_exact": null
+  },
+  {
+   "title": "WELLSFARGOMORTGAGEBACKEDSECURITIES2006-6TRUST_05_11_2006-EX-10.3-Yield Maintenance Agreement",
+   "category": "effective_date",
+   "gold": [
+    "01 April 2006"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2006-04-01",
+   "quote": "Effective Date                    01 April 2006",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.6,
+   "recall": 1.0,
+   "f1": 0.7499999999999999,
+   "date_exact": true
+  },
+  {
+   "title": "WELLSFARGOMORTGAGEBACKEDSECURITIES2006-6TRUST_05_11_2006-EX-10.3-Yield Maintenance Agreement",
+   "category": "expiration_date",
+   "gold": [
+    "1 April 2009"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "2009-04-01",
+   "quote": "Termination Date:                  1 April 2009",
+   "page": 1,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": 0.6,
+   "recall": 1.0,
+   "f1": 0.7499999999999999,
+   "date_exact": true
+  },
+  {
+   "title": "WELLSFARGOMORTGAGEBACKEDSECURITIES2006-6TRUST_05_11_2006-EX-10.3-Yield Maintenance Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "WELLSFARGOMORTGAGEBACKEDSECURITIES2006-6TRUST_05_11_2006-EX-10.3-Yield Maintenance Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": false,
+   "value": null,
+   "quote": null,
+   "page": null,
+   "confidence": 0.0,
+   "flags": [
+    "not_found"
+   ],
+   "grounded": false,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+   "category": "parties",
+   "gold": [
+    "\"Licensee\" and together with Licensor, the \"Parties\"),",
+    "Licensor",
+    "HERTZ GROUP REALTY TRUST, INC.",
+    "HERTZ INVESTMENT GROUP, LLC"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "HERTZ INVESTMENT GROUP, LLC and HERTZ GROUP REALTY TRUST, INC.",
+   "quote": "by and between HERTZ INVESTMENT GROUP, LLC, a Delaware limited liability company, having a principal place of business at 21860 Burbank Blvd., Suite 300 South, Woodland Hills, CA 91367 (\"Licensor\"), and HERTZ GROUP REALTY TRUST, INC., a Maryland corporation, having a principal place of business at 21860 Burbank Blvd., Suite 300 South, Woodland Hills, CA 91367 (\"Licensee\" and together with Licensor, the \"Parties\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.2698412698412698,
+   "recall": 1.0,
+   "f1": 0.425,
+   "date_exact": null
+  },
+  {
+   "title": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+   "category": "effective_date",
+   "gold": [
+    "September ___, 2019"
+   ],
+   "labeled": true,
+   "extracted": true,
+   "value": "the date of the last signature",
+   "quote": "as of September ___, 2019 (\"Effective Date\")",
+   "page": 1,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": 0.3333333333333333,
+   "recall": 1.0,
+   "f1": 0.5,
+   "date_exact": null
+  },
+  {
+   "title": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+   "category": "expiration_date",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "thirty (30) days after termination",
+   "quote": "This Agreement and all rights and licenses granted under this Agreement shall terminate as soon as practicable, but no longer than thirty (30) days, after:",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+   "category": "renewal_term",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "None",
+   "quote": "Either Party may terminate this Agreement by giving the other Party thirty (30) days' prior written notice.",
+   "page": 2,
+   "confidence": 0.7,
+   "flags": [
+    "value_not_in_quote"
+   ],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  },
+  {
+   "title": "HertzGroupRealtyTrustInc_20190920_S-11A_EX-10.8_11816941_EX-10.8_Trademark License Agreement",
+   "category": "notice_to_terminate_renewal",
+   "gold": [],
+   "labeled": false,
+   "extracted": true,
+   "value": "thirty (30) days' prior written notice",
+   "quote": "Either Party may terminate this Agreement by giving the other Party thirty (30) days' prior written notice.",
+   "page": 2,
+   "confidence": 1.0,
+   "flags": [],
+   "grounded": true,
+   "precision": null,
+   "recall": null,
+   "f1": null,
+   "date_exact": null
+  }
+ ],
+ "aborted": null,
+ "notes": [
+  "Real contracts, span-scored: token overlap of our quote with the labeled span(s)."
+ ],
+ "baseline_drops": [
+  {
+   "metric": "cuad/all/date_exact",
+   "baseline": 0.785714,
+   "current": 0.758621,
+   "delta_points": -2.71
+  },
+  {
+   "metric": "cuad/all/precision",
+   "baseline": 0.683307,
+   "current": 0.658624,
+   "delta_points": -2.47
+  },
+  {
+   "metric": "cuad/effective_date/date_exact",
+   "baseline": 0.772727,
+   "current": 0.73913,
+   "delta_points": -3.36
+  },
+  {
+   "metric": "cuad/effective_date/precision",
+   "baseline": 0.559187,
+   "current": 0.536006,
+   "delta_points": -2.32
+  },
+  {
+   "metric": "cuad/expiration_date/detection_rate",
+   "baseline": 0.923077,
+   "current": 0.871795,
+   "delta_points": -5.13
+  },
+  {
+   "metric": "cuad/expiration_date/grounding_rate",
+   "baseline": 0.975,
+   "current": 0.947368,
+   "delta_points": -2.76
+  },
+  {
+   "metric": "cuad/expiration_date/precision",
+   "baseline": 0.893312,
+   "current": 0.839658,
+   "delta_points": -5.37
+  }
+ ]
+}

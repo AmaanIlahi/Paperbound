@@ -116,7 +116,7 @@ def test_ungrounded_quote_clears_bbox_and_lowers_confidence():
 def test_value_not_in_quote_is_flagged():
     lease = make_lease(rent=("9000", "base rent of $8,500.00 per month", 2))
     rent = {f.name: f for f in validate_fields(lease, PAGES)}["rent_amount"]
-    assert "value_not_in_quote" in rent.flags
+    assert "amount_mismatch" in rent.flags and rent.value == 8500.0
     assert "ungrounded" not in rent.flags
     assert rent.confidence == pytest.approx(0.6 + 0.0 + 0.1)
 

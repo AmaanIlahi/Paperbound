@@ -1,6 +1,7 @@
 """Aggregate per-fixture records into metrics, failure logs, a flat metric map for baselines, and markdown."""
 
 import json
+import statistics
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -214,8 +215,22 @@ def load_baseline(path: Path = BASELINE) -> dict[str, float]:
     return json.loads(path.read_text(encoding="utf-8")).get("metrics", {}) if path.exists() else {}
 
 
-def save_baseline(flat: dict[str, float], extra: dict, path: Path = BASELINE) -> None:
-    existing = load_baseline(path)
+def median_baseline(files: list[Path]) -> dict[str, float]:
+    """Per metric, the median over the saved runs of its suite (each file is one run of one suite)."""
+    by_suite: dict[str, list[dict[str, float]]] = defaultdict(list)
+    for path in files:
+        run = json.loads(Path(path).read_text(encoding="utf-8"))
+        by_suite[run["suite"]].append(flat_metrics(run["suite"], run["groups"]))
+    out = {}
+    for flats in by_suite.values():
+        for key in sorted({k for flat in flats for k in flat}):
+            values = [flat[key] for flat in flats if key in flat]
+            out[key] = round(statistics.median(values), 6)
+    return out
+
+
+def save_baseline(flat: dict[str, float], extra: dict, path: Path = BASELINE, replace: bool = False) -> None:
+    existing = {} if replace else load_baseline(path)
     existing.update(flat)
     path.write_text(json.dumps({**extra, "metrics": dict(sorted(existing.items()))}, indent=1) + "\n", encoding="utf-8", newline="\n")
 

@@ -1,6 +1,6 @@
 """A hard cap on OpenAI calls for the eval harness.
 
-`Budget.install()` wraps `chat.completions.create` and `.parse`, counts every request and refuses the one that would
+`Budget.install()` wraps `chat.completions.create` and `.parse`, counts every request, refuses any call that is not temperature 0, and refuses the one that would
 pass the limit, and refuses any model other than gpt-4o-mini. The count survives restarts in evals/.budget.json, so
 several runs share one cap. SDK-internal HTTP retries are not visible here, so keep some headroom.
 """
@@ -11,7 +11,7 @@ from pathlib import Path
 from paperbound import config
 
 LEDGER = config.ROOT / "evals" / ".budget.json"
-DEFAULT_LIMIT = 160
+DEFAULT_LIMIT = 500
 ALLOWED_MODEL = "gpt-4o-mini"
 
 
@@ -34,9 +34,11 @@ class Budget:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps({"calls": self.calls, "limit": self.limit}), encoding="utf-8")
 
-    def charge(self, model: str | None) -> None:
+    def charge(self, model: str | None, temperature: float | None = 0) -> None:
         if model != ALLOWED_MODEL:
             raise BudgetExceeded(f"model {model!r} is not allowed in evals (only {ALLOWED_MODEL})")
+        if temperature != 0:
+            raise BudgetExceeded(f"temperature {temperature!r} is not allowed in evals (only 0)")
         if self.calls >= self.limit:
             raise BudgetExceeded(f"OpenAI call budget of {self.limit} is used up")
         self.calls += 1
@@ -53,7 +55,7 @@ class Budget:
                 continue
 
             def wrapper(self_, *args, __orig=original, **kwargs):
-                budget.charge(kwargs.get("model"))
+                budget.charge(kwargs.get("model"), kwargs.get("temperature"))
                 return __orig(self_, *args, **kwargs)
 
             wrapper._budgeted = True

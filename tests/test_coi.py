@@ -51,7 +51,9 @@ def test_policy_fields_follow_the_lease_quote_rules():
 
 def test_wrong_amount_for_its_quote_is_flagged():
     fields = by_name(validated(cert([policy(each_occurrence_limit=f(5000000.0, "EACH OCCURRENCE $1,000,000")), umbrella()])))
-    assert "value_not_in_quote" in fields["policy_1.each_occurrence_limit"].flags
+    limit = fields["policy_1.each_occurrence_limit"]
+    assert "amount_mismatch" in limit.flags  # the model said 5,000,000, the quote says 1,000,000
+    assert limit.value == 1000000.0  # the figure comes from the quote, not from the model
 
 
 def test_effective_date_must_be_before_expiration():
@@ -143,7 +145,7 @@ def test_blocked_limit_skips_its_check_with_a_reason():
     fields = validated(cert([policy(each_occurrence_limit=f(9000000.0, "EACH OCCURRENCE $1,000,000")), umbrella()]))
     brief = build_coi_brief(fields, TODAY)
     assert brief.line("limit_check_1") is None and brief.value("limit_check_2") is True
-    assert any(s["key"] == "limit_check_1" and "value_not_in_quote" in s["reason"] for s in brief.skipped)
+    assert any(s["key"] == "limit_check_1" and "amount_mismatch" in s["reason"] for s in brief.skipped)
 
 
 def test_blocked_expiration_is_not_counted_and_the_brief_says_so():

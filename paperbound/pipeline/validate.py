@@ -16,6 +16,7 @@ SUSPICIOUS_CONFIDENCE_CAP = 0.3
 CHECK_FLAGS = {
     "invalid_date", "end_before_start", "invalid_amount", "invalid_notice_period", "invalid_percent",
     "value_not_in_quote", "quote_rule_failed", "conflicting_values", "notice_unit_business_days", "invalid_currency",
+    "amount_mismatch",
 }
 # Fields carrying any of these flags are never used for obligations or actions.
 BLOCKING_FLAGS = CHECK_FLAGS | {"ungrounded", "suspicious_instruction", "not_found"}
@@ -121,17 +122,30 @@ def field_confidence(grounding: float, validators_passed: bool, page_quality: fl
 
 # ---- value derivable from quote ----
 
+# Month names, full or abbreviated ("Nov", "Nov.", "Sept"); the month is the first three letters.
+_MONTH_WORD = (
+    r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?"
+    r"|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?"
+)
+_MONTH_NUMBER = {name[:3]: number for name, number in MONTHS.items()}
+
+
+def _month_of(word: str) -> int:
+    return _MONTH_NUMBER[word.lower()[:3]]
+
+
 def _dates_in(text: str) -> set[str]:
+    """Every full calendar date a text states, as ISO: 2026-11-15, 2026/11/15, 11/15/2026 (US order), November 15, 2026,
+    Nov. 15, 2026, 15 Nov 2026, 15th of November 2026 is not accepted."""
     found = set()
-    for y, m, d in re.findall(r"\b(\d{4})-(\d{1,2})-(\d{1,2})\b", text):
+    for y, m, d in re.findall(r"\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b", text):
         found.add((int(y), int(m), int(d)))
     for m, d, y in re.findall(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", text):
         found.add((int(y), int(m), int(d)))
-    month_re = "|".join(MONTHS)
-    for m, d, y in re.findall(rf"\b({month_re})\s+(\d{{1,2}})(?:st|nd|rd|th)?,?\s+(\d{{4}})\b", text, re.I):
-        found.add((int(y), MONTHS[m.lower()], int(d)))
-    for d, m, y in re.findall(rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+({month_re}),?\s+(\d{{4}})\b", text, re.I):
-        found.add((int(y), MONTHS[m.lower()], int(d)))
+    for m, d, y in re.findall(rf"\b({_MONTH_WORD})\s*(\d{{1,2}})(?:st|nd|rd|th)?,?\s+(\d{{4}})\b", text, re.I):
+        found.add((int(y), _month_of(m), int(d)))
+    for d, m, y in re.findall(rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+({_MONTH_WORD}),?\s+(\d{{4}})\b", text, re.I):
+        found.add((int(y), _month_of(m), int(d)))
     out = set()
     for y, m, d in found:
         try:
@@ -139,6 +153,48 @@ def _dates_in(text: str) -> set[str]:
         except ValueError:
             pass
     return out
+
+
+_CURRENCY_CODES = r"(?:USD|EUR|GBP|CAD|AUD|CHF|JPY|INR|MXN|CNY)"
+_MONEY_RE = re.compile(
+    rf"(?P<open>\()?\s*(?P<neg>-)?\s*(?:(?P<pre>US\$|[$€£¥]|{_CURRENCY_CODES}\b)\s*)?(?P<neg2>-)?"
+    rf"(?P<num>\d{{1,3}}(?:,\d{{3}})+(?:\.\d+)?|\d+(?:\.\d+)?)"
+    rf"(?:\s*(?P<post>{_CURRENCY_CODES}\b))?\s*(?P<close>\))?",
+    re.I,
+)
+
+
+_RESTATES_RE = re.compile(r"\b(?:dollars?|euros?|pounds?|cents|usd|eur|gbp)$", re.I)
+
+
+def amounts_in(text: str) -> list[float]:
+    """Monetary amounts a text states, parsed by code: $8,500.00, USD 8500, 250,000.00 USD, (1,200.00) as -1200.
+
+    Only figures that carry a currency sign or code count; when none do, every figure does (a quote such as
+    "Rent: 8,500.00"). A money figure in parentheses is negative (accounting style) unless it restates words before
+    it, as in "Eight Thousand Dollars ($8,500.00)"."""
+    found = []
+    for m in _MONEY_RE.finditer(text):
+        number = float(m.group("num").replace(",", ""))
+        marked = bool(m.group("pre") or m.group("post"))
+        before = text[: m.start("open")].rstrip() if m.group("open") else ""
+        restates = bool(_RESTATES_RE.search(before))  # "Eight Thousand Dollars ($8,500.00)"
+        looks_like_money = marked or "," in m.group("num") or "." in m.group("num")  # not "ninety (90) days"
+        accounting = bool(m.group("open") and m.group("close") and looks_like_money and not restates)
+        negative = bool(m.group("neg") or m.group("neg2")) or accounting
+        found.append((-number if negative else number, marked))
+    marked_only = [v for v, marked in found if marked]
+    return marked_only or [v for v, _ in found]
+
+
+def reconcile_amount(model_value, quote: str | None) -> tuple[object, bool]:
+    """(value to use, mismatch). The value comes from the quote when the quote states exactly one amount; the model's
+    value is then only a cross-check, and a difference is a mismatch. With several amounts in the quote the model's
+    value must be one of them and is kept; with none the model's value is kept for value_in_quote to judge."""
+    candidates = sorted(set(amounts_in(quote or "")))
+    if len(candidates) == 1 and isinstance(model_value, (int, float)):
+        return candidates[0], abs(candidates[0] - float(model_value)) >= 0.005
+    return model_value, False
 
 
 def _numbers_in(text: str) -> set[float]:
@@ -333,6 +389,12 @@ def _validate_items(items, pages) -> list[ValidatedField]:
             bboxes = []
         elif extracted.page is not None and page_no != extracted.page:
             flags.append("page_corrected")
+        if rule_name(name) in AMOUNT_FIELDS and quote and "ungrounded" not in flags:
+            value, mismatch = reconcile_amount(value, quote)
+            if mismatch:
+                flags.append("amount_mismatch")
+            if isinstance(value, (int, float)) and value <= 0 and "invalid_amount" not in flags:
+                flags.append("invalid_amount")
         if not value_in_quote(name, value, quote):
             flags.append("value_not_in_quote")
         if not quote_rule_ok(name, quote):
