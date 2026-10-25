@@ -32,6 +32,13 @@ def uploads_enabled() -> bool:
     return unavailable_reason() is None
 
 
+def worker_enabled() -> bool:
+    """PAPERBOUND_WORKER=0 (or off/false) keeps this process from claiming queued jobs. Every process that can reach the
+    database runs jobs from the one shared queue, so a local server pointed at the production database would otherwise
+    run production uploads with whatever code it was started with."""
+    return os.environ.get("PAPERBOUND_WORKER", "1").strip().lower() not in ("0", "off", "false", "no")
+
+
 def max_upload_bytes() -> int:
     return int(_number("MAX_UPLOAD_MB", 10) * 1024 * 1024)
 

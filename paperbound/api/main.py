@@ -40,7 +40,13 @@ async def _cleanup_loop():
 async def lifespan(app: FastAPI):
     """Uploads are on only with a database and an OpenAI key. Then one worker runs queued jobs in this process and a
     second task deletes expired uploads; without them the app still serves the samples."""
-    tasks = [asyncio.create_task(_cleanup_loop()), asyncio.create_task(jobs.worker_loop())] if deploy.uploads_enabled() else []
+    tasks = []
+    if deploy.uploads_enabled():
+        tasks.append(asyncio.create_task(_cleanup_loop()))
+        if deploy.worker_enabled():
+            tasks.append(asyncio.create_task(jobs.worker_loop()))
+        else:
+            log.warning("PAPERBOUND_WORKER is off: this process accepts uploads but does not run jobs")
     yield
     for task in tasks:
         task.cancel()

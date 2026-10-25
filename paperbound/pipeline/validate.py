@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from dataclasses import dataclass
 from datetime import date
 
@@ -134,10 +135,20 @@ def _month_of(word: str) -> int:
     return _MONTH_NUMBER[word.lower()[:3]]
 
 
+_ZERO_WIDTH = dict.fromkeys(map(ord, "​‌‍⁠﻿­"))
+
+
+def squash(text: str) -> str:
+    """Quote text as the parsers read it: NFKC (no-break and thin spaces become spaces, fullwidth digits and punctuation
+    become ASCII) with zero-width characters removed, so the same words read the same wherever the PDF was parsed."""
+    return unicodedata.normalize("NFKC", text or "").translate(_ZERO_WIDTH)
+
+
 def _dates_in(text: str) -> set[str]:
     """Every full calendar date a text states, as ISO: 2026-11-15, 2026/11/15, 11/15/2026 (US order), November 15, 2026,
     Nov. 15, 2026, 15 Nov 2026, 15th of November 2026. Spacing around commas and periods is free ("March 3 , 2020",
     "Nov.15,2026") and days may be zero-padded ("March 03,2020")."""
+    text = squash(text)
     found = set()
     for y, m, d in re.findall(r"\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b", text):
         found.add((int(y), int(m), int(d)))
@@ -175,6 +186,7 @@ def amounts_in(text: str) -> list[float]:
     "Rent: 8,500.00"). A money figure in parentheses is negative (accounting style) unless it restates words before
     it, as in "Eight Thousand Dollars ($8,500.00)"."""
     found = []
+    text = squash(text)
     for m in _MONEY_RE.finditer(text):
         number = float(m.group("num").replace(",", ""))
         marked = bool(m.group("pre") or m.group("post"))
@@ -227,6 +239,7 @@ def value_in_quote(name: str, value, quote: str | None) -> bool:
         return True
     if not quote:
         return False
+    quote = squash(quote)
     if name in DATE_FIELDS:
         return value in _dates_in(quote)
     if name in AMOUNT_FIELDS:
@@ -301,6 +314,7 @@ def quote_rule_ok(name: str, quote: str | None) -> bool:
     name = rule_name(name)
     if not quote:
         return False
+    quote = squash(quote)
     if name == "number":
         return any(ch.isdigit() for ch in quote)
     if name == "amount":  # generic fallback: any currency, so only require a figure (value_in_quote checks which one)
@@ -321,7 +335,7 @@ def quote_rule_ok(name: str, quote: str | None) -> bool:
 
 
 def looks_like_instruction(quote: str | None) -> bool:
-    return bool(quote and _INSTRUCTION_RE.search(quote))
+    return bool(quote and _INSTRUCTION_RE.search(squash(quote)))
 
 
 def rent_table_first_amount(pages) -> float | None:
