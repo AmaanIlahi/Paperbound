@@ -4,6 +4,21 @@ from paperbound.schemas.lease import AmountField, DateField, StrField
 
 MAX_POLICIES = 6
 
+# See LEASE_ANCHORS: words a field's quote (or its sentence) must contain. Policy fields are named policy_N.<field>.
+_COVERAGE = ("liab", "umbrella", "excess", "coverage", "insurance", "workers", "auto", "property")  # a policy row names its cover
+COI_ANCHORS: dict[str, tuple[str, ...]] = {
+    "insured": ("insured", "named", "applicant"),
+    "certificate_holder": ("holder", "certificate"),
+    "producer": ("producer", "agent", "broker", "agency"),
+    "type": ("policy", *_COVERAGE),
+    "insurer": ("insurer", "insurance", "company", "assurance", "underwriter", "casualty", "indemnity", "mutual", "naic"),
+    "number": ("policy", "number", "pol", "#", *_COVERAGE),
+    "effective_date": ("effective", "eff", "inception", "policy period", "from", "begin", *_COVERAGE),
+    "expiration_date": ("expir", "exp", "policy period", "through", "until", *_COVERAGE),
+    "each_occurrence_limit": ("occurrence", "each", "limit"),
+    "aggregate_limit": ("aggregate", "annual", "limit"),
+}
+
 
 class PolicyFields(BaseModel):
     type: StrField = Field(description="Kind of coverage, e.g. 'General Liability' or 'Umbrella Liability'")

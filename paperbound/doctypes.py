@@ -8,6 +8,8 @@ from paperbound.pipeline.generic import build_generic_brief, derive_generic_obli
 from paperbound.pipeline.impact import build_brief, build_coi_brief
 from paperbound.pipeline.obligations import derive_coi_obligations, derive_obligations
 from paperbound.pipeline.validate import validate_coi, validate_fields, validate_generic
+from paperbound.schemas.insurance import COI_ANCHORS
+from paperbound.schemas.lease import LEASE_ANCHORS
 
 
 @dataclass(frozen=True)
@@ -18,16 +20,17 @@ class DocType:
     validate: Callable  # (extracted model, pages, today) -> list[ValidatedField]
     obligations: Callable  # (validated fields) -> (obligations, skipped reasons)
     brief: Callable  # (validated fields, today) -> Brief
+    anchors: dict | None = None  # field -> words its quote (or sentence) must contain; None: no schema, no check (generic)
 
 
 SUPPORTED: dict[str, DocType] = {
     "lease": DocType(
         "lease", "Commercial lease",
-        lambda pages, today: extract_lease(pages, today=today), validate_fields, derive_obligations, build_brief,
+        lambda pages, today: extract_lease(pages, today=today), validate_fields, derive_obligations, build_brief, LEASE_ANCHORS,
     ),
     "insurance_certificate": DocType(
         "insurance_certificate", "Certificate of liability insurance",
-        lambda pages, today: extract_coi(pages, today=today), validate_coi, derive_coi_obligations, build_coi_brief,
+        lambda pages, today: extract_coi(pages, today=today), validate_coi, derive_coi_obligations, build_coi_brief, COI_ANCHORS,
     ),
 }
 

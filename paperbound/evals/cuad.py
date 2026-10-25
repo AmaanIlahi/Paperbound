@@ -16,7 +16,7 @@ from paperbound import clock, config
 from paperbound.evals import metrics
 from paperbound.pipeline.extract import _extract
 from paperbound.pipeline.types import ValidatedField
-from paperbound.pipeline.validate import GROUNDING_THRESHOLD, _dates_in, _norm, field_confidence, ground_quote
+from paperbound.pipeline.validate import GROUNDING_THRESHOLD, _dates_in, _norm, field_confidence, ground_quote, is_described_date
 from paperbound.schemas.generic import GenericContractFields
 
 DATASET = config.ROOT / "evals" / "datasets" / "cuad" / "CUAD_v1.json"
@@ -132,6 +132,9 @@ def validate_generic(fields: GenericContractFields, pages) -> list[ValidatedFiel
             flags.append("ungrounded")
         if not _value_in_quote(item.value, quote):
             flags.append("value_not_in_quote")
+        # CUAD asks for the wording when no full date is stated, so this only labels those answers; it changes no score.
+        if name in DATE_CATEGORIES and is_described_date(item.value, quote):
+            flags.append("date_not_concrete")
         passed = "value_not_in_quote" not in flags
         results.append(ValidatedField(name, item.value, quote, page_no, None, field_confidence(score, passed, 1.0), score, flags, passed))
     return results

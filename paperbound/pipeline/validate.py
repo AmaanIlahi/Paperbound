@@ -7,17 +7,19 @@ from rapidfuzz import fuzz
 
 from paperbound import clock, config
 from paperbound.pipeline.types import ValidatedField
-from paperbound.schemas.lease import LeaseFields
+from paperbound.schemas.insurance import COI_ANCHORS
+from paperbound.schemas.lease import LEASE_ANCHORS, LeaseFields
 
 GROUNDING_THRESHOLD = 0.8
 SHORT_QUOTE_TOKENS = 3  # quotes this short are too easy to fuzzy-match to the wrong place, so they must match exactly
 W_GROUNDING, W_VALIDATORS, W_QUALITY = 0.6, 0.3, 0.1
 SUSPICIOUS_CONFIDENCE_CAP = 0.3
+CONTEXT_CONFIDENCE_CAP = 0.5  # a quote that is not about the field it was given for
 # Any of these flags means the validator weight is dropped from the confidence.
 CHECK_FLAGS = {
     "invalid_date", "end_before_start", "invalid_amount", "invalid_notice_period", "invalid_percent",
     "value_not_in_quote", "quote_rule_failed", "conflicting_values", "notice_unit_business_days", "invalid_currency",
-    "amount_mismatch",
+    "amount_mismatch", "field_context_mismatch", "date_not_concrete",
 }
 # Fields carrying any of these flags are never used for obligations or actions.
 BLOCKING_FLAGS = CHECK_FLAGS | {"ungrounded", "suspicious_instruction", "not_found"}
@@ -35,6 +37,7 @@ _UNITS = {
     "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
 }
 _TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
+_NUMBER_WORDS_RE = "|".join([*_UNITS, *_TENS, "hundred"])
 DATE_FIELDS = ("start_date", "end_date", "effective_date", "expiration_date", "date", "due_date")  # last two: generic fallback
 AMOUNT_FIELDS = ("rent_amount", "security_deposit", "current_rent", "each_occurrence_limit", "aggregate_limit", "amount")
 PERCENT_FIELDS = ("holdover_rate_percent", "rent_escalation_percent")
@@ -259,6 +262,69 @@ def value_in_quote(name: str, value, quote: str | None) -> bool:
     return bool(needle) and (needle in haystack or fuzz.partial_ratio(needle, haystack) >= 90)
 
 
+# ---- is the quote about this field? ----
+
+_SENTENCE_BREAK = re.compile(r"(?<=[.;:!?])\s+(?=[A-Z0-9(\"“])")
+CONTEXT_WINDOW = 250  # characters of page text kept on each side of a quote when looking for its sentence
+HEADING_WORDS = 4  # a sentence this short just before the quote's is its heading ("Holdover.", "11. Renewal.") and counts
+
+
+def _plain(text: str) -> str:
+    """Hyphens and runs of whitespace as single spaces, upper case folded (keeps capitals for sentence breaks)."""
+    return " ".join(squash(text).replace("-", " ").split())
+
+
+def quote_sentence(quote: str, page_text: str | None) -> str:
+    """The sentence of the page that contains the quote (the quote alone when it is not found there verbatim)."""
+    q, text = _plain(quote), _plain(page_text or "")
+    at = text.casefold().find(q.casefold()) if q else -1
+    if at < 0:
+        return q
+    lo, hi = max(0, at - CONTEXT_WINDOW), min(len(text), at + len(q) + CONTEXT_WINDOW)
+    breaks = [0] + [m.end() for m in _SENTENCE_BREAK.finditer(text, 0, at)]
+    start = breaks[-1]
+    if len(breaks) > 1 and len(text[breaks[-2]:start].split()) <= HEADING_WORDS:
+        start = breaks[-2]  # "Holdover." on its own is the heading of the sentence after it
+    start = max(start, lo)
+    nxt = _SENTENCE_BREAK.search(text, at + len(q), hi)
+    return text[start:nxt.start() if nxt else hi]
+
+
+def context_ok(name: str, quote: str | None, page_text: str | None, anchors: dict[str, tuple[str, ...]] | None) -> bool:
+    """True when the field has no anchors (generic fields, or a name with none) or its quote, or the sentence around
+    it, contains one of them at the start of a word."""
+    terms = (anchors or {}).get(rule_name(name))
+    if not terms or not quote:
+        return True
+    haystack = quote_sentence(quote, page_text).casefold()
+    return any(re.search(rf"(?<![0-9a-z]){re.escape(_plain(t).casefold())}", haystack) for t in terms)
+
+
+def in_rent_schedule(name: str, value, pages) -> bool:
+    """A rent amount that is a row of the lease's rent schedule: the rows are bare ("May 1, 2024 - Apr 30, 2025 $7,127.74"),
+    and the table's heading may be on another page, so no anchor word sits near them."""
+    return (
+        rule_name(name) in ("rent_amount", "current_rent") and isinstance(value, (int, float))
+        and any(abs(amount - value) < 0.005 for _, _, amount in rent_table_rows(pages))
+    )
+
+
+# A description of a date, not a date: "the date of the last signature", "three (3) years after the Effective Date".
+_DESCRIBED_DATE = re.compile(
+    rf"\b(?:date\s+of\s+(?:the\s+)?(?:last|latest|first|final)?\s*(?:signature|signing|execution)|last\s+signature"
+    rf"|(?:upon|following|after)\s+(?:the\s+)?(?:execution|signing|effective\s+date|commencement)"
+    rf"|(?:\d+|{_NUMBER_WORDS_RE})\)?\s+(?:business\s+|calendar\s+)?(?:days?|weeks?|months?|years?)\s+(?:after|from|following|before))\b",  # not "of": "19 day of March, 2004" is a date
+    re.I,
+)
+
+
+def is_described_date(value, quote: str | None) -> bool:
+    """A date field whose value is words rather than a date, or whose quote only describes when the date is."""
+    if isinstance(value, str) and re.search(r"[A-Za-z]{3}", value):
+        return not _dates_in(value)
+    return bool(quote) and not _dates_in(quote) and bool(_DESCRIBED_DATE.search(squash(quote)))
+
+
 # ---- type / range checks ----
 
 def _normalize(name: str, value, flags: list[str]):
@@ -270,7 +336,8 @@ def _normalize(name: str, value, flags: list[str]):
         try:
             return date.fromisoformat(str(value)).isoformat()
         except ValueError:
-            flags.append("invalid_date")
+            # words such as "the date of the last signature" are not a date; a date is never guessed from them
+            flags.append("date_not_concrete" if is_described_date(value, None) else "invalid_date")
             return value
     if name in AMOUNT_FIELDS:
         if not isinstance(value, (int, float)) or value <= 0:
@@ -382,9 +449,11 @@ def rent_table_amount_on(pages, day: date) -> float | None:
     return None
 
 
-def _validate_items(items, pages) -> list[ValidatedField]:
-    """Ground and check each (name, extracted field) pair. Cross-field checks and confidence come afterwards."""
+def _validate_items(items, pages, anchors: dict[str, tuple[str, ...]] | None = None) -> list[ValidatedField]:
+    """Ground and check each (name, extracted field) pair. Cross-field checks and confidence come afterwards. `anchors`
+    (typed documents only) are the words a field's quote, or the sentence around it, must contain."""
     results: list[ValidatedField] = []
+    page_texts = {p.page_no: p.text for p in pages}
     for name, extracted in items:
         flags: list[str] = []
         value = _normalize(name, extracted.value, flags)
@@ -416,6 +485,10 @@ def _validate_items(items, pages) -> list[ValidatedField]:
             flags.append("quote_rule_failed")
         if rule_name(name) == "notice_period_days" and quote and _BUSINESS_DAYS_RE.search(quote):
             flags.append("notice_unit_business_days")  # a business-day deadline needs a holiday calendar: not derived
+        if rule_name(name) in DATE_FIELDS and "date_not_concrete" not in flags and is_described_date(value, quote):
+            flags.append("date_not_concrete")
+        if quote and not context_ok(name, quote, page_texts.get(page_no), anchors) and not in_rent_schedule(name, value, pages):
+            flags.append("field_context_mismatch")
         if looks_like_instruction(quote):
             flags.append("suspicious_instruction")
 
@@ -435,6 +508,8 @@ def _finish(results: list[ValidatedField], pages) -> list[ValidatedField]:
         r.validators_passed = not blank and not (set(r.flags) & CHECK_FLAGS)
         quality = pages_by_no[r.page_no].quality_score if r.page_no in pages_by_no else 0.0
         r.confidence = field_confidence(r.grounding_score, r.validators_passed, quality)
+        if "field_context_mismatch" in r.flags:
+            r.confidence = min(r.confidence, CONTEXT_CONFIDENCE_CAP)
         if "suspicious_instruction" in r.flags:
             r.confidence = min(r.confidence, SUSPICIOUS_CONFIDENCE_CAP)
     return results
@@ -442,7 +517,7 @@ def _finish(results: list[ValidatedField], pages) -> list[ValidatedField]:
 
 def validate_fields(lease: LeaseFields, pages, today: date | None = None) -> list[ValidatedField]:
     today = clock.today(today)
-    results = _validate_items([(name, getattr(lease, name)) for name in LeaseFields.model_fields], pages)
+    results = _validate_items([(name, getattr(lease, name)) for name in LeaseFields.model_fields], pages, LEASE_ANCHORS)
 
     by_name = {r.name: r for r in results}
     rent = by_name["rent_amount"]
@@ -456,7 +531,7 @@ def validate_fields(lease: LeaseFields, pages, today: date | None = None) -> lis
     start, end = by_name["start_date"], by_name["end_date"]
     if (
         start.value and end.value
-        and "invalid_date" not in start.flags + end.flags
+        and not {"invalid_date", "date_not_concrete"} & set(start.flags + end.flags)
         and date.fromisoformat(end.value) <= date.fromisoformat(start.value)
     ):
         start.flags.append("end_before_start")
@@ -471,13 +546,13 @@ def validate_coi(cert, pages, today: date | None = None) -> list[ValidatedField]
     items = [(name, getattr(cert, name)) for name in ("insured", "certificate_holder", "producer")]
     for i, policy in enumerate(cert.policies, start=1):
         items += [(f"policy_{i}.{name}", getattr(policy, name)) for name in type(policy).model_fields]
-    results = _validate_items(items, pages)
+    results = _validate_items(items, pages, COI_ANCHORS)
     by_name = {r.name: r for r in results}
     for i in range(1, len(cert.policies) + 1):
         start, end = by_name[f"policy_{i}.effective_date"], by_name[f"policy_{i}.expiration_date"]
         if (
             start.value and end.value
-            and "invalid_date" not in start.flags + end.flags
+            and not {"invalid_date", "date_not_concrete"} & set(start.flags + end.flags)
             and date.fromisoformat(end.value) <= date.fromisoformat(start.value)
         ):
             start.flags.append("end_before_start")

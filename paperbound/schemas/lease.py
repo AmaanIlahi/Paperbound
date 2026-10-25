@@ -34,6 +34,30 @@ class PercentField(_Extracted):
     value: float | None = Field(description="Percentage as a plain number, e.g. 150 for 150%, without the % sign")
 
 
+# Words that must appear in a field's quote, or in the sentence around it, for the quote to be about that field. Each is
+# matched case-insensitively at the start of a word ("expir" covers expires, expiration), after hyphens become spaces.
+# General domain wording, used by validate.py (field_context_mismatch).
+LEASE_ANCHORS: dict[str, tuple[str, ...]] = {
+    "landlord": ("landlord", "lessor", "owner", "between"),
+    "tenant": ("tenant", "lessee", "occupant", "between"),
+    "premises_address": ("premises", "property", "located", "situated", "address", "building", "suite", "demised"),
+    "start_date": ("commenc", "begin", "start", "effective", "term"),
+    "end_date": ("expir", "terminat", "end", "through", "until", "term", "conclude"),
+    "rent_amount": ("rent", "installment", "payable", "per month", "monthly"),
+    "rent_period": ("rent", "monthly", "quarterly", "annual", "per month", "per year", "installment", "payable", "in advance"),
+    "notice_period_days": ("notice", "notif", "prior to", "before", "advance"),
+    "holdover_rate_percent": (
+        "holdover", "holding over", "hold over", "holds over", "overholding", "remains in possession",
+        "remain in possession", "remains in occupancy", "continues to occupy", "retains possession", "at sufferance",
+    ),
+    "security_deposit": ("deposit", "security", "bond", "retainer"),
+    "notice_method": ("notice", "notif", "mail", "deliver", "courier", "writing", "written", "registered"),
+    "notice_section": ("notice", "notif", "renew", "terminat"),
+    "rent_escalation_percent": ("escalat", "increase", "adjust", "annual", "each year", "per annum", "cpi", "thereafter", "subsequent"),
+    "current_rent": ("rent", "monthly", "per month", "payable", "schedule", "lease year"),
+}
+
+
 class LeaseFields(BaseModel):
     landlord: StrField
     tenant: StrField
