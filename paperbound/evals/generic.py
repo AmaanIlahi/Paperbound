@@ -170,6 +170,11 @@ def summarize(records: list[dict]) -> dict:
         "field_accuracy": rate(len(matched), len(fields)),
         "field_precision": rate(len(matched), len(matched) + len(extras)),
         "usable_rate": rate(sum(r["usable"] for r in fields), len(fields)),
+        # usable view: a blocked field is abstained. Accuracy = found and not blocked; wrong = extra fields nothing blocked.
+        "usable_view_accuracy": rate(sum(r["match"] and not r["blocked"] for r in fields), len(fields)),
+        "usable_view_wrong_rate": rate(sum(not (set(e["flags"]) & BLOCKING_FLAGS) for e in extras),
+                                       sum(not (set(e["flags"]) & BLOCKING_FLAGS) for e in extras) + sum(r["match"] and not r["blocked"] for r in fields)),
+        "usable_view_abstained": sum(r["extracted"] is not None and r["blocked"] for r in fields) + sum(bool(set(e["flags"]) & BLOCKING_FLAGS) for e in extras),
         "grounding_rate": rate(sum(r["grounded"] for r in present) + sum("ungrounded" not in e["flags"] for e in extras), extracted_total),
         "page_accuracy": rate(sum(bool(r["page_ok"]) for r in paged), len(paged)),
         "label_accuracy": rate(sum(bool(r["label_ok"]) for r in labelled), len(labelled)),

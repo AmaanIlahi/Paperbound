@@ -8,6 +8,7 @@ from pathlib import Path
 from paperbound import config
 from paperbound.evals import generic as generic_eval
 from paperbound.evals import metrics
+from paperbound.pipeline.validate import BLOCKING_FLAGS
 
 RESULTS_DIR = config.ROOT / "evals" / "results"
 BASELINE = config.ROOT / "evals" / "baseline.json"
@@ -27,6 +28,31 @@ CUAD_RATES = ("f1", "precision", "recall", "date_exact", "grounding_rate", "dete
 
 def _ratio(hits: int, total: int):
     return metrics.rate(hits, total)
+
+
+def is_blocked(flags) -> bool:
+    return bool(set(flags or ()) & BLOCKING_FLAGS)
+
+
+# The "usable" view: the same records, scored as the user would see them. A field with a blocking flag is abstained (it is
+# shown with its flag but never used), so it counts as not extracted. The plain metrics stay as they are; these sit beside them.
+USABLE_VIEW = ("usable_view_accuracy", "usable_view_missing_correct", "usable_view_wrong_rate", "usable_view_abstained")
+
+
+def usable_view(fields: list[dict]) -> dict:
+    """fields: rows with expect_present, extracted, match and blocked. Right = answered correctly and not blocked, or (when
+    the document has no value) not answered or blocked. wrong_rate = share of unblocked answers that are wrong."""
+    def right(r):
+        return (not r["expect_present"]) if r["blocked"] else r["match"]
+
+    missing = [r for r in fields if not r["expect_present"]]
+    answered = [r for r in fields if r["extracted"] is not None and not r["blocked"]]
+    return {
+        "usable_view_accuracy": _ratio(sum(right(r) for r in fields), len(fields)),
+        "usable_view_missing_correct": _ratio(sum(right(r) for r in missing), len(missing)),
+        "usable_view_wrong_rate": _ratio(sum(not r["match"] for r in answered), len(answered)),
+        "usable_view_abstained": sum(r["extracted"] is not None and r["blocked"] for r in fields),
+    }
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -52,6 +78,7 @@ def group_metrics(records: list[dict]) -> dict:
         "field_accuracy_expected_present": _ratio(sum(r["match"] for r in present), len(present)),
         "missing_field_correct": _ratio(sum(r["match"] for r in missing), len(missing)),
         "n_expected_missing": len(missing),
+        **usable_view(fields),
         "usable_rate": _ratio(sum(r["usable"] for r in present), len(present)),
         "grounding_rate": _ratio(len(grounded), len(extracted)),
         "page_accuracy": _ratio(sum(bool(r["page_ok"]) for r in paged), len(paged)),
@@ -167,7 +194,12 @@ def summarize_cuad(rows: list[dict], records: list[dict]) -> dict:
             "f1": metrics.mean([r["f1"] for r in labeled]),
             "detection_rate": _ratio(sum(r["extracted"] for r in labeled), len(labeled)),
             "false_positive_rate": _ratio(sum(r["extracted"] for r in unlabeled), len(unlabeled)),
-            "n_date_exact": len(exact), "date_exact": _ratio(sum(bool(r["date_exact"]) for r in exact), len(exact)) if exact else None,
+            "n_date_exact": len(exact),
+            "usable_view_date_exact": _ratio(sum(bool(r["date_exact"]) and not is_blocked(r["flags"]) for r in exact), len(exact)) if exact else None,
+            "usable_view_abstained": sum(is_blocked(r["flags"]) for r in extracted),
+            "usable_view_wrong_rate": _ratio(sum(r["date_exact"] is False for r in exact if not is_blocked(r["flags"])),
+                                            sum(not is_blocked(r["flags"]) for r in exact)) if exact else None,
+            "date_exact": _ratio(sum(bool(r["date_exact"]) for r in exact), len(exact)) if exact else None,
             "grounding_rate": _ratio(sum(r["grounded"] for r in extracted), len(extracted)),
             "calibration": metrics.calibration([(r["confidence"], (r["f1"] or 0) >= 0.5) for r in labeled if r["extracted"] and r["confidence"] is not None]),
         }
@@ -289,6 +321,11 @@ def _calibration_table(cal: dict) -> list[str]:
     return lines
 
 
+USABLE_NOTE = ("**Usable view** (beside the metrics above, which are unchanged): a field carrying a blocking flag counts as abstained, "
+               "not extracted, because the pipeline shows it but never uses it. \"Wrong among answered\" is the share of unblocked "
+               "answers that are wrong, the errors that reach the user.")
+
+
 def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None = None) -> str:
     md = ["# Paperbound evals", "",
           "The synthetic set is **template-generated** (seeded; a few layouts per type, so it is easier than real documents). "
@@ -308,6 +345,13 @@ def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None =
                           f"{pct(g['missing_field_correct']) if g['n_expected_missing'] else '-'} | {pct(g['grounding_rate'])} | "
                           f"{pct(g['page_accuracy'])} | {pct(g['obligation_correct'])} | {pct(g['brief_line_correct'])} | "
                           f"{pct(g['action_correct'])} | ${g['cost_usd_mean']:.4f} | {g['latency_ms_p95'] / 1000:.1f} s |")
+            if all("usable_view_accuracy" in g for g in groups.values()):
+                md += ["", USABLE_NOTE, "", "| Group | Field acc. | Usable-view acc. | Missing ok | Usable-view missing ok | Wrong among answered | Abstained |",
+                       "|---|---|---|---|---|---|---|"]
+                for name, g in groups.items():
+                    miss = g["n_expected_missing"]
+                    md.append(f"| {name} | {pct(g['field_accuracy'])} | {pct(g['usable_view_accuracy'])} | {pct(g['missing_field_correct']) if miss else '-'} | "
+                              f"{pct(g['usable_view_missing_correct']) if miss else '-'} | {pct(g['usable_view_wrong_rate'])} | {g['usable_view_abstained']} |")
             inj = [(n, g) for n, g in groups.items() if n.endswith("/injection")]
             if inj:
                 md += ["", "### Injection", "", "| Type | Attacks | Model resisted | System held | Flagged | Unflagged breach | Reached actions |",
@@ -326,6 +370,9 @@ def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None =
                    f"{pct(g['party_accuracy'])} | {pct(g['date_accuracy'])} | {pct(g['amount_accuracy'])} | {pct(g['obligation_accuracy'])} | "
                    f"{pct(g['grounding_rate'])} | {pct(g['page_accuracy'])} | {pct(g['obligation_correct'])} | {pct(g['action_correct'])} | "
                    f"{pct(g['confidence_cap_respected'])} | ${g['cost_usd_mean']:.4f} |",
+                   "", USABLE_NOTE, "",
+                   f"Usable view: field acc. {pct(g['field_accuracy'])} -> {pct(g.get('usable_view_accuracy'))}; wrong among answered "
+                   f"{pct(g.get('usable_view_wrong_rate'))}; abstained {g.get('usable_view_abstained', '-')}.",
                    "", f"Label guess right: {pct(g['type_label_ok'])}; field label right (of matched): {pct(g['label_accuracy'])}; "
                    f"email drafts proposed: {g['email_drafts']}; extra fields not in the ground truth: {g['n_extras']}."]
         else:
@@ -336,6 +383,13 @@ def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None =
                 md.append(f"| {name} | {g['n_labeled']}/{g['n_contracts']} | {pct(g['precision'])} | {pct(g['recall'])} | {pct(g['f1'])} | "
                           f"{pct(g['detection_rate'])} | {pct(g['false_positive_rate'])} | {exact} | {pct(g['grounding_rate'])} |")
             a = groups["all"]
+            if "usable_view_date_exact" in a:
+                md += ["", USABLE_NOTE, "", "| Category | Date exact | Usable-view date exact | Wrong among answered dates | Abstained |", "|---|---|---|---|---|"]
+                for name, g in groups.items():
+                    if g["date_exact"] is not None:
+                        md.append(f"| {name} | {pct(g['date_exact'])} | {pct(g['usable_view_date_exact'])} | {pct(g['usable_view_wrong_rate'])} | {g['usable_view_abstained']} |")
+                    else:
+                        md.append(f"| {name} | - | - | - | {g['usable_view_abstained']} |")
             md += ["", f"Cost per contract ${a['cost_usd_mean']:.4f}, {a['tokens_mean']:.0f} tokens, p95 latency {a['latency_ms_p95'] / 1000:.1f} s."]
         md += ["", "### Top failure modes", ""]
         md += [f"- {m['mode']}: {m['count']}" for m in run["failure_modes"]] or ["- none"]

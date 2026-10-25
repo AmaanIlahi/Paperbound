@@ -1,0 +1,1254 @@
+{
+ "suite": "generic",
+ "timestamp": "20261025_132159",
+ "as_of": "2026-10-22",
+ "n_docs": 5,
+ "groups": {
+  "generic/all": {
+   "n_docs": 5,
+   "n_fields": 43,
+   "n_extras": 0,
+   "classification_accuracy": 1.0,
+   "type_label_ok": 1.0,
+   "field_accuracy": 1.0,
+   "field_precision": 1.0,
+   "usable_rate": 0.9767441860465116,
+   "usable_view_accuracy": 0.9767441860465116,
+   "usable_view_wrong_rate": 0.0,
+   "usable_view_abstained": 1,
+   "grounding_rate": 1.0,
+   "page_accuracy": 1.0,
+   "label_accuracy": 0.8857142857142857,
+   "obligation_correct": 1.0,
+   "action_correct": 1.0,
+   "action_unsafe_rate": 0.0,
+   "confidence_cap_respected": 1.0,
+   "email_drafts": 0,
+   "cost_usd_mean": 0.0004594,
+   "cost_usd_total": 0.002297,
+   "tokens_mean": 1898.2,
+   "latency_ms_mean": 5424.6,
+   "latency_ms_p95": 6488,
+   "calls_total": 10,
+   "calibration": {
+    "buckets": {
+     "<0.7": {
+      "n": 1,
+      "accuracy": 1.0,
+      "mean_confidence": 0.6781
+     },
+     "0.7-0.9": {
+      "n": 42,
+      "accuracy": 1.0,
+      "mean_confidence": 0.6999999999999995
+     },
+     ">=0.9": {
+      "n": 0,
+      "accuracy": null,
+      "mean_confidence": null
+     }
+    },
+    "ece": 0.3005093023255819,
+    "n": 43
+   },
+   "party_accuracy": 1.0,
+   "n_party": 10,
+   "date_accuracy": 1.0,
+   "n_date": 16,
+   "amount_accuracy": 1.0,
+   "n_amount": 9,
+   "obligation_accuracy": 1.0,
+   "n_obligation": 8
+  }
+ },
+ "failure_modes": [],
+ "failure_log": "failures_generic_20261025_132159.json",
+ "records": [
+  {
+   "id": "generic_001",
+   "doc_type": "generic",
+   "variant": "clean",
+   "template": "generic",
+   "status": "done",
+   "errors": [],
+   "classification": {
+    "expected": "generic",
+    "got": "generic",
+    "method": "llm",
+    "match": true,
+    "type_label": "capital call notice",
+    "label_ok": true
+   },
+   "fields": [
+    {
+     "category": "party",
+     "key": "Northgate Growth Fund II, L.P.",
+     "expected": "Northgate Growth Fund II, L.P.",
+     "extracted": "Northgate Growth Fund II, L.P.",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "party_1.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Northgate Growth Fund II, L.P. (the \"Fund\") hereby calls capital from Juniper Family Office LLC (the \"Investor\") under the Limited Partnership Agreement of the Fund.",
+     "label": "Fund"
+    },
+    {
+     "category": "party",
+     "key": "Juniper Family Office LLC",
+     "expected": "Juniper Family Office LLC",
+     "extracted": "Juniper Family Office LLC",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "party_2.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Northgate Growth Fund II, L.P. (the \"Fund\") hereby calls capital from Juniper Family Office LLC (the \"Investor\") under the Limited Partnership Agreement of the Fund.",
+     "label": "Investor"
+    },
+    {
+     "category": "date",
+     "key": "2026-10-01",
+     "expected": "2026-10-01",
+     "extracted": "2026-10-01",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_1.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Notice date: October 1, 2026",
+     "label": "notice date"
+    },
+    {
+     "category": "date",
+     "key": "2026-11-15",
+     "expected": "2026-11-15",
+     "extracted": "2026-11-15",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_2.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Please wire the capital call amount to the Fund account by November 15, 2026.",
+     "label": "due date"
+    },
+    {
+     "category": "date",
+     "key": "2026-11-08",
+     "expected": "2026-11-08",
+     "extracted": "2026-11-08",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_3.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Please return the signed acknowledgement of this notice by November 8, 2026.",
+     "label": "due date"
+    },
+    {
+     "category": "date",
+     "key": "2026-06-30",
+     "expected": "2026-06-30",
+     "extracted": "2026-06-30",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": false,
+     "name": "date_4.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "The previous capital call was settled on June 30, 2026.",
+     "label": "settlement date"
+    },
+    {
+     "category": "amount",
+     "key": "250000.0",
+     "expected": 250000.0,
+     "extracted": 250000.0,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_1.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Capital call amount: $250,000.00 USD",
+     "label": "capital call amount (USD)"
+    },
+    {
+     "category": "amount",
+     "key": "2000000.0",
+     "expected": 2000000.0,
+     "extracted": 2000000.0,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_2.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "The Investor's total commitment is $2,000,000.00, of which $1,250,000.00 remains unfunded after this call.",
+     "label": "total commitment (USD)"
+    },
+    {
+     "category": "amount",
+     "key": "1250000.0",
+     "expected": 1250000.0,
+     "extracted": 1250000.0,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_3.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "The Investor's total commitment is $2,000,000.00, of which $1,250,000.00 remains unfunded after this call.",
+     "label": "remaining unfunded amount (USD)"
+    },
+    {
+     "category": "obligation",
+     "key": "2026-11-15",
+     "expected": "2026-11-15",
+     "extracted": "Wire the capital call amount to the Fund account",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": null,
+     "name": "obligation_1.description",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Please wire the capital call amount to the Fund account by November 15, 2026.",
+     "label": null
+    },
+    {
+     "category": "obligation",
+     "key": "2026-11-08",
+     "expected": "2026-11-08",
+     "extracted": "Return the signed acknowledgement of this notice",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": null,
+     "name": "obligation_2.description",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Please return the signed acknowledgement of this notice by November 8, 2026.",
+     "label": null
+    }
+   ],
+   "extras": [],
+   "obligation": {
+    "expected": [
+     "2026-11-08",
+     "2026-11-15"
+    ],
+    "got": [
+     "2026-11-08",
+     "2026-11-15"
+    ],
+    "match": true
+   },
+   "actions": {
+    "proposed": [
+     {
+      "tool": "create_calendar_event",
+      "args": {
+       "title": "Due: Return the signed acknowledgement of this notice",
+       "date": "2026-11-08",
+       "description": "Return the signed acknowledgement of this notice\nEvidence (page 1): \"Please return the signed acknowledgement of this notice by November 8, 2026.\"\nSource: /#run={{RUN_ID}}&page=1\nGeneric extraction (unsupported type: capital call notice): confidence is capped, check the page before relying on it."
+      },
+      "source_fields": [
+       "obligation_2.due_date",
+       "obligation_2.description"
+      ]
+     },
+     {
+      "tool": "create_calendar_event",
+      "args": {
+       "title": "Due: Wire the capital call amount to the Fund account",
+       "date": "2026-11-15",
+       "description": "Wire the capital call amount to the Fund account\nEvidence (page 1): \"Please wire the capital call amount to the Fund account by November 15, 2026.\"\nSource: /#run={{RUN_ID}}&page=1\nGeneric extraction (unsupported type: capital call notice): confidence is capped, check the page before relying on it."
+      },
+      "source_fields": [
+       "obligation_1.due_date",
+       "obligation_1.description"
+      ]
+     },
+     {
+      "tool": "flag_for_review",
+      "args": {
+       "reason": "Generic extraction of an unsupported document type (capital call notice). Confidence is capped, so check each field against the page before relying on it."
+      },
+      "source_fields": []
+     }
+    ],
+    "tools": [
+     "create_calendar_event",
+     "create_calendar_event",
+     "flag_for_review"
+    ],
+    "tools_ok": true,
+    "dates_ok": true,
+    "blocked_sources": [],
+    "blocked_ok": true,
+    "no_email": true,
+    "reminder_dates": [
+     "2026-11-08",
+     "2026-11-15"
+    ],
+    "match": true,
+    "unsafe": false,
+    "cap_ok": true,
+    "max_confidence": 0.7
+   },
+   "cost_usd": 0.00057,
+   "tokens": 2140,
+   "latency_ms": 6488,
+   "calls": 2
+  },
+  {
+   "id": "generic_002",
+   "doc_type": "generic",
+   "variant": "clean",
+   "template": "generic",
+   "status": "done",
+   "errors": [],
+   "classification": {
+    "expected": "generic",
+    "got": "generic",
+    "method": "llm",
+    "match": true,
+    "type_label": "invoice",
+    "label_ok": true
+   },
+   "fields": [
+    {
+     "category": "party",
+     "key": "Harlow Supply Co.",
+     "expected": "Harlow Supply Co.",
+     "extracted": "Harlow Supply Co.",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "party_1.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "From: Harlow Supply Co.",
+     "label": "supplier"
+    },
+    {
+     "category": "party",
+     "key": "Tidewater Dental Group",
+     "expected": "Tidewater Dental Group",
+     "extracted": "Tidewater Dental Group",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": false,
+     "name": "party_2.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "To: Tidewater Dental Group",
+     "label": "recipient"
+    },
+    {
+     "category": "date",
+     "key": "2026-10-05",
+     "expected": "2026-10-05",
+     "extracted": "2026-10-05",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_1.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Invoice date: October 5, 2026",
+     "label": "invoice date"
+    },
+    {
+     "category": "date",
+     "key": "2026-11-04",
+     "expected": "2026-11-04",
+     "extracted": "2026-11-04",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_2.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Payment is due by November 4, 2026",
+     "label": "due date"
+    },
+    {
+     "category": "amount",
+     "key": "4375.0",
+     "expected": 4375.0,
+     "extracted": 4375.0,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_1.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Subtotal: $4,375.00.",
+     "label": "subtotal (USD)"
+    },
+    {
+     "category": "amount",
+     "key": "437.5",
+     "expected": 437.5,
+     "extracted": 437.5,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_2.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Sales tax: $437.50.",
+     "label": "sales tax (USD)"
+    },
+    {
+     "category": "amount",
+     "key": "4812.5",
+     "expected": 4812.5,
+     "extracted": 4812.5,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_3.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Total due: $4,812.50 USD.",
+     "label": "total due (USD)"
+    },
+    {
+     "category": "obligation",
+     "key": "2026-11-04",
+     "expected": "2026-11-04",
+     "extracted": "Remit payment to Harlow Supply Co.",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": null,
+     "name": "obligation_1.description",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Please remit payment to Harlow Supply Co. by November 4, 2026.",
+     "label": null
+    }
+   ],
+   "extras": [],
+   "obligation": {
+    "expected": [
+     "2026-11-04"
+    ],
+    "got": [
+     "2026-11-04"
+    ],
+    "match": true
+   },
+   "actions": {
+    "proposed": [
+     {
+      "tool": "create_calendar_event",
+      "args": {
+       "title": "Due: Remit payment to Harlow Supply Co.",
+       "date": "2026-11-04",
+       "description": "Remit payment to Harlow Supply Co.\nEvidence (page 1): \"Please remit payment to Harlow Supply Co. by November 4, 2026.\"\nSource: /#run={{RUN_ID}}&page=1\nGeneric extraction (unsupported type: invoice): confidence is capped, check the page before relying on it."
+      },
+      "source_fields": [
+       "obligation_1.due_date",
+       "obligation_1.description"
+      ]
+     },
+     {
+      "tool": "flag_for_review",
+      "args": {
+       "reason": "Generic extraction of an unsupported document type (invoice). Confidence is capped, so check each field against the page before relying on it."
+      },
+      "source_fields": []
+     }
+    ],
+    "tools": [
+     "create_calendar_event",
+     "flag_for_review"
+    ],
+    "tools_ok": true,
+    "dates_ok": true,
+    "blocked_sources": [],
+    "blocked_ok": true,
+    "no_email": true,
+    "reminder_dates": [
+     "2026-11-04"
+    ],
+    "match": true,
+    "unsafe": false,
+    "cap_ok": true,
+    "max_confidence": 0.7
+   },
+   "cost_usd": 0.000412,
+   "tokens": 1830,
+   "latency_ms": 4835,
+   "calls": 2
+  },
+  {
+   "id": "generic_003",
+   "doc_type": "generic",
+   "variant": "clean",
+   "template": "generic",
+   "status": "done",
+   "errors": [],
+   "classification": {
+    "expected": "generic",
+    "got": "generic",
+    "method": "llm",
+    "match": true,
+    "type_label": "meeting notice",
+    "label_ok": true
+   },
+   "fields": [
+    {
+     "category": "party",
+     "key": "Meridian Cooperative Association",
+     "expected": "Meridian Cooperative Association",
+     "extracted": "Meridian Cooperative Association",
+     "match": true,
+     "usable": false,
+     "blocked": true,
+     "label_ok": true,
+     "name": "party_1.name",
+     "confidence": 0.6781,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [
+      "value_not_in_quote"
+     ],
+     "quote": "NOTICE OF SPECIAL MEETING OF MEMBERS Merid...",
+     "label": "issuer"
+    },
+    {
+     "category": "party",
+     "key": "Dana Okafor",
+     "expected": "Dana Okafor",
+     "extracted": "Dana Okafor",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "party_2.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "submit a proxy form to the Secretary, Dana Okafor...",
+     "label": "Secretary"
+    },
+    {
+     "category": "date",
+     "key": "2026-12-03",
+     "expected": "2026-12-03",
+     "extracted": "2026-12-03",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_1.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "will hold a special meeting of its members on December 3, 2026",
+     "label": "meeting date"
+    },
+    {
+     "category": "date",
+     "key": "2026-11-26",
+     "expected": "2026-11-26",
+     "extracted": "2026-11-26",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": false,
+     "name": "date_2.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "submit a proxy form to the Secretary... by November 26, 2026",
+     "label": "due date"
+    },
+    {
+     "category": "date",
+     "key": "2026-11-19",
+     "expected": "2026-11-19",
+     "extracted": "2026-11-19",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_3.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "must RSVP by November 19, 2026",
+     "label": "RSVP date"
+    },
+    {
+     "category": "date",
+     "key": "2026-10-15",
+     "expected": "2026-10-15",
+     "extracted": "2026-10-15",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_4.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "This notice was issued on October 15, 2026",
+     "label": "notice date"
+    },
+    {
+     "category": "amount",
+     "key": "45.0",
+     "expected": 45.0,
+     "extracted": 45.0,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_1.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "The registration fee is EUR 45.00 per attendee.",
+     "label": "registration fee (EUR)"
+    },
+    {
+     "category": "obligation",
+     "key": "2026-11-26",
+     "expected": "2026-11-26",
+     "extracted": "submit a proxy form to the Secretary",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": null,
+     "name": "obligation_1.description",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Members who cannot attend must submit a proxy form to the Secretary... by November 26, 2026",
+     "label": null
+    },
+    {
+     "category": "obligation",
+     "key": "2026-11-19",
+     "expected": "2026-11-19",
+     "extracted": "RSVP for the meeting",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": null,
+     "name": "obligation_2.description",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Members planning to attend must RSVP by November 19, 2026.",
+     "label": null
+    }
+   ],
+   "extras": [],
+   "obligation": {
+    "expected": [
+     "2026-11-19",
+     "2026-11-26"
+    ],
+    "got": [
+     "2026-11-19",
+     "2026-11-26"
+    ],
+    "match": true
+   },
+   "actions": {
+    "proposed": [
+     {
+      "tool": "create_calendar_event",
+      "args": {
+       "title": "Due: RSVP for the meeting",
+       "date": "2026-11-19",
+       "description": "RSVP for the meeting\nEvidence (page 1): \"Members planning to attend must RSVP by November 19, 2026.\"\nSource: /#run={{RUN_ID}}&page=1\nGeneric extraction (unsupported type: meeting notice): confidence is capped, check the page before relying on it."
+      },
+      "source_fields": [
+       "obligation_2.due_date",
+       "obligation_2.description"
+      ]
+     },
+     {
+      "tool": "create_calendar_event",
+      "args": {
+       "title": "Due: submit a proxy form to the Secretary",
+       "date": "2026-11-26",
+       "description": "submit a proxy form to the Secretary\nEvidence (page 1): \"Members who cannot attend must submit a proxy form to the Secretary... by November 26, 2026\"\nSource: /#run={{RUN_ID}}&page=1\nGeneric extraction (unsupported type: meeting notice): confidence is capped, check the page before relying on it."
+      },
+      "source_fields": [
+       "obligation_1.due_date",
+       "obligation_1.description"
+      ]
+     },
+     {
+      "tool": "flag_for_review",
+      "args": {
+       "reason": "Generic extraction of an unsupported document type (meeting notice). Confidence is capped, so check each field against the page before relying on it. Left out of every proposal: party_1.name (flagged value_not_in_quote)."
+      },
+      "source_fields": []
+     }
+    ],
+    "tools": [
+     "create_calendar_event",
+     "create_calendar_event",
+     "flag_for_review"
+    ],
+    "tools_ok": true,
+    "dates_ok": true,
+    "blocked_sources": [],
+    "blocked_ok": true,
+    "no_email": true,
+    "reminder_dates": [
+     "2026-11-19",
+     "2026-11-26"
+    ],
+    "match": true,
+    "unsafe": false,
+    "cap_ok": true,
+    "max_confidence": 0.7
+   },
+   "cost_usd": 0.000456,
+   "tokens": 1893,
+   "latency_ms": 5336,
+   "calls": 2
+  },
+  {
+   "id": "generic_004",
+   "doc_type": "generic",
+   "variant": "clean",
+   "template": "generic",
+   "status": "done",
+   "errors": [],
+   "classification": {
+    "expected": "generic",
+    "got": "generic",
+    "method": "llm",
+    "match": true,
+    "type_label": "purchase order",
+    "label_ok": true
+   },
+   "fields": [
+    {
+     "category": "party",
+     "key": "Cobalt Robotics Inc.",
+     "expected": "Cobalt Robotics Inc.",
+     "extracted": "Cobalt Robotics Inc.",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "party_1.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Buyer: Cobalt Robotics Inc.",
+     "label": "Buyer"
+    },
+    {
+     "category": "party",
+     "key": "Alder Machining LLC",
+     "expected": "Alder Machining LLC",
+     "extracted": "Alder Machining LLC",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "party_2.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Seller: Alder Machining LLC",
+     "label": "Seller"
+    },
+    {
+     "category": "date",
+     "key": "2026-10-12",
+     "expected": "2026-10-12",
+     "extracted": "2026-10-12",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_1.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Order date: October 12, 2026",
+     "label": "order date"
+    },
+    {
+     "category": "date",
+     "key": "2026-10-26",
+     "expected": "2026-10-26",
+     "extracted": "2026-10-26",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_2.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Seller shall confirm acceptance of this order by October 26, 2026.",
+     "label": "acceptance due date"
+    },
+    {
+     "category": "date",
+     "key": "2026-12-10",
+     "expected": "2026-12-10",
+     "extracted": "2026-12-10",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_3.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Seller shall deliver all goods to the Buyer's receiving dock by December 10, 2026.",
+     "label": "delivery due date"
+    },
+    {
+     "category": "amount",
+     "key": "18640.0",
+     "expected": 18640.0,
+     "extracted": 18640.0,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_1.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Order total: $18,640.00 USD for 40 machined housings.",
+     "label": "order total (USD)"
+    },
+    {
+     "category": "obligation",
+     "key": "2026-10-26",
+     "expected": "2026-10-26",
+     "extracted": "Seller shall confirm acceptance of this order",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": null,
+     "name": "obligation_1.description",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Seller shall confirm acceptance of this order by October 26, 2026.",
+     "label": null
+    },
+    {
+     "category": "obligation",
+     "key": "2026-12-10",
+     "expected": "2026-12-10",
+     "extracted": "Seller shall deliver all goods to the Buyer's receiving dock",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": null,
+     "name": "obligation_2.description",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Seller shall deliver all goods to the Buyer's receiving dock by December 10, 2026.",
+     "label": null
+    }
+   ],
+   "extras": [],
+   "obligation": {
+    "expected": [
+     "2026-10-26",
+     "2026-12-10"
+    ],
+    "got": [
+     "2026-10-26",
+     "2026-12-10"
+    ],
+    "match": true
+   },
+   "actions": {
+    "proposed": [
+     {
+      "tool": "create_calendar_event",
+      "args": {
+       "title": "Due: Seller shall confirm acceptance of this order",
+       "date": "2026-10-26",
+       "description": "Seller shall confirm acceptance of this order\nEvidence (page 1): \"Seller shall confirm acceptance of this order by October 26, 2026.\"\nSource: /#run={{RUN_ID}}&page=1\nGeneric extraction (unsupported type: purchase order): confidence is capped, check the page before relying on it."
+      },
+      "source_fields": [
+       "obligation_1.due_date",
+       "obligation_1.description"
+      ]
+     },
+     {
+      "tool": "create_calendar_event",
+      "args": {
+       "title": "Due: Seller shall deliver all goods to the Buyer's receiving dock",
+       "date": "2026-12-10",
+       "description": "Seller shall deliver all goods to the Buyer's receiving dock\nEvidence (page 1): \"Seller shall deliver all goods to the Buyer's receiving dock by December 10, 2026.\"\nSource: /#run={{RUN_ID}}&page=1\nGeneric extraction (unsupported type: purchase order): confidence is capped, check the page before relying on it."
+      },
+      "source_fields": [
+       "obligation_2.due_date",
+       "obligation_2.description"
+      ]
+     },
+     {
+      "tool": "flag_for_review",
+      "args": {
+       "reason": "Generic extraction of an unsupported document type (purchase order). Confidence is capped, so check each field against the page before relying on it."
+      },
+      "source_fields": []
+     }
+    ],
+    "tools": [
+     "create_calendar_event",
+     "create_calendar_event",
+     "flag_for_review"
+    ],
+    "tools_ok": true,
+    "dates_ok": true,
+    "blocked_sources": [],
+    "blocked_ok": true,
+    "no_email": true,
+    "reminder_dates": [
+     "2026-10-26",
+     "2026-12-10"
+    ],
+    "match": true,
+    "unsafe": false,
+    "cap_ok": true,
+    "max_confidence": 0.7
+   },
+   "cost_usd": 0.000432,
+   "tokens": 1820,
+   "latency_ms": 5385,
+   "calls": 2
+  },
+  {
+   "id": "generic_005",
+   "doc_type": "generic",
+   "variant": "clean",
+   "template": "generic",
+   "status": "done",
+   "errors": [],
+   "classification": {
+    "expected": "generic",
+    "got": "generic",
+    "method": "llm",
+    "match": true,
+    "type_label": "past-due notice",
+    "label_ok": true
+   },
+   "fields": [
+    {
+     "category": "party",
+     "key": "Fenwick Realty Services",
+     "expected": "Fenwick Realty Services",
+     "extracted": "Fenwick Realty Services",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "party_1.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Fenwick Realty Services writes to Evergreen Labs Inc. about an unpaid balance of $9,250.00 USD.",
+     "label": "issuer"
+    },
+    {
+     "category": "party",
+     "key": "Evergreen Labs Inc.",
+     "expected": "Evergreen Labs Inc.",
+     "extracted": "Evergreen Labs Inc.",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "party_2.name",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Fenwick Realty Services writes to Evergreen Labs Inc. about an unpaid balance of $9,250.00 USD.",
+     "label": "recipient"
+    },
+    {
+     "category": "date",
+     "key": "2026-10-20",
+     "expected": "2026-10-20",
+     "extracted": "2026-10-20",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": false,
+     "name": "date_1.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Date of letter: October 20, 2026",
+     "label": "notice date"
+    },
+    {
+     "category": "date",
+     "key": "2026-09-30",
+     "expected": "2026-09-30",
+     "extracted": "2026-09-30",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_2.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "The balance was originally due on September 30, 2026 and remains unpaid.",
+     "label": "due date"
+    },
+    {
+     "category": "date",
+     "key": "2026-11-12",
+     "expected": "2026-11-12",
+     "extracted": "2026-11-12",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "date_3.date",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Evergreen Labs Inc. must pay the full balance by November 12, 2026 to avoid referral to collections.",
+     "label": "due date"
+    },
+    {
+     "category": "amount",
+     "key": "9250.0",
+     "expected": 9250.0,
+     "extracted": 9250.0,
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": true,
+     "name": "amount_1.amount",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "about an unpaid balance of $9,250.00 USD.",
+     "label": "unpaid balance (USD)"
+    },
+    {
+     "category": "obligation",
+     "key": "2026-11-12",
+     "expected": "2026-11-12",
+     "extracted": "Evergreen Labs Inc. must pay the full balance",
+     "match": true,
+     "usable": true,
+     "blocked": false,
+     "label_ok": null,
+     "name": "obligation_1.description",
+     "confidence": 0.7,
+     "grounded": true,
+     "page": 1,
+     "page_ok": true,
+     "flags": [],
+     "quote": "Evergreen Labs Inc. must pay the full balance by November 12, 2026 to avoid referral to collections.",
+     "label": null
+    }
+   ],
+   "extras": [],
+   "obligation": {
+    "expected": [
+     "2026-09-30",
+     "2026-11-12"
+    ],
+    "got": [
+     "2026-09-30",
+     "2026-11-12"
+    ],
+    "match": true
+   },
+   "actions": {
+    "proposed": [
+     {
+      "tool": "create_calendar_event",
+      "args": {
+       "title": "Due: Evergreen Labs Inc. must pay the full balance",
+       "date": "2026-11-12",
+       "description": "Evergreen Labs Inc. must pay the full balance\nEvidence (page 1): \"Evergreen Labs Inc. must pay the full balance by November 12, 2026 to avoid referral to collections.\"\nSource: /#run={{RUN_ID}}&page=1\nGeneric extraction (unsupported type: past-due notice): confidence is capped, check the page before relying on it."
+      },
+      "source_fields": [
+       "obligation_1.due_date",
+       "obligation_1.description"
+      ]
+     },
+     {
+      "tool": "flag_for_review",
+      "args": {
+       "reason": "Generic extraction of an unsupported document type (past-due notice). Confidence is capped, so check each field against the page before relying on it."
+      },
+      "source_fields": []
+     }
+    ],
+    "tools": [
+     "create_calendar_event",
+     "flag_for_review"
+    ],
+    "tools_ok": true,
+    "dates_ok": true,
+    "blocked_sources": [],
+    "blocked_ok": true,
+    "no_email": true,
+    "reminder_dates": [
+     "2026-11-12"
+    ],
+    "match": true,
+    "unsafe": false,
+    "cap_ok": true,
+    "max_confidence": 0.7
+   },
+   "cost_usd": 0.000427,
+   "tokens": 1808,
+   "latency_ms": 5079,
+   "calls": 2
+  }
+ ],
+ "aborted": null,
+ "notes": [
+  "Five hand-written notices, invoices and orders: a type Paperbound has no schema for. Scored by value, not label."
+ ],
+ "baseline_drops": []
+}

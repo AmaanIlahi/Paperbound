@@ -120,3 +120,18 @@ def test_nonstandard_grouping_parses_without_a_false_flag():
         {"text": w, "bbox": [i * 10, 0, i * 10 + 9, 10]} for i, w in enumerate(q.split())], quality_score=1.0, width_pt=600, height_pt=800, image_png=b"")
     field = next(f for f in validate_generic(wrong, [page]) if f.name == "amount_1.amount")
     assert field.value == 1000000.0 and field.flags == [] and field.validators_passed
+
+
+@pytest.mark.parametrize("text", [
+    "19 day of March, 2004", "19th day of March, 2004", "the 19th day of March 2004", "this 19th  day  of  March ,2004",
+    "entered into as of the 19 day of Mar. 2004", "On the 19th day of March, 2004, the parties agree",
+])
+def test_day_of_month_forms_are_dates(text):
+    assert _dates_in(text) == {"2004-03-19"}
+    assert quote_rule_ok("date", text) and value_in_quote("date", "2004-03-19", text)
+
+
+def test_day_of_forms_do_not_invent_dates():
+    assert _dates_in("the 19th day of March") == set()  # no year
+    assert _dates_in("the 31st day of April, 2004") == set()  # no such day
+    assert _dates_in("60 days of March 2004 notice") == set()  # "days", not "day of"

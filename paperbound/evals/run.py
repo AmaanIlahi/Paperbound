@@ -5,8 +5,8 @@
     python -m paperbound.evals.run --suite generic
     python -m paperbound.evals.run --suite cuad --limit 10
 
-Every run is as of AS_OF (default 2026-10-22). OpenAI calls are capped (--budget, default 160 in total across runs,
-counted in evals/.budget.json) and only gpt-4o-mini is allowed. Results go to evals/results/<suite>_<timestamp>.json,
+Every run is as of AS_OF (default 2026-10-22). OpenAI calls are capped per run (--budget, default 500; evals/.budget.json
+keeps a cumulative count as a report only) and only gpt-4o-mini is allowed. Results go to evals/results/<suite>_<timestamp>.json,
 the failure log to failures_<suite>_<timestamp>.json, and evals/results/latest.md is rebuilt from the newest run of
 each suite. Every run is diffed against evals/baseline.json; a drop of more than 2 points is flagged.
 """
@@ -176,7 +176,7 @@ def main(argv=None) -> int:
     parser.add_argument("--variant", choices=["clean", "missing_field", "late_page", "injection"], help="synthetic only")
     parser.add_argument("--limit", type=int, help="at most this many documents per suite")
     parser.add_argument("--save-baseline", action="store_true", help="write the metrics of this run to evals/baseline.json")
-    parser.add_argument("--budget", type=int, default=DEFAULT_LIMIT, help="total OpenAI calls allowed across runs")
+    parser.add_argument("--budget", type=int, default=DEFAULT_LIMIT, help="OpenAI calls allowed in this run (the cumulative count in evals/.budget.json is only reported)")
     parser.add_argument("--cuad-n", type=int, help="contracts to score (default 50, or 25 when the budget is tight)")
     parser.add_argument("--median-baseline", nargs="+", metavar="RESULT_JSON",
                         help="re-record evals/baseline.json as the per-metric median of these saved runs (no model calls)")
@@ -243,7 +243,7 @@ def main(argv=None) -> int:
         print("baseline saved to evals/baseline.json")
     elif args.save_baseline:
         print("baseline NOT saved: a run was aborted or produced no metrics")
-    print(f"OpenAI calls this session: {budget.session_calls}; total used {budget.calls} of {budget.limit}")
+    print(f"OpenAI calls this run: {budget.session_calls} of {budget.limit} allowed (cumulative ledger: {budget.calls}, report only)")
     return 1 if any(r["aborted"] for r in runs) else 0
 
 

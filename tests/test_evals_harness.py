@@ -164,7 +164,20 @@ def test_budget_refuses_past_the_limit_and_other_models(tmp_path):
     with pytest.raises(BudgetExceeded):
         Budget(limit=5, path=tmp_path / "other.json").charge("gpt-4o")
     assert json.loads((tmp_path / "ledger.json").read_text())["calls"] == 2
-    assert Budget(limit=2, path=tmp_path / "ledger.json").remaining == 0  # the count survives a restart
+
+
+def test_the_limit_is_per_run_and_the_ledger_only_reports_the_total(tmp_path):
+    ledger = tmp_path / "ledger.json"
+    first = Budget(limit=2, path=ledger)
+    first.charge("gpt-4o-mini"), first.charge("gpt-4o-mini")
+    second = Budget(limit=2, path=ledger)  # a new run starts with its whole allowance, however much the ledger holds
+    assert second.calls == 2 and second.session_calls == 0 and second.remaining == 2
+    second.charge("gpt-4o-mini")
+    assert second.remaining == 1 and second.calls == 3
+    saved = json.loads(ledger.read_text())
+    assert saved["calls"] == 3 and saved["last_run_calls"] == 1 and saved["last_run_limit"] == 2
+    ledger.write_text(json.dumps({"calls": 10_000}))  # a huge old total refuses nothing
+    assert Budget(limit=1, path=ledger).remaining == 1
 
 
 # ---- the /evals page reads saved runs and needs no database ----
@@ -199,3 +212,26 @@ def test_group_metrics_separates_wrong_from_withheld_brief_lines():
     rec["brief"] = {"lines": [{"status": "match"}, {"status": "withheld"}, {"status": "wrong"}], "unexpected": [], "match": False}
     g = report.group_metrics([rec])
     assert g["brief_line_correct"] == pytest.approx(1 / 3) and g["brief_line_wrong_rate"] == pytest.approx(1 / 3)
+
+
+# ---- the usable view: a field with a blocking flag counts as abstained ----
+
+def test_usable_view_counts_a_blocked_field_as_not_extracted():
+    from paperbound.evals.report import usable_view
+
+    def row(expect_present, extracted, match, blocked):
+        return {"expect_present": expect_present, "extracted": extracted, "match": match, "blocked": blocked}
+
+    rows = [
+        row(True, 1, True, False),      # right and usable
+        row(True, 2, False, False),     # wrong and shown: the error that reaches the user
+        row(True, 3, True, True),       # right but blocked: abstained, so a miss in this view
+        row(False, 150.0, False, True),  # invented but blocked: abstained, so correct in this view (wrong in field_accuracy)
+        row(False, 9.0, False, False),  # invented and not blocked: wrong
+        row(False, None, True, False),  # nothing there, nothing extracted
+    ]
+    view = usable_view(rows)
+    assert view["usable_view_accuracy"] == pytest.approx(3 / 6)  # rows 1, 4 and 6
+    assert view["usable_view_missing_correct"] == pytest.approx(2 / 3)
+    assert view["usable_view_wrong_rate"] == pytest.approx(2 / 3)  # unblocked answers are rows 1, 2 and 5; two are wrong
+    assert view["usable_view_abstained"] == 2

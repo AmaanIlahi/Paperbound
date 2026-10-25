@@ -159,7 +159,7 @@ def _dates_in(text: str) -> set[str]:
         found.add((int(y), int(m), int(d)))
     for m, d, y in re.findall(rf"\b({_MONTH_WORD})\s*(\d{{1,2}})(?:st|nd|rd|th)?\s*,?\s*(\d{{4}})\b", text, re.I):
         found.add((int(y), _month_of(m), int(d)))
-    for d, m, y in re.findall(rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+(?:of\s+)?({_MONTH_WORD})\s*,?\s*(\d{{4}})\b", text, re.I):
+    for d, m, y in re.findall(rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+(?:day\s+of\s+|of\s+)?({_MONTH_WORD})\s*,?\s*(\d{{4}})\b", text, re.I):
         found.add((int(y), _month_of(m), int(d)))
     out = set()
     for y, m, d in found:

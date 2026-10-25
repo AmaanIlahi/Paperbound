@@ -56,6 +56,11 @@ def _runs(run: dict) -> str:
     return ", ".join(f"{t} {ts}" for t, ts in runs.items()) or run["timestamp"]
 
 
+USABLE_NOTE = ('<p class="muted"><strong>Usable view</strong> (beside the metrics above, which are unchanged): a field with a blocking flag '
+               "counts as abstained, not extracted, because the pipeline shows it but never uses it. &ldquo;Wrong among answered&rdquo; "
+               "is the share of unblocked answers that are wrong: the errors that reach the user.</p>")
+
+
 def _synthetic_html(run: dict) -> str:
     groups = run["groups"]
     head = ["Type", "Variant", "Docs", "Classified", "Fields", "Missing handled", "Grounded", "Page", "Obligation", "Brief lines",
@@ -70,6 +75,15 @@ def _synthetic_html(run: dict) -> str:
             f"${g['cost_usd_mean']:.4f}", f"{g['latency_ms_mean'] / 1000:.1f} s", f"{g['latency_ms_p95'] / 1000:.1f} s",
         ])
     out = ["<h3>Summary</h3>", _table(head, rows)]
+    if all("usable_view_accuracy" in g for g in groups.values()):
+        usable = []
+        for name, g in groups.items():
+            miss = g["n_expected_missing"]
+            usable.append([escape(name.replace("/", " ")), _pct(g["field_accuracy"]), _pct(g["usable_view_accuracy"]),
+                           _pct(g["missing_field_correct"]) if miss else "-", _pct(g["usable_view_missing_correct"]) if miss else "-",
+                           _pct(g["usable_view_wrong_rate"]), str(g["usable_view_abstained"])])
+        out += ["<h3>Usable view</h3>", USABLE_NOTE,
+                _table(["Group", "Fields", "Usable-view fields", "Missing handled", "Usable-view missing", "Wrong among answered", "Abstained"], usable)]
 
     cal_rows = []
     for doc_type in sorted({n.split("/")[0] for n in groups}):
@@ -110,7 +124,12 @@ def _generic_html(run: dict) -> str:
            _pct(g["party_accuracy"]), _pct(g["date_accuracy"]), _pct(g["amount_accuracy"]), _pct(g["obligation_accuracy"]),
            _pct(g["grounding_rate"]), _pct(g["page_accuracy"]), _pct(g["obligation_correct"]), _pct(g["action_correct"]),
            _pct(g["confidence_cap_respected"]), f"${g['cost_usd_mean']:.4f}"]
-    return ("<h3>Summary</h3>" + _table(head, [row])
+    usable = ""
+    if "usable_view_accuracy" in g:
+        usable = ("<h3>Usable view</h3>" + USABLE_NOTE + _table(
+            ["Field accuracy", "Usable-view accuracy", "Wrong among answered", "Abstained"],
+            [[_pct(g["field_accuracy"]), _pct(g["usable_view_accuracy"]), _pct(g["usable_view_wrong_rate"]), str(g["usable_view_abstained"])]]))
+    return ("<h3>Summary</h3>" + _table(head, [row]) + usable
             + f'<p class="muted">Field accuracy is the share of expected parties, dates, amounts and obligations found (by value). '
             f'Precision counts extra fields the document does not support against it ({g["n_extras"]} extra). '
             f'Email drafts proposed: {g["email_drafts"]}.</p>')
@@ -129,7 +148,14 @@ def _cuad_html(run: dict) -> str:
     cost = (f'<p class="muted">Per contract: ${a["cost_usd_mean"]:.4f}, {a["tokens_mean"]:.0f} tokens, '
             f'p95 latency {a["latency_ms_p95"] / 1000:.1f} s.</p>') if a.get("cost_usd_mean") is not None else ""
     head = ["Category", "Labeled", "Token precision", "Token recall", "Token F1", "Detected", "False positives", "Date exact match", "Grounded"]
-    return "<h3>Summary</h3>" + _table(head, rows) + cost
+    usable = ""
+    if "usable_view_date_exact" in a:
+        urows = [[escape(n.replace("_", " ")), _pct(g["date_exact"]), _pct(g["usable_view_date_exact"]), _pct(g["usable_view_wrong_rate"]),
+                  str(g["usable_view_abstained"])] for n, g in groups.items() if g["date_exact"] is not None]
+        urows += [[escape(n.replace("_", " ")), "-", "-", "-", str(g["usable_view_abstained"])] for n, g in groups.items() if g["date_exact"] is None]
+        usable = "<h3>Usable view</h3>" + USABLE_NOTE + _table(
+            ["Category", "Date exact", "Usable-view date exact", "Wrong among answered dates", "Abstained"], urows)
+    return "<h3>Summary</h3>" + _table(head, rows) + cost + usable
 
 
 def _modes_html(run: dict) -> str:
