@@ -178,3 +178,110 @@ Rules followed: no server started, nothing merged or deployed, no Fly or Supabas
   (`mapping`, `rows[].cells`, `totals`, `expected_flags`, `metrics` / `lines`, `expected_flags`, `expected_anomalies`, `expected`).
   One thing I changed to make that true: the rent roll scorer now reads `expected_flags` (it used to read the dev-only `planted`).
 
+### Phase 6: docs
+
+- `docs/architecture.md`: new sections 4.9 (rent roll), 4.10 (T-12), 4.11 (cross-check and the header and label mapping design); the
+  classifier, flags, API, UI, eval and repo-layout sections updated; a **dev set vs held-out set policy** paragraph in section 9.
+  `README.md`: the CRE pack in the status paragraph, rows in the "who decides what" table, an eval subsection for the dev and
+  held-out sets (with a clear note that no real-model result exists yet), the new commands, the roadmap.
+
+---
+
+# FINAL REPORT
+
+Branch `feature/cre-pack` (six commits, pushed). Not merged, not deployed, no server started, no Fly or Supabase access, nothing in
+`evals/heldout/` opened. No migration is needed (no new tables; the new field values are JSON in the existing `fields.value_json`).
+
+## What each phase delivered
+
+1. **Rent roll.** Classifier patterns; table detection with PyMuPDF (geometry) and page words (text), multi-page tables with repeated
+   headers; one mapping call per table; every cell parsed in code; row, mapping and totals checks; occupancy, total rent, average
+   rent per sf, expirations by year, WALT by rent and area, each citing its rows; reminders for leases ending within 12 and 24
+   months and a review flag; CSV of clean rows; Rows tab and Summary metrics.
+2. **T-12.** Month and total columns read in code; one labelling call; line, subtotal and NOI checks; EGI, expenses, computed and
+   stated NOI, expense ratio, expenses by category, monthly trend, 25%-from-median anomalies; review flag; CSV; Lines tab.
+3. **Cross-check.** `POST /crosscheck` (code only, nothing stored), `GET /runs`, property identity (name and address read by code),
+   rent income against a configurable tolerance (default 5%), one-sided vacancy sanity warning, Compare view.
+4. **Dev fixtures and evals.** `scripts/generate_cre_fixtures.py` (10 rent rolls in 4 layouts, 10 T-12s in 3 layouts, 5 pairs, all
+   labelled dev only, byte-reproducible); the three eval suites with usable view, report, markdown and `/evals` sections,
+   `--merge-median-baseline`, a guard against saving an all-failed run. **The real-model runs did not happen (no OpenAI credit).**
+5. **Held-out scaffolding.** Ignored `evals/heldout/{rent_roll,t12,pairs}` with READMEs; blank commented templates;
+   `scripts/split_pdf.py`; `scripts/check_labels.py`; `--heldout`.
+6. **Docs.** Architecture and README.
+
+## Numbers
+
+- **Tests: 633 pass** (496 at the start, so +137). Includes node UI tests for the Rows, Lines and Compare views.
+- **Files:** 84 changed on the branch before the docs commit (67 added, 17 modified); about 45 are generated fixtures
+  (`evals/fixtures/{rent_roll,t12,pairs}`). New code: `pipeline/{tables,rent_roll,t12,mapping,property,crosscheck}.py`,
+  `agent/table_planner.py`, `exports.py`, `schemas/cre.py`, `evals/{cre,labels}.py`, three scripts, `web` changes, route and job
+  changes, and new tests. Modified existing: `classify.py` (patterns, enum), `validate.py` (new blocking flags), `runner.py` (pdf,
+  table branch, code planner, run date for table obligations), `doctypes.py`, `jobs.py`, `narration.py`, `routes.py`, `config.py`,
+  `evals/{run,report}.py`, `evals_page.py`, `web/*`, and `tests/{live,test_classify,test_ui_links}.py`.
+- **Dev eval results per new type: none from the real model** (credit exhausted: all 20 calls returned `429 insufficient_quota`).
+  With each fixture's true mapping standing in for the model (the ceiling of the code, asserted by `tests/test_cre_evals.py`):
+  rent roll header mapping 100% (10 documents, all 4 layouts), cells 100% of 1,880, totals check 100% (the planted one found, no
+  false alarm), metrics 100%, actions 100%; T-12 line category 100%, cells 100%, NOI exact 100%, all 4 planted problems found with
+  no false alarm, both planted anomalies found with no false alarm, usable-view category accuracy 97.5% (the 4 flagged lines are
+  abstained); cross-check 5 of 5 pairs right and 5 of 5 negative controls give a property mismatch. **None of this says how the
+  model, or the code on real documents, performs.**
+- **Regressions checked (existing lease, certificate, generic and CUAD):** the real re-run was not possible. Instead: the existing
+  test suite passes (three assertions had to change because they encoded "exactly four tabs / three types"); the heuristic
+  classifier makes the identical decision on all 47 existing documents on `main` and on the branch; re-deriving the newest saved
+  synthetic, generic and CUAD results with the current scoring code reproduces them exactly, and all 160 baseline keys are still
+  produced; the change to `validate.py` only adds flag names, and nothing in the lease, certificate or generic extraction,
+  validation or planning code changed. Not covered: the classifier's LLM prompt now offers two more types, which matters only when
+  the heuristics are unsure (the 5 generic fixtures).
+
+## Decisions I made on your behalf (reasons in the log above; the conservative option each time)
+
+- Table problems: `header_mapping_suspect` flags every row; `totals_mismatch` flags only the totals row (clean rows still feed
+  reminders). If you want the stricter rule, flag every row on a totals mismatch.
+- A cell must be only a number to count as one (no digits pulled out of words); two-digit-year dates read as 20YY in rent rolls.
+- "Reminders for leases expiring within 12 and 24 months" = one calendar event per usable lease on its end date, in two groups,
+  capped at the 25 soonest; the review flag only when a check failed.
+- An empty column is not "suspect"; a rent or area column less than 70% numeric is.
+- Totals tolerance `max(rows/2, 0.1%, 1)`; row arithmetic 1.5% (area x rate) and 0.5% (monthly x 12); T-12 tolerance 6.5 x the
+  statement's rounding unit; anomalies at 25% from the median (6 or more months, median not zero), informational not blocking.
+- A T-12 needs exactly 12 month columns; vacancy always reduces income, expenses count as positive; only EGI, total income, total
+  operating expenses and NOI subtotals are verified.
+- "Completed run" for the cross-check = status `done` (a `partial` run is refused with 409). Vacancy sanity warns only when the T-12
+  loses more than 10 points more than the rent roll's vacancy. Name and address match thresholds are 85.
+- I added `GET /runs` (the Compare view needs a list), the `property` field in both extractions, and `--merge-median-baseline`.
+- A suite where every document errored is never saved (after my first real run wrote six all-zero result files; I deleted them).
+- Held-out labels use the dev scorers' keys; the rent roll scorer reads `expected_flags` instead of the dev-only `planted`.
+- `tests/live.py` now also points the worker's `get_storage` at the test storage; three existing assertions were widened for the
+  new tabs and types.
+
+## Open issues
+
+1. **OpenAI credit is exhausted**, so nothing was measured with the real model. Everything model-dependent is unmeasured: header
+   and label mapping quality, classifier fallback behaviour, and the unchanged suites' variance.
+2. **Real offering memoranda are untested.** Tables there are messier than my fixtures: merged cells, wrapped tenant names, floor
+   subtotals, rotated pages, a T-12 split across pages by columns, months down the rows instead of across, scanned PDFs (no OCR:
+   reported as "no table found", not guessed). Property name and address detection is a heuristic on page 1.
+3. **The UI was only run under the node DOM stub.** I never saw Rows, Lines or Compare in a browser (I was not allowed to start a
+   server), so layout and CSS need a look.
+4. The name and address thresholds, the 25% anomaly band and the tolerances are my guesses; tune them on dev only, never on held-out.
+5. The classifier prompt now lists rent_roll and t12; confirm with a real run that no generic fixture gets claimed.
+6. The worker needs the stored PDF to find tables. If the file is missing on a machine (the known volume/database split), the run
+   says tables cannot be detected; re-uploading restores the file.
+
+## What you need to do in the morning
+
+1. Add OpenAI credit (the account says `credit_balance_exhausted`).
+2. `git checkout feature/cre-pack` and `python -m pytest -q` (expect 633 passed; the UI tests need node).
+3. Run the dev evals for real, three times for the median: `python -m paperbound.evals.run --suite all --budget 500` once (this also
+   checks lease, certificate, generic and CUAD against the baseline; anything flagged `DROP over 2 points` is compared with the
+   three-run variance before concluding, and if it still looks real, `--rescore` a saved synthetic run offline), then
+   `python -m paperbound.evals.run --suite cre --budget 500` twice more (about 20 calls each).
+4. Record the new suites without touching the old baseline keys:
+   `python -m paperbound.evals.run --merge-median-baseline <the 3 rent_roll_*.json> <the 3 t12_*.json> <the 3 crosscheck_*.json>`.
+   Then read `evals/results/latest.md` and `/evals`, and put the real "dev results per new type" into this log and the README.
+5. Look at the UI once: run the app against a **separate** database, upload `evals/fixtures/rent_roll/rr_003/doc.pdf` and
+   `evals/fixtures/t12/t12_008/doc.pdf`, and open Rows, Lines, the CSV links and `#compare`.
+6. Fill the held-out set: `scripts/split_pdf.py` to cut pages, a copy of each template from `evals/label_templates/`, written by hand
+   (not from model output), `scripts/check_labels.py` until it is clean, then `python -m paperbound.evals.run --heldout --budget 500`.
+   Do not change code in response to the result.
+7. Decide on the judgement calls above (especially the totals-mismatch rule and the thresholds), then open the PR. Nothing needs a
+   migration; deploy is your call.

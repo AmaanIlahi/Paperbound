@@ -25,11 +25,11 @@ from paperbound import clock
 from paperbound.pipeline import tables as tables_mod
 from paperbound.pipeline.extract import ExtractionResult
 from paperbound.pipeline.impact import Brief, BriefLine
-from paperbound.pipeline.mapping import MappingResult, map_t12_labels
-from paperbound.pipeline.rent_roll import BLANK_RE, UNPARSED, D, fmt_money, fmt_whole, is_usable, money, parse_number
+from paperbound.pipeline.mapping import map_t12_labels
+from paperbound.pipeline.rent_roll import UNPARSED, D, fmt_money, fmt_whole, is_usable, money, parse_number
 from paperbound.pipeline.property import property_field
 from paperbound.pipeline.types import DerivedObligation, ValidatedField
-from paperbound.pipeline.validate import BLOCKING_FLAGS, CHECK_FLAGS, field_confidence, squash
+from paperbound.pipeline.validate import CHECK_FLAGS, field_confidence, squash
 from paperbound.schemas.cre import BELOW_LINE_CATEGORIES, OPEX_CATEGORIES, REVENUE_CATEGORIES, T12_CATEGORIES
 
 N_MONTHS = 12

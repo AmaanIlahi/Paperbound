@@ -14,7 +14,7 @@ from paperbound.agent import policy
 from paperbound.agent.planner import PlannedAction, PlanResult
 from paperbound.agent.profiles import RUN_ID_PLACEHOLDER
 from paperbound.agent.tools import TOOLS
-from paperbound.pipeline.rent_roll import NEAR_MONTHS, add_months, fmt_money, fmt_whole, is_usable, table_flags
+from paperbound.pipeline.rent_roll import NEAR_MONTHS, add_months, fmt_money, is_usable, table_flags
 from paperbound.pipeline.types import DerivedObligation, ValidatedField
 
 MAX_REMINDERS = 25
