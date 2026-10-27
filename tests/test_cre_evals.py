@@ -11,8 +11,7 @@ import pytest
 from paperbound.evals import cre, report, run
 from paperbound.evals.budget import Budget
 from paperbound import evals_page
-from paperbound.pipeline import rent_roll, t12
-from paperbound.pipeline.mapping import MappingResult
+from tests.cre_fakes import install_oracle
 
 AS_OF = date(2026, 10, 22)
 CURRENT: dict = {}
@@ -21,34 +20,8 @@ CURRENT: dict = {}
 @pytest.fixture(autouse=True)
 def oracle(monkeypatch):
     """The true mapping of whichever fixture is being run replaces the model; `CURRENT['spoil']` can break it on purpose."""
-    cre.clear_cache()
     CURRENT.clear()
-    original = cre.run_document
-
-    def run_document(folder, as_of, budget=None):
-        exp = json.loads((folder / "expected.json").read_text(encoding="utf-8"))
-        if folder.parent.name == "rent_roll":
-            CURRENT["rr"] = exp["mapping"]
-        else:
-            CURRENT["t12"] = {ln["label"]: ln["category"] for ln in exp["lines"]}
-        CURRENT["id"] = exp["id"]
-        return original(folder, as_of, budget)
-
-    def map_columns(header, rows, client=None):
-        mapping = {int(k): v for k, v in CURRENT["rr"].items()}
-        if CURRENT.get("spoil") == "swap_size_and_rent" and CURRENT["id"] == "rr_001":
-            mapping[2], mapping[6] = mapping[6], mapping[2]
-        return MappingResult(mapping, "gpt-4o-mini", 100, 0.0001)
-
-    def map_labels(labels, client=None):
-        cats = dict(CURRENT["t12"])
-        if CURRENT.get("spoil") == "utilities_as_taxes":
-            cats = {k: ("taxes" if v == "utilities" else v) for k, v in cats.items()}
-        return MappingResult({i: cats.get(label) for i, (label, _) in enumerate(labels)}, "gpt-4o-mini", 90, 0.0001)
-
-    monkeypatch.setattr(cre, "run_document", run_document)
-    monkeypatch.setattr(rent_roll, "map_rent_roll_columns", map_columns)
-    monkeypatch.setattr(t12, "map_t12_labels", map_labels)
+    install_oracle(monkeypatch, CURRENT)
     yield
     cre.clear_cache()
 

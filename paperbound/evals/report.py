@@ -405,6 +405,21 @@ def render_cre_markdown(suite: str, g: dict) -> list[str]:
             f"{pct(g['property_mismatch_detection'])} | {pct(g['detection_correct'])} |", "", CRE_NOTE]
 
 
+def render_heldout_markdown(runs: list[dict]) -> str:
+    """The held-out results, kept apart from latest.md (which is the dev and public view). Nothing here is compared with the baseline."""
+    md = ["# Held-out results (private)", "",
+          "Real documents labelled by hand. **Do not change code, prompts or thresholds in response to these numbers**; reproduce a failure "
+          "on a new dev fixture and fix it there. They never touch evals/baseline.json and the /evals page does not show them.", ""]
+    for run in runs:
+        md += [f"## {run['suite']} (run {run['timestamp']}, as of {run['as_of']}, {run['n_docs']} documents)", ""]
+        if run.get("aborted"):
+            md += [f"**Aborted:** {run['aborted']}", ""]
+        md += render_cre_markdown(run["suite"], run["groups"]["all"]) if run["groups"] else ["No documents."]
+        md += ["", "### Failure modes", ""] + ([f"- {m['mode']}: {m['count']}" for m in run["failure_modes"]] or ["- none"])
+        md += ["", f"Failure log: `evals/results/{run['failure_log']}`", ""]
+    return "\n".join(md) + "\n"
+
+
 def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None = None) -> str:
     md = ["# Paperbound evals", "",
           "The synthetic set is **template-generated** (seeded; a few layouts per type, so it is easier than real documents). "

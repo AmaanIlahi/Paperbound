@@ -114,6 +114,8 @@ def run_cre(suite: str, args, budget: Budget, as_of: date, root: Path = cre_eval
             print(f"  STOP: {aborted}")
         for r in records:
             print(f"  {r['id']:22} {r['kind']:9} flags {r['got_flags']} expected {r['expected_flags']} {'ok' if r['match'] else 'NO'}")
+        if not records and not aborted:
+            print("  no pairs found")
         log, groups = report_failures(suite, records), (report.summarize_crosscheck(records) if records else {})
         notes = ["Five rent roll + T-12 pairs and five negative controls. No model call of its own: it reuses the rent roll and T-12 runs."]
     else:
@@ -140,9 +142,10 @@ def run_cre(suite: str, args, budget: Budget, as_of: date, root: Path = cre_eval
                       + (f"  ERRORS {rec['errors']}" if rec["errors"] else ""))
         log, groups, notes = failures(records), (summarize(records) if records else {}), [note]
     ts = stamp()
+    prefix = "heldout_" if label == "heldout" else ""
     return {"suite": suite, "timestamp": ts, "as_of": as_of.isoformat(), "n_docs": len(records), "groups": groups,
-            "failure_modes": report.failure_modes(log), "failure_log": f"failures_{suite}_{ts}.json", "_log": log, "records": records,
-            "aborted": aborted, "notes": notes, "dataset": label}
+            "failure_modes": report.failure_modes(log), "failure_log": f"failures_{prefix}{suite}_{ts}.json", "_log": log, "records": records,
+            "aborted": aborted, "notes": notes, "dataset": label, "file_prefix": prefix}
 
 
 def report_failures(suite: str, records: list[dict]) -> list[dict]:
@@ -213,7 +216,59 @@ def save(run: dict) -> None:
     report.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     log = run.pop("_log")
     (report.RESULTS_DIR / run["failure_log"]).write_text(json.dumps(log, indent=1, default=str), encoding="utf-8")
-    (report.RESULTS_DIR / f"{run['suite']}_{run['timestamp']}.json").write_text(json.dumps(run, indent=1, default=str), encoding="utf-8")
+    (report.RESULTS_DIR / f"{run.get('file_prefix', '')}{run['suite']}_{run['timestamp']}.json").write_text(json.dumps(run, indent=1, default=str), encoding="utf-8")
+
+
+BASELINE_OPTIONS = ("save_baseline", "median_baseline", "merge_median_baseline", "rescore")
+
+
+def run_heldout(args) -> int:
+    """Run only the held-out set (evals/heldout): rent roll, T-12 and cross-check, reported apart, never touching the baseline."""
+    from paperbound.evals import labels
+
+    refused = [name for name in BASELINE_OPTIONS if getattr(args, name)]
+    if refused:
+        sys.exit("--heldout never updates or reads the baseline, so it cannot be combined with --" + ", --".join(n.replace("_", "-") for n in refused))
+    if args.suite not in ("all", "cre", *report.CRE_SUITES):
+        sys.exit("--heldout covers the rent roll, T-12 and cross-check suites only (use --suite all, cre, rent_roll, t12 or crosscheck)")
+    found = labels.find_labels(cre_eval.HELDOUT)
+    if not found:
+        print("no held-out label files found in evals/heldout/{rent_roll,t12,pairs} (see the README in each folder). Nothing was run.")
+        return 0
+    bad = {path: r for _, path in found if not (r := labels.validate(path)).ok}
+    if bad:
+        for path, r in bad.items():
+            print(f"ERROR {path}")
+            for message in r.errors[:6]:
+                print(f"   {message}")
+        print(f"\n{len(bad)} of {len(found)} label file(s) are incomplete. Fix them (python scripts/check_labels.py) before running; no model call was made.")
+        return 2
+    as_of = date.fromisoformat(args.as_of)
+    os.environ["AS_OF"] = as_of.isoformat()
+    if not config.OPENAI_API_KEY:
+        sys.exit("OPENAI_API_KEY is not set")
+    budget = Budget(args.budget)
+    budget.install()
+    runs = []
+    for suite in report.CRE_SUITES:
+        if args.suite in (suite, "cre", "all") and not (runs and runs[-1]["aborted"]):
+            runs.append(run_cre(suite, args, budget, as_of, root=cre_eval.HELDOUT, label="heldout"))
+    runs = [r for r in runs if r["n_docs"]]
+    unusable = [r for r in runs if failed_everywhere(r)]
+    for run in unusable:
+        first = next(iter(run["records"]), {})
+        print(f"NOT SAVED: every held-out {run['suite']} document failed (first error: {str((first.get('errors') or [''])[0])[:160]}).")
+    runs = [r for r in runs if r not in unusable]
+    for run in runs:
+        save(run)
+        print(f"saved evals/results/heldout_{run['suite']}_{run['timestamp']}.json  ({run['n_docs']} documents"
+              + (f", ABORTED: {run['aborted']}" if run["aborted"] else "") + ")")
+    if runs:
+        (report.RESULTS_DIR / "heldout_latest.md").write_text(report.render_heldout_markdown(runs), encoding="utf-8", newline="\n")
+        print("wrote evals/results/heldout_latest.md")
+    print("HELD-OUT: reported apart, no baseline comparison, baseline untouched. Do not change code in response to these results.")
+    print(f"OpenAI calls this run: {budget.session_calls} of {budget.limit} allowed")
+    return 2 if unusable else (1 if any(r["aborted"] for r in runs) else 0)
 
 
 def rescore_file(path) -> dict:
@@ -249,9 +304,14 @@ def main(argv=None) -> int:
                         help="re-record evals/baseline.json as the per-metric median of these saved runs (no model calls)")
     parser.add_argument("--merge-median-baseline", nargs="+", metavar="RESULT_JSON",
                         help="add the per-metric median of these saved runs to evals/baseline.json, replacing only the keys of their suites (no model calls)")
+    parser.add_argument("--heldout", action="store_true",
+                        help="run only evals/heldout (rent roll, T-12, cross-check): reported apart, never compared with or written to the baseline")
     parser.add_argument("--rescore", metavar="RESULT_JSON", help="re-score a saved synthetic run with the current rules; no model calls")
     parser.add_argument("--as-of", default=os.environ.get("AS_OF") or DEFAULT_AS_OF)
     args = parser.parse_args(argv)
+
+    if args.heldout:
+        return run_heldout(args)
 
     if args.median_baseline:
         flat = report.median_baseline(args.median_baseline)

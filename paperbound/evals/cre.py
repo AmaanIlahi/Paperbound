@@ -19,6 +19,7 @@ held-out set (evals/heldout) is read by the same scorers but only through `--hel
 
 import json
 import time
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
@@ -46,28 +47,65 @@ def clear_cache() -> None:
     _RUNS.clear()
 
 
-def discover(kind: str, limit: int | None = None, root: Path = FIXTURES) -> list[Path]:
-    folders = sorted(p for p in (root / kind).glob("*/") if (p / "expected.json").exists())
-    return folders[:limit] if limit else folders
+@dataclass(frozen=True)
+class Fixture:
+    """One labelled document: where its PDF is (None for a pair, which has none) and where its truth is."""
+
+    kind: str  # rent_roll | t12 | pairs
+    id: str
+    pdf: Path | None
+    truth: Path
+
+
+def is_flat(root: Path) -> bool:
+    """The held-out set keeps <stem>.pdf and <stem>.json side by side; the dev set has a folder per fixture."""
+    return root.name == "heldout"
+
+
+def discover(kind: str, limit: int | None = None, root: Path = FIXTURES) -> list[Fixture]:
+    base = root / kind
+    if is_flat(root):
+        found = [Fixture(kind, j.stem, j.with_suffix(".pdf") if kind != "pairs" else None, j)
+                 for j in sorted(base.glob("*.json")) if kind == "pairs" or j.with_suffix(".pdf").exists()]
+    else:
+        found = [Fixture(kind, p.name, (p / "doc.pdf") if kind != "pairs" else None, p / "expected.json")
+                 for p in sorted(base.glob("*/")) if (p / "expected.json").exists()]
+    return found[:limit] if limit else found
+
+
+def find(kind: str, name: str, root: Path = FIXTURES) -> Fixture:
+    for fx in discover(kind, None, root):
+        if fx.id == name:
+            return fx
+    raise FileNotFoundError(f"{kind} fixture {name!r} not found under {root}")
 
 
 def blocked(flags) -> bool:
     return bool(set(flags or ()) & BLOCKING_FLAGS)
 
 
-def _truth(folder: Path) -> dict:
-    return json.loads((folder / "expected.json").read_text(encoding="utf-8"))
+def _truth(fixture: Fixture) -> dict:
+    return json.loads(fixture.truth.read_text(encoding="utf-8"))
 
 
-def run_document(folder: Path, as_of: date, budget=None) -> dict:
+def label_date(truth: dict, fallback: date) -> date:
+    """The date a label's metrics were computed as of: the label's own `as_of` when it has one, else the run's."""
+    try:
+        return date.fromisoformat(truth["as_of"]) if truth.get("as_of") else fallback
+    except (TypeError, ValueError):
+        return fallback
+
+
+def run_document(fixture: Fixture, as_of: date, budget=None) -> dict:
     """Run one fixture through the pipeline. Returns the pipeline result with timing and the number of model calls."""
-    key = (folder.parent.name, str(folder))
+    key = (fixture.kind, str(fixture.truth))
     if key in _RUNS:
         return _RUNS[key]
-    truth = _truth(folder)
+    truth = _truth(fixture)
+    as_of = label_date(truth, as_of)
     calls_before = budget.session_calls if budget else 0
     started = time.perf_counter()
-    pdf = (folder / truth["pdf"]).read_bytes()
+    pdf = fixture.pdf.read_bytes()
     pages = parse_pdf(pdf)
     parse_ms = int((time.perf_counter() - started) * 1000)
     result = run_pipeline(pages, make_parse_step(pages, parse_ms, reused=False), today=as_of, pdf=pdf)
@@ -152,7 +190,7 @@ def score_rent_roll_metrics(truth: dict, result) -> list[dict]:
 def score_rent_roll(run: dict) -> dict:
     truth, result = run["truth"], run["result"]
     fields = _by_name(result)
-    planted = bool(truth.get("planted", {}).get("totals_mismatch"))
+    planted = "totals_mismatch" in (truth.get("expected_flags") or [])
     totals = fields.get("totals")
     flagged = {f.name: sorted(f.flags) for f in result.fields if f.flags}
     expected_flags = {"totals": ["totals_mismatch"]} if planted else {}
@@ -410,10 +448,10 @@ def _fields_of(run: dict):
     return run["result"].fields
 
 
-def score_pair(pair_folder: Path, as_of: date, budget=None, root: Path = FIXTURES) -> dict:
-    truth = _truth(pair_folder)
-    rr_run = run_document(root / "rent_roll" / truth["rent_roll"], as_of, budget)
-    t_run = run_document(root / "t12" / truth["t12"], as_of, budget)
+def score_pair(pair: Fixture, as_of: date, budget=None, root: Path = FIXTURES) -> dict:
+    truth = _truth(pair)
+    rr_run = run_document(find("rent_roll", truth["rent_roll"], root), as_of, budget)
+    t_run = run_document(find("t12", truth["t12"], root), as_of, budget)
     report = crosscheck_mod.cross_check(0, 1, _fields_of(rr_run), _fields_of(t_run), truth.get("tolerance", 0.05), as_of)
     got = sorted(f["flag"] for f in report["flags"])
     comparisons = {c["key"]: c for c in report["comparisons"]}
@@ -430,11 +468,11 @@ def score_pair(pair_folder: Path, as_of: date, budget=None, root: Path = FIXTURE
     }
 
 
-def score_negative(pair_folder: Path, other_t12: str, as_of: date, budget=None, root: Path = FIXTURES) -> dict:
+def score_negative(pair: Fixture, other_t12: str, as_of: date, budget=None, root: Path = FIXTURES) -> dict:
     """A rent roll against the T-12 of a different property: the identity check must say so."""
-    truth = _truth(pair_folder)
-    rr_run = run_document(root / "rent_roll" / truth["rent_roll"], as_of, budget)
-    t_run = run_document(root / "t12" / other_t12, as_of, budget)
+    truth = _truth(pair)
+    rr_run = run_document(find("rent_roll", truth["rent_roll"], root), as_of, budget)
+    t_run = run_document(find("t12", other_t12, root), as_of, budget)
     report = crosscheck_mod.cross_check(0, 1, _fields_of(rr_run), _fields_of(t_run), truth.get("tolerance", 0.05), as_of)
     prop = next(c for c in report["comparisons"] if c["key"] == "property_identity")
     return {"id": f"{truth['id']}_vs_{other_t12}", "kind": "negative", "expected_flags": ["property_mismatch"],
@@ -443,9 +481,8 @@ def score_negative(pair_folder: Path, other_t12: str, as_of: date, budget=None, 
 
 
 def run_crosscheck(as_of: date, budget=None, root: Path = FIXTURES, limit: int | None = None) -> list[dict]:
-    pairs = sorted(p for p in (root / "pairs").glob("*/") if (p / "expected.json").exists())
-    pairs = pairs[:limit] if limit else pairs
-    records = [score_pair(p, as_of, budget, root) for p in pairs]
+    pairs = discover("pairs", limit, root)
+    records = [score_pair(p, label_date(_truth(p), as_of), budget, root) for p in pairs]
     if len(pairs) > 1:  # negative controls: each rent roll against the next pair's T-12 (a different property)
         for i, p in enumerate(pairs):
             records.append(score_negative(p, _truth(pairs[(i + 1) % len(pairs)])["t12"], as_of, budget, root))

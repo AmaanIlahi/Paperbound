@@ -1,0 +1,45 @@
+{
+  "_about": "BLANK label for one T-12 operating statement. Copy it to evals/heldout/t12/<stem>.json next to <stem>.pdf and fill it in BY HAND from the PDF. Do not copy values from Paperbound's own output. Keys that start with an underscore are comments. Run: python scripts/check_labels.py",
+
+  "id": "",
+  "_id": "The file name without the extension, e.g. prop_a for prop_a.pdf / prop_a.json.",
+
+  "doc_type": "t12",
+  "_doc_type": "Leave as t12.",
+
+  "pdf": "",
+  "_pdf": "The PDF file name, e.g. prop_a.pdf. Make it with: python scripts/split_pdf.py om.pdf --pages 20-21 -o evals/heldout/t12/prop_a.pdf",
+
+  "as_of": "",
+  "_as_of": "YYYY-MM-DD, the date you labelled it on.",
+
+  "property": { "name": "", "address": "" },
+  "_property": "The property name and street address exactly as printed at the top of the statement.",
+
+  "months": [],
+  "_months": "The twelve month column headers, left to right, exactly as printed (\"Oct-25\", \"Oct 2025\", \"10/2025\"...). Exactly 12.",
+
+  "total_header": "",
+  "_total_header": "The header of the total column as printed (\"Total\", \"T-12\"), or null if the statement has no total column.",
+
+  "lines": [],
+  "_lines": "One entry per row that has figures, top to bottom: ordinary lines AND subtotal lines (Total Income, Effective Gross Income, Total Operating Expenses, Net Operating Income...). Section headings that carry no figures (INCOME, EXPENSES) are not lines. Each entry looks like _example_line.",
+  "_example_line": {
+    "label": "Real Estate Taxes",
+    "kind": "line",
+    "category": "taxes",
+    "months": [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000],
+    "total": 120000,
+    "page": 1,
+    "_line": "label exactly as printed. kind is line or subtotal. category is what the line IS, not the section it sits in: revenue: base_rent, recoveries, other_income, vacancy_credit_loss; operating expense: taxes, insurance, utilities, repairs_maintenance, management, payroll, general_admin, other_opex; below the line (not part of NOI): capex, reserves, debt_service, depreciation; subtotal (for kind subtotal); ignore (not a financial line). months: the 12 figures AS PRINTED, left to right (a loss printed as (5,000) is -5000; a loss printed 5,000 stays 5000). Use null for an empty cell. total: the total column as printed, or null. page: the PDF page (1 = first page of this pdf)."
+  },
+
+  "expected_flags": {},
+  "_expected_flags": "Problems that really are in the document, found by you with a calculator: {\"Net Operating Income\": [\"noi_mismatch\"]}. The key is the line's label. Allowed: line_sum_mismatch (a line's 12 months do not add to its own total), subtotal_mismatch (a stated EGI / total income / total operating expenses differs from the lines above it), noi_mismatch (stated NOI differs from revenue minus operating expenses, items below the line excluded), category_suspect (a line that is really below the line but sits among the operating expenses). {} if the statement is internally consistent. Do NOT list month_anomaly here; list those in expected_anomalies.",
+
+  "expected_anomalies": [],
+  "_expected_anomalies": "Months that are more than 25% away from the MEDIAN of their line (revenue and operating expense lines only): [{\"label\": \"Repairs and Maintenance\", \"month\": \"Mar-26\"}]. [] if none.",
+
+  "expected": {},
+  "_expected": "Optional but valuable. Over the twelve months, from the lines, with the sign rules: vacancy and credit loss always reduce income, expenses are positive, items below the line excluded from NOI: {\"egi\": 0, \"opex\": 0, \"noi\": 0, \"expense_ratio\": 0.0 (opex / egi), \"noi_monthly\": [12 numbers], \"opex_by_category\": {\"taxes\": 0, \"insurance\": 0, ...}}. Leave it {} to skip these for this document."
+}

@@ -147,3 +147,34 @@ Rules followed: no server started, nothing merged or deployed, no Fly or Supabas
   monthly + annual + $/SF), B (ruled grid, tenant first, $/SF only, status column, "Mon D, YYYY"), C (borderless, ISO dates, no
   currency signs, up to three pages with a repeated header), D (banded, two-digit years, monthly rent only, wrapped headers).
 
+### Phase 5: held-out scaffolding
+
+- **I never opened, read or listed anything in `evals/heldout/`** other than writing the four README files into it. The tests build
+  their own held-out folder from the dev fixtures in a temp directory (it has to be named `heldout`, which is how the loader
+  recognises the flat layout), and the `.gitignore` test asks `git check-ignore` about paths that need not exist.
+- **Layout.** Held-out documents are flat: `evals/heldout/rent_roll/<stem>.pdf` + `<stem>.json`, `evals/heldout/t12/<stem>.pdf` +
+  `<stem>.json`, `evals/heldout/pairs/<stem>.json` (a pair names the two stems). The dev set keeps its folder-per-fixture layout;
+  both are loaded through one `Fixture` type so the same scorers read both. A label may carry its own `as_of`; the run counts
+  each document from it, so hand-computed WALT and expirations agree.
+- **`.gitignore`:** `evals/heldout/**` with the four README files re-included, and `evals/results/heldout_*` plus
+  `evals/results/failures_heldout_*` (held-out results describe private documents). Checked with `git check-ignore`.
+- **Templates** are in `evals/label_templates/` (committed, outside the ignored folder): `rent_roll.template.json`,
+  `t12.template.json`, `pair.template.json`. They are blank. JSON has no comments, so every field `x` has a sibling `_x` with
+  its explanation, plus a worked `_example_row` / `_example_line`; keys starting with an underscore are ignored by the validator.
+  Each says to label by hand and not to copy Paperbound's output.
+- **`scripts/check_labels.py`** validates label files (all of them under `evals/heldout`, or the ones named; `--root` to point
+  elsewhere): missing fields, wrong types, values outside the allowed lists, a column number past the last header, a category that
+  is not in the list, 12 months per line, a pair that names files that do not exist, `difference` that is not T-12 minus rent roll.
+  A blank template fails with "is empty" for each required field. Missing *optional* labels (metrics, totals, expected figures)
+  are notes, not errors: the eval then skips that metric for that document. Exit code 1 if any file has an error.
+- **`scripts/split_pdf.py`** (`--pages 14-16`, `3,5,9-11`, order kept; 1-based; refuses a page that does not exist, a backwards
+  range, the input as output, or an existing output without `--force`; never changes the input).
+- **`--heldout`** runs only rent roll, T-12 and cross-check over `evals/heldout`. It first validates every label and refuses to
+  run (exit 2, no model call) if any is incomplete; with nothing in the folder it says so and exits 0. It refuses `--save-baseline`,
+  `--median-baseline`, `--merge-median-baseline` and `--rescore`, does no baseline comparison, writes
+  `evals/results/heldout_<suite>_<ts>.json` and `heldout_latest.md` (ignored by git), does not rebuild `latest.md`, and `/evals`
+  cannot show it. It prints a reminder not to change code in response. The same all-documents-failed guard applies.
+- **Label shape = scorer shape.** The held-out labels use the same keys the scorers read from the dev `expected.json`
+  (`mapping`, `rows[].cells`, `totals`, `expected_flags`, `metrics` / `lines`, `expected_flags`, `expected_anomalies`, `expected`).
+  One thing I changed to make that true: the rent roll scorer now reads `expected_flags` (it used to read the dev-only `planted`).
+

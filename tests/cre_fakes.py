@@ -112,3 +112,43 @@ def t12_extraction(rows=None, categories=None, notes=None):
 
 def t12_validated(rows=None, categories=None, notes=None):
     return t12_mod.validate_t12(t12_extraction(rows, categories, notes), PAGES)
+
+
+# ---- the true mapping standing in for the model, for the eval tests ----
+
+def install_oracle(monkeypatch, current: dict | None = None) -> dict:
+    """Replace the two mapping calls by the true mapping of whichever fixture is being run (read from its label), and return a dict
+    the test can use to spoil it: current['spoil'] = 'swap_size_and_rent' | 'utilities_as_taxes'."""
+    import json
+
+    from paperbound.evals import cre
+
+    cre.clear_cache()
+    current = {} if current is None else current
+    original = cre.run_document
+
+    def run_document(fixture, as_of, budget=None):
+        exp = json.loads(fixture.truth.read_text(encoding="utf-8"))
+        if fixture.kind == "rent_roll":
+            current["rr"] = exp["mapping"]
+        else:
+            current["t12"] = {ln["label"]: ln["category"] for ln in exp["lines"]}
+        current["id"] = exp["id"]
+        return original(fixture, as_of, budget)
+
+    def map_columns(header, rows, client=None):
+        mapping = {int(k): v for k, v in current["rr"].items()}
+        if current.get("spoil") == "swap_size_and_rent" and current["id"] == "rr_001":
+            mapping[2], mapping[6] = mapping[6], mapping[2]
+        return MappingResult(mapping, "gpt-4o-mini", 100, 0.0001)
+
+    def map_labels(labels, client=None):
+        cats = dict(current["t12"])
+        if current.get("spoil") == "utilities_as_taxes":
+            cats = {k: ("taxes" if v == "utilities" else v) for k, v in cats.items()}
+        return MappingResult({i: cats.get(label) for i, (label, _) in enumerate(labels)}, "gpt-4o-mini", 90, 0.0001)
+
+    monkeypatch.setattr(cre, "run_document", run_document)
+    monkeypatch.setattr(rr, "map_rent_roll_columns", map_columns)
+    monkeypatch.setattr(t12_mod, "map_t12_labels", map_labels)
+    return current

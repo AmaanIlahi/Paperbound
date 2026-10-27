@@ -1,0 +1,50 @@
+{
+  "_about": "BLANK label for one rent roll. Copy it to evals/heldout/rent_roll/<stem>.json next to <stem>.pdf and fill it in BY HAND from the PDF. Do not copy values from Paperbound's own output: the point is to check Paperbound against what the document says. Keys that start with an underscore are comments; delete them or leave them. Run: python scripts/check_labels.py",
+
+  "id": "",
+  "_id": "The file name without the extension, e.g. prop_a for prop_a.pdf / prop_a.json.",
+
+  "doc_type": "rent_roll",
+  "_doc_type": "Leave as rent_roll.",
+
+  "pdf": "",
+  "_pdf": "The PDF file name, e.g. prop_a.pdf. Make it with: python scripts/split_pdf.py om.pdf --pages 14-16 -o evals/heldout/rent_roll/prop_a.pdf",
+
+  "as_of": "",
+  "_as_of": "YYYY-MM-DD. The date the metrics below are computed as of (today's date in the run is set to this). Use the date you labelled it on, or the date the rent roll is dated.",
+
+  "property": { "name": "", "address": "" },
+  "_property": "The property name and street address exactly as printed at the top of the document (used for the cross-check with a T-12).",
+
+  "headers": [],
+  "_headers": "The column header text, left to right, as printed. A two-line header is one string (\"Lease End\"). Count from the first column; the first column is number 0.",
+
+  "mapping": {},
+  "_mapping": "Which column holds which field: {\"0\": \"unit\", \"1\": \"tenant\", \"2\": \"sqft\", ...}. Allowed fields: unit, tenant, sqft, lease_start, lease_end, monthly_rent, annual_rent, rent_psf, status. Leave out columns that hold none of these (deposit, CAM, notes). A $/SF column is rent_psf (annual rate unless its header says per month).",
+
+  "rows": [],
+  "_rows": "One entry per UNIT row in the table, top to bottom, across all pages. NOT the totals row and NOT subtotal rows. Each entry looks like _example_row.",
+  "_example_row": {
+    "page": 1,
+    "cells": {
+      "unit": "Suite 100",
+      "tenant": "Acme Dental",
+      "sqft": 2400,
+      "lease_start": "2023-04-01",
+      "lease_end": "2028-03-31",
+      "monthly_rent": 5200.0,
+      "annual_rent": 62400.0,
+      "rent_psf": 26.0
+    },
+    "_cells": "page is the PDF page (1 = first page of THIS pdf). Every field you mapped needs a key; use null where the cell is empty or the column does not exist. A vacant unit: tenant null (or the word as printed is fine, null is simplest), dates and rent null, sqft as printed. Numbers are plain numbers (no $ or commas); dates are YYYY-MM-DD; text exactly as printed. Month-to-month: lease_end null."
+  },
+
+  "totals": {},
+  "_totals": "The stated totals row, as printed: {\"sqft\": 101580, \"monthly_rent\": 216736.76, \"annual_rent\": 2600841.0}. Use null for a total the row does not show, and {} if the table has no totals row.",
+
+  "expected_flags": [],
+  "_expected_flags": "[] if the rows really add up to the stated totals. [\"totals_mismatch\"] ONLY if you added the rows up yourself and the document's own stated total is wrong.",
+
+  "metrics": {},
+  "_metrics": "Optional but valuable. Work these out yourself from the rows, as of the as_of date, counting only occupied units: occupancy_units (occupied / all units, 0 to 1), occupancy_sqft (occupied area / all area), total_annual_rent, avg_rent_psf (total annual rent / occupied sqft), walt_rent_years and walt_sqft_years (sum of weight x years left / sum of weight, years left = (lease end - as_of) / 365.25, never below 0, weights annual rent or sqft), expiring_24_months (occupied leases ending after as_of and within 24 months), expirations_by_year ({\"2027\": {\"count\": 3}}). Leave it {} to skip metric scoring for this document."
+}

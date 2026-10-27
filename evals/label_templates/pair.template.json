@@ -1,0 +1,39 @@
+{
+  "_about": "BLANK label for a rent roll + T-12 pair of one property. Copy it to evals/heldout/pairs/<stem>.json. The rent roll and the T-12 must already be in evals/heldout/rent_roll/ and evals/heldout/t12/ (each with its PDF and its own label). Fill this in BY HAND from the two documents; do not copy values from Paperbound's own output. Keys that start with an underscore are comments. Run: python scripts/check_labels.py",
+
+  "id": "",
+  "_id": "The file name without the extension, e.g. pair_a for pair_a.json.",
+
+  "doc_type": "pair",
+  "_doc_type": "Leave as pair.",
+
+  "rent_roll": "",
+  "_rent_roll": "The stem of the rent roll's files, e.g. prop_a for evals/heldout/rent_roll/prop_a.pdf and prop_a.json.",
+
+  "t12": "",
+  "_t12": "The stem of the T-12's files, e.g. prop_a for evals/heldout/t12/prop_a.pdf and prop_a.json.",
+
+  "as_of": "",
+  "_as_of": "YYYY-MM-DD, the date you labelled it on.",
+
+  "property": { "name": "", "address": "" },
+  "_property": "The property both documents are about.",
+
+  "tolerance": 0.05,
+  "_tolerance": "How far the T-12's base rent may be from the rent roll's total annual rent, as a share (0.05 is 5%). Keep 0.05 unless you want to test another value.",
+
+  "rent_roll_total_annual_rent": null,
+  "_rent_roll_total_annual_rent": "Annual rent of the occupied units, added up by you from the rent roll rows (not Paperbound's number).",
+
+  "t12_base_rent": null,
+  "_t12_base_rent": "The twelve-month base rent revenue on the T-12 (the base rent / rental income line, summed over the months; not recoveries, not other income).",
+
+  "difference": null,
+  "_difference": "t12_base_rent minus rent_roll_total_annual_rent.",
+
+  "difference_share": null,
+  "_difference_share": "difference divided by rent_roll_total_annual_rent (-0.18 is 18% under).",
+
+  "expected_flags": [],
+  "_expected_flags": "What the cross-check should report: [] if the documents agree; [\"rent_income_mismatch\"] if |difference_share| is over the tolerance; add \"property_mismatch\" only if the two documents are really about different properties; \"vacancy_sanity\" only if the T-12 loses more than ten points more of its gross income to vacancy and credit loss than the rent roll's vacant share of area."
+}

@@ -11,3 +11,13 @@ MORNING_REPORT*.md
 
 evals/datasets/
 evals/.budget.json
+
+# held-out evals: real documents and their labels stay local; only the README of each folder is committed
+evals/heldout/**
+!evals/heldout/
+!evals/heldout/README.md
+!evals/heldout/*/
+!evals/heldout/*/README.md
+# held-out results describe private documents, so they stay local too
+evals/results/heldout_*
+evals/results/failures_heldout_*
