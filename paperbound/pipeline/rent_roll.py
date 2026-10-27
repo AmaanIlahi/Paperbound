@@ -20,6 +20,7 @@ from paperbound.pipeline import tables as tables_mod
 from paperbound.pipeline.extract import ExtractionResult
 from paperbound.pipeline.impact import Brief, BriefLine
 from paperbound.pipeline.mapping import MappingResult, map_rent_roll_columns
+from paperbound.pipeline.property import property_field
 from paperbound.pipeline.types import DerivedObligation, ValidatedField
 from paperbound.pipeline.validate import BLOCKING_FLAGS, CHECK_FLAGS, _dates_in, amounts_in, field_confidence, squash
 from paperbound.schemas.cre import NUMERIC_RENT_ROLL_FIELDS, RENT_ROLL_FIELDS
@@ -455,6 +456,8 @@ def validate_rent_roll(ext: RentRollExtraction, pages, today: date | None = None
         label = "; ".join(f"{f['field']}: rows sum to {f['summed']:,.2f}, stated {f['stated']:,.2f}" for f in bad) or None
         out.append(_field("totals", value, " | ".join(ext.totals.cells), ext.totals.page_no, ext.totals.bbox,
                           ["totals_mismatch"] if bad else [], _quality(pages, ext.totals.page_no), label=label))
+    if (prop := property_field(pages)) is not None:
+        out.append(prop)
     return out
 
 

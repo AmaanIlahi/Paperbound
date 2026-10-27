@@ -30,3 +30,8 @@ def generic_confidence_cap() -> float:
 def generic_action_min_confidence() -> float:
     """Generic fields below this confidence never feed an obligation or action (GENERIC_ACTION_MIN_CONFIDENCE, default 0.6)."""
     return float(os.environ.get("GENERIC_ACTION_MIN_CONFIDENCE") or 0.6)
+
+
+def crosscheck_rent_tolerance() -> float:
+    """How far the T-12's base rent may be from the rent roll's total annual rent, as a share (CROSSCHECK_RENT_TOLERANCE, default 0.05)."""
+    return float(os.environ.get("CROSSCHECK_RENT_TOLERANCE") or 0.05)

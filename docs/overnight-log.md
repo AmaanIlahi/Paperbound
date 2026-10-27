@@ -77,3 +77,32 @@ Rules followed: no server started, nothing merged or deployed, no Fly or Supabas
   (and every lease, certificate and generic fixture) classifies by heuristics with the required margin, and none of the
   generic fixtures is claimed by a new type.
 
+### Phase 3: rent roll <-> T-12 cross-check
+
+- **Where the property comes from.** Each of the two extractions now also stores a `property` field (name and street address) read by
+  code from the first lines of page 1: the address is the first line that looks like a street address or ends in `ST 12345`,
+  the name is the line just above it, else the first plausible title line (document-title words, footers and column headers are
+  skipped; "Name - Rent Roll" is cut at the dash). All 20 dev documents read back exactly. No model. If nothing is found the
+  field is absent and the cross-check says identity "could not be compared"; it never guesses.
+- **Matching.** Names: rapidfuzz `token_set_ratio` >= 85 after dropping words like LLC, "the", "center", "properties".
+  Addresses: `token_sort_ratio` >= 85 after expanding street abbreviations (st, ave, blvd, n, ...). Either one failing is a
+  `property_mismatch` **warning** (never blocking). I could not find a principled way to pick these thresholds without
+  real documents; they are constants in `pipeline/property.py` for you to tune on the held-out set.
+- **Rent income.** Rent roll `total_annual_rent` (the usable rows' sum, same as the Summary) against the T-12's `base_rent`
+  lines (usable ones only, months summed). Difference = T-12 minus rent roll; share = difference / rent roll. Default tolerance
+  5% (`CROSSCHECK_RENT_TOLERANCE` env, or `tolerance` in the request, 0 < t <= 1). Over the tolerance is `rent_income_mismatch`.
+  A rent roll whose rows do not add to its totals still compares (on its usable rows) and says so in the note.
+- **Vacancy is one-sided.** The T-12's base rent is in-place rent, so vacant space does not show up as a loss: a T-12 that
+  shows *less* vacancy loss than the rent roll's vacancy is normal. It is a `vacancy_sanity` warning only when the T-12's
+  vacancy and credit loss, as a share of its gross income, exceed the rent roll's vacant share (area, else units) by more than
+  ten points. Warning only, never changes the status beyond "review".
+- **Report status:** `ok` (nothing to say), `review` (any flag, warning or mismatch), `incomplete` (nothing flagged but a
+  comparison was unavailable). Unavailable is used when a side has no usable figure; nothing is estimated.
+- **API.** `POST /crosscheck` `{rent_roll_run_id, t12_run_id, tolerance?}`. 404 for runs that are not the caller's (same as
+  nonexistent), 422 for the wrong document type (`Run 3 is a t12, not a rent roll`) or a bad tolerance, 409 if a run is not
+  `done` (I read "completed" as `done`; a `partial` run is refused). Nothing is stored: the report is recomputed from the
+  stored fields each time, so there is no new table and no migration. I also added `GET /runs` (the caller's own runs, newest
+  first, optional `doc_type`) because the Compare view needs something to pick from.
+- **UI.** A "Compare" link in the header and a `#compare` view: two selects (completed runs only), a tolerance box (percent), the
+  report as cards with both sides, "Source: page N" links that open the run at that page, and the difference.
+

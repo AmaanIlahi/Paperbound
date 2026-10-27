@@ -15,6 +15,7 @@
     <a class="brand" id="brand" href="/">Paperbound</a>
     <nav aria-label="Site">
       <a href="/#how" id="navHow">How it works</a>
+      <a href="/#compare" id="navCompare">Compare</a>
       <a href="/evals">Evals</a>
       <a href="https://github.com/AmaanIlahi/Paperbound" target="_blank" rel="noopener">GitHub</a>
     </nav>
@@ -62,6 +63,20 @@
         </li>
       </ol>
     </section>
+  </main>
+
+  <main id="compare" class="compare" hidden>
+    <div class="runbar"><button id="compareBack" class="link" type="button">&larr; Back</button></div>
+    <h1>Compare a rent roll with a T-12</h1>
+    <p class="muted">Pick one completed rent roll and one completed T-12 from your uploads in this browser. Code does the comparison: no model is involved, and every figure links to the page it came from.</p>
+    <div class="compare-form">
+      <label>Rent roll <select id="cmpRentRoll" class="btn select"></select></label>
+      <label>T-12 <select id="cmpT12" class="btn select"></select></label>
+      <label>Rent tolerance (%) <input id="cmpTol" class="btn" type="number" min="0.1" max="100" step="0.1" value="5"></label>
+      <button id="cmpGo" class="btn primary" type="button">Compare</button>
+    </div>
+    <p id="cmpMsg" class="note msg" role="status"></p>
+    <div id="cmpReport" class="cmp-report"></div>
   </main>
 
   <main id="run" class="runview" hidden>

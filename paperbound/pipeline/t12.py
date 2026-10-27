@@ -27,6 +27,7 @@ from paperbound.pipeline.extract import ExtractionResult
 from paperbound.pipeline.impact import Brief, BriefLine
 from paperbound.pipeline.mapping import MappingResult, map_t12_labels
 from paperbound.pipeline.rent_roll import BLANK_RE, UNPARSED, D, fmt_money, fmt_whole, is_usable, money, parse_number
+from paperbound.pipeline.property import property_field
 from paperbound.pipeline.types import DerivedObligation, ValidatedField
 from paperbound.pipeline.validate import BLOCKING_FLAGS, CHECK_FLAGS, field_confidence, squash
 from paperbound.schemas.cre import BELOW_LINE_CATEGORIES, OPEX_CATEGORIES, REVENUE_CATEGORIES, T12_CATEGORIES
@@ -358,6 +359,8 @@ def validate_t12(ext: T12Extraction, pages, today: date | None = None) -> list[V
             round(field_confidence(1.0, passed, quality.get(ln.page_no, 0.0)), 4), 1.0, list(dict.fromkeys(ln.flags)), passed, [ln.bbox],
             "; ".join(ln.notes) if ln.notes else label,
         ))
+    if (prop := property_field(pages)) is not None:
+        out.append(prop)
     return out
 
 

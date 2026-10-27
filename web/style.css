@@ -347,6 +347,23 @@ body[data-view="run"] { overflow: hidden; }
 .result .body { white-space: pre-wrap; margin-top: 4px; color: var(--text); }
 
 /* ---- fields ---- */
+.compare { max-width: 980px; margin: 0 auto; padding: var(--s3) var(--s2); }
+.compare h1 { font-size: 24px; margin: var(--s1) 0; }
+.compare-form { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: flex-end; margin: var(--s2) 0; }
+.compare-form label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); min-width: 0; }
+.compare-form select { max-width: 100%; }
+.cmp-card { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: var(--s2); margin-bottom: var(--s2); }
+.cmp-head { display: flex; align-items: center; gap: var(--s1); flex-wrap: wrap; margin-bottom: var(--s1); }
+.cmp-head h3 { margin: 0; font-size: 16px; }
+.cmp-status { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 1px 10px; background: var(--surface-2); color: var(--muted); }
+.cmp-status.ok { background: var(--good-soft, var(--surface-2)); color: var(--good, var(--text)); }
+.cmp-status.mismatch, .cmp-status.warning { background: var(--bad-soft); color: var(--bad); }
+.cmp-sides { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin: var(--s1) 0; }
+.cmp-side { border: 1px solid var(--border); border-radius: 8px; padding: var(--s1) var(--s2); min-width: 0; overflow-wrap: anywhere; }
+.cmp-side small { display: block; color: var(--muted); }
+.cmp-side b { display: block; font-size: 17px; margin: 2px 0; }
+.cmp-diff { font-weight: 600; }
+@media (max-width: 640px) { .cmp-sides { grid-template-columns: 1fr; } }
 .table-wrap { overflow-x: auto; }
 .table-tools { display: flex; align-items: center; justify-content: space-between; gap: var(--s1); flex-wrap: wrap; margin-bottom: var(--s1); }
 .mapping-note { font-size: 12px; margin-bottom: var(--s1); overflow-wrap: anywhere; }

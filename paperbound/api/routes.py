@@ -9,6 +9,7 @@ from typing import Callable
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field as PydanticField
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
@@ -28,9 +29,10 @@ from paperbound.db.models import (
 )
 from paperbound.db.session import get_session, session_factory
 from paperbound.doctypes import UNSUPPORTED_MESSAGE, spec_for
+from paperbound.pipeline import crosscheck
 from paperbound.pipeline.parse import parse_pdf
 from paperbound.pipeline.types import ValidatedField
-from paperbound.presenters import action_json, brief_json, field_json, obligation_json, step_json
+from paperbound.presenters import action_json, brief_json, field_json, obligation_json, source_json as presenter_source, step_json
 from paperbound.sessions import current_session
 from paperbound.storage import Storage, get_storage
 from paperbound import clock
@@ -241,6 +243,24 @@ def get_page(
 # reading a run
 # ---------------------------------------------------------------------------------------------------------------
 
+@router.get("/runs")
+def list_runs(
+    doc_type: str | None = None, limit: int = 50, session: Session = Depends(get_session), caller: str = Depends(current_session),
+):
+    """The caller's own runs, newest first (what the Compare view offers). Nobody else's runs are ever listed."""
+    query = (
+        select(Run, Document).join(Document, Document.id == Run.document_id)
+        .where(Run.session_hash == caller).order_by(Run.id.desc()).limit(max(1, min(limit, 100)))
+    )
+    if doc_type:
+        query = query.where(Document.doc_type == doc_type)
+    return [
+        {"id": run.id, "filename": doc.filename, "doc_type": doc.doc_type, "type_label": doc.type_label, "status": run.status,
+         "page_count": doc.page_count, "started_at": run.started_at}
+        for run, doc in session.execute(query)
+    ]
+
+
 @router.get("/runs/{run_id}")
 def get_run(run_id: int, session: Session = Depends(get_session), caller: str = Depends(current_session)):
     run = owned_run(session, run_id, caller)
@@ -301,6 +321,47 @@ def get_brief(
         for f in rows
     ]
     return brief_json(spec.brief(validated, today), {f.name: f for f in rows})
+
+
+class CrossCheckRequest(BaseModel):
+    rent_roll_run_id: int
+    t12_run_id: int
+    tolerance: float | None = PydanticField(default=None, gt=0, le=1)  # share, e.g. 0.05 for 5%
+
+
+def _stored_fields(session: Session, run_id: int) -> tuple[list[Field], list[ValidatedField]]:
+    rows = list(session.scalars(select(Field).where(Field.run_id == run_id).order_by(Field.id)))
+    return rows, [
+        ValidatedField(f.name, f.value_json, f.source_quote, f.page_no, f.bbox, f.confidence or 0.0, 0.0, list(f.flags or []), False, f.bboxes or [], f.label)
+        for f in rows
+    ]
+
+
+@router.post("/crosscheck")
+def post_crosscheck(body: CrossCheckRequest, session: Session = Depends(get_session), caller: str = Depends(current_session)):
+    """Compare a completed rent roll run with a completed T-12 run. Code only: property identity, rent income against the
+    tolerance, and a vacancy sanity check, each with both source values, their citations and the difference."""
+    runs = {}
+    for key, run_id, doc_type in (("rent_roll", body.rent_roll_run_id, "rent_roll"), ("t12", body.t12_run_id, "t12")):
+        run = owned_run(session, run_id, caller)
+        document = session.get(Document, run.document_id)
+        found = document.doc_type if document else None
+        if found != doc_type:
+            raise HTTPException(422, f"Run {run_id} is {'a ' + found.replace('_', ' ') if found else 'not classified'}, not a {doc_type.replace('_', ' ')}.")
+        if run.status != "done":
+            raise HTTPException(409, f"Run {run_id} is {run.status}; the cross-check needs a completed run.")
+        rows, validated = _stored_fields(session, run_id)
+        runs[key] = (run, document, {f.name: f for f in rows}, validated)
+    tolerance = body.tolerance if body.tolerance is not None else config.crosscheck_rent_tolerance()
+    report = crosscheck.cross_check(body.rent_roll_run_id, body.t12_run_id, runs["rent_roll"][3], runs["t12"][3], tolerance, clock.today())
+    for item in report["comparisons"]:  # resolve each side's field names to stored fields: ids, pages, boxes
+        for key in ("rent_roll", "t12"):
+            part = item[key]
+            if part:
+                by_name = runs[key][2]
+                part["sources"] = [presenter_source(by_name[n]) for n in part["sources"] if n in by_name]
+    report["documents"] = {k: {"run_id": runs[k][0].id, "filename": runs[k][1].filename} for k in runs}
+    return report
 
 
 @router.get("/runs/{run_id}/export.csv")

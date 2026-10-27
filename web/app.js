@@ -225,6 +225,7 @@ function showView(view) {
   document.body.setAttribute('data-view', view);
   $('landing').hidden = view !== 'landing';
   $('run').hidden = view !== 'run';
+  $('compare').hidden = view !== 'compare';
 }
 
 function closeStream() {
@@ -311,6 +312,10 @@ function applyHash() {
   const run = /^#run=(\d+)(?:&page=(\d+))?$/.exec(location.hash);
   const demo = /^#demo=([a-z0-9_]+)(?:&page=(\d+))?$/.exec(location.hash);
   const how = location.hash === '#how';
+  if (location.hash === '#compare') {
+    showCompare();
+    return;
+  }
   if (run) {
     openRun(run[1]);
     if (run[2]) scrollToPage(Number(run[2]));
@@ -324,6 +329,120 @@ function applyHash() {
     showLanding();
   }
   if (how && !R) { const t = $('how'); if (t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+
+// ------------------------------------------------------------------------------------------------------------
+// compare a rent roll with a T-12 (POST /crosscheck, code only)
+// ------------------------------------------------------------------------------------------------------------
+
+const STATUS_TEXT = { ok: 'Agrees', mismatch: 'Mismatch', warning: 'Warning', unavailable: 'Cannot compare' };
+
+async function showCompare() {
+  closeStream();
+  R = null;
+  activeHighlights = [];
+  showView('compare');
+  $('cmpMsg').textContent = 'Loading your uploads...';
+  $('cmpReport').replaceChildren();
+  const fill = (select, runs) => {
+    select.replaceChildren();
+    for (const r of runs) {
+      const o = el('option', '', `${r.filename} · run ${r.id}`);
+      o.value = String(r.id);
+      select.appendChild(o);
+    }
+    if (!runs.length) { const o = el('option', '', 'none yet'); o.value = ''; select.appendChild(o); }
+  };
+  try {
+    const [rrRes, tRes] = await Promise.all([fetch('/runs?doc_type=rent_roll'), fetch('/runs?doc_type=t12')]);
+    if (!rrRes.ok || !tRes.ok) throw new Error('could not load your runs');
+    const done = (list) => list.filter((r) => r.status === 'done');
+    const rrRuns = done(await rrRes.json());
+    const tRuns = done(await tRes.json());
+    fill($('cmpRentRoll'), rrRuns);
+    fill($('cmpT12'), tRuns);
+    $('cmpGo').disabled = !rrRuns.length || !tRuns.length;
+    $('cmpMsg').textContent = !rrRuns.length || !tRuns.length
+      ? `Upload ${!rrRuns.length ? 'a rent roll' : ''}${!rrRuns.length && !tRuns.length ? ' and ' : ''}${!tRuns.length ? 'a T-12' : ''} first; this view compares two completed runs.`
+      : '';
+  } catch (err) {
+    $('cmpMsg').textContent = 'Could not load your uploads. Uploads may be unavailable right now.';
+    $('cmpGo').disabled = true;
+  }
+}
+
+async function runCompare() {
+  const rent = Number($('cmpRentRoll').value);
+  const t12 = Number($('cmpT12').value);
+  const tol = Number($('cmpTol').value);
+  if (!rent || !t12) return;
+  if (!(tol > 0 && tol <= 100)) { $('cmpMsg').textContent = 'Tolerance must be between 0.1 and 100 percent.'; return; }
+  $('cmpMsg').textContent = 'Comparing...';
+  try {
+    const res = await fetch('/crosscheck', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rent_roll_run_id: rent, t12_run_id: t12, tolerance: tol / 100 }),
+    });
+    const body = await res.json();
+    if (!res.ok) { $('cmpMsg').textContent = body.detail && typeof body.detail === 'string' ? body.detail : 'The comparison failed.'; return; }
+    $('cmpMsg').textContent = '';
+    renderCompare(body);
+  } catch (err) {
+    $('cmpMsg').textContent = 'The comparison failed. Try again.';
+  }
+}
+
+function citations(part) {
+  const wrap = el('div', 'why');
+  const pages = [...new Set((part.sources || []).map((s) => s.page_no).filter(Boolean))].sort((a, b) => a - b);
+  if (!pages.length) return wrap;
+  wrap.appendChild(document.createTextNode('Source: '));
+  for (const page of pages) {
+    const link = el('a', 'src', `page ${page}`);
+    link.href = `#run=${part.run_id}&page=${page}`;
+    link.title = (part.sources || []).filter((s) => s.page_no === page).map((s) => pretty(s.name)).slice(0, 8).join(', ');
+    wrap.appendChild(link);
+    wrap.appendChild(document.createTextNode(' '));
+  }
+  return wrap;
+}
+
+function renderCompare(report) {
+  const root = $('cmpReport');
+  root.replaceChildren();
+  const head = el('div', 'cmp-card');
+  const top = el('div', 'cmp-head');
+  top.appendChild(el('h3', '', report.status === 'ok' ? 'Nothing to review' : report.status === 'review' ? 'Needs review' : 'Incomplete'));
+  top.appendChild(el('span', 'cmp-status ' + (report.status === 'ok' ? 'ok' : 'warning'), report.status));
+  head.appendChild(top);
+  const docs = report.documents || {};
+  head.appendChild(el('p', 'muted', `Rent roll: ${(docs.rent_roll || {}).filename || ''} (run ${report.rent_roll_run_id}) · T-12: ${(docs.t12 || {}).filename || ''} (run ${report.t12_run_id}) · rent tolerance ${(report.tolerance * 100).toFixed(1)}%`));
+  if (report.flags.length) head.appendChild(el('p', '', 'Flags: ' + report.flags.map((f) => f.flag).join(', ')));
+  root.appendChild(head);
+  for (const c of report.comparisons) {
+    const card = el('div', 'cmp-card');
+    const h = el('div', 'cmp-head');
+    h.appendChild(el('h3', '', c.label));
+    h.appendChild(el('span', 'cmp-status ' + c.status, STATUS_TEXT[c.status] || c.status));
+    if (c.flag) h.appendChild(el('span', 'flag', c.flag));
+    card.appendChild(h);
+    card.appendChild(el('p', '', c.text));
+    const sides = el('div', 'cmp-sides');
+    for (const [title, part] of [['Rent roll', c.rent_roll], ['T-12', c.t12]]) {
+      const box = el('div', 'cmp-side');
+      box.appendChild(el('small', '', part ? part.label : title));
+      box.appendChild(el('b', '', part ? part.text : 'not available'));
+      if (part && part.note) box.appendChild(el('small', '', part.note));
+      if (part) box.appendChild(citations(part));
+      sides.appendChild(box);
+    }
+    card.appendChild(sides);
+    if (c.difference !== undefined && c.difference !== null) {
+      const sign = c.difference >= 0 ? '+' : '-';
+      card.appendChild(el('p', 'cmp-diff', `Difference (T-12 minus rent roll): ${sign}$${Math.abs(c.difference).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${sign}${(Math.abs(c.difference_share) * 100).toFixed(1)}%)`));
+    }
+    root.appendChild(card);
+  }
 }
 
 function scrollToPage(n) {
@@ -1102,6 +1221,9 @@ function wireLanding() {
     if (file) uploadFile(file);
   });
   $('backBtn').addEventListener('click', goHome);
+  $('compareBack').addEventListener('click', goHome);
+  $('navCompare').addEventListener('click', (e) => { e.preventDefault(); setHash('#compare'); });
+  $('cmpGo').addEventListener('click', runCompare);
   $('brand').addEventListener('click', (e) => { e.preventDefault(); goHome(); });
   $('narration').addEventListener('click', () => $('narration').classList.toggle('open'));
   for (const t of TABS) $('tabbtn-' + t).addEventListener('click', () => selectTab(t));
