@@ -15,7 +15,7 @@ let streamToken = 0;
 let uploading = false;
 
 const EVENTS = ['meta', 'step', 'field', 'obligations', 'brief', 'action', 'done'];
-const TABS = ['summary', 'actions', 'fields', 'trace'];
+const TABS = ['summary', 'actions', 'rows', 'fields', 'trace'];
 const GROUPS = [
   { id: 'read', label: 'Read', stages: ['parse', 'classify'] },
   { id: 'extract', label: 'Extract', stages: ['extract'] },
@@ -33,7 +33,8 @@ const STAGE_HINTS = {
   obligations: 'Turning dates into obligations...', impact: 'Computing the numbers...', planner: 'Drafting actions for your approval...',
   gate: 'Setting up the approval gate...',
 };
-const TYPE_LABELS = { lease: 'Commercial lease', insurance_certificate: 'Certificate of liability insurance' };
+const TYPE_LABELS = { lease: 'Commercial lease', insurance_certificate: 'Certificate of liability insurance', rent_roll: 'Rent roll' };
+const TABLE_TYPES = ['rent_roll'];
 const PARTIES = {
   lease: [['Landlord', 'landlord'], ['Tenant', 'tenant']],
   insurance_certificate: [['Insured', 'insured'], ['Certificate holder', 'certificate_holder']],
@@ -41,11 +42,14 @@ const PARTIES = {
 const SUMMARY_KEYS = {
   lease: ['deadline', 'days_remaining', 'holdover_extra', 'current_rent'],
   insurance_certificate: ['earliest_expiration', 'days_remaining', 'expiring_soon'],
+  rent_roll: ['occupancy_units', 'total_annual_rent', 'walt_rent', 'expiring_12m'],
 };
 const GROUP_META = {
   reminders: ['Reminders', 'Staged reminders before the deadline. Approve each one, or all at once.'],
   deadline_reminders: ['Deadline reminders', 'One reminder on the date of each grounded future deadline. Approve each one, or all at once.'],
   notice_choice: ['Notice: choose one', 'Approving one draft rejects the other. Nothing is ever sent.'],
+  lease_expirations_12m: ['Leases ending within 12 months', 'One reminder on each lease end date. Approve each one, or all at once.'],
+  lease_expirations_24m: ['Leases ending in 13 to 24 months', 'One reminder on each lease end date. Approve each one, or all at once.'],
 };
 const SANDBOX_STATUS = {
   create_calendar_event: 'created (sandbox)', draft_email: 'draft saved (sandbox), not sent', upsert_record: 'upserted (sandbox)',
@@ -55,6 +59,11 @@ const GENERIC_SECTIONS = [
   ['Parties', /^party_\d+\.name$/], ['Dates', /^date_\d+\.date$/], ['Amounts', /^amount_\d+\.amount$/],
   ['Obligations', /^obligation_\d+\.description$/],
 ];
+const BLOCKING = new Set(['ungrounded', 'suspicious_instruction', 'not_found', 'invalid_date', 'end_before_start', 'invalid_amount',
+  'invalid_notice_period', 'invalid_percent', 'value_not_in_quote', 'quote_rule_failed', 'conflicting_values', 'notice_unit_business_days',
+  'invalid_currency', 'amount_mismatch', 'field_context_mismatch', 'date_not_concrete', 'totals_mismatch', 'row_math_mismatch', 'bad_dates',
+  'header_mapping_suspect', 'cell_unparsed', 'vacant_row_has_data', 'status_conflict', 'line_sum_mismatch', 'subtotal_mismatch',
+  'noi_mismatch', 'category_suspect']);
 const UNSUPPORTED_TYPE = "document type Paperbound doesn't recognize";
 
 function el(tag, cls, text) {
@@ -73,6 +82,7 @@ function button(cls, text, onClick) {
 const AMOUNT_NAME = /(?:^|\.)(?:amount|rent_amount|security_deposit|current_rent|each_occurrence_limit|aggregate_limit)$/;
 function displayValue(f) {
   if (f.value === null || f.value === undefined) return '(not found)';
+  if (typeof f.value === 'object') return objectSummary(f);
   if (typeof f.value !== 'number' || !AMOUNT_NAME.test(f.name)) return String(f.value);
   const code = (/\(([A-Z]{3})\)\s*$/.exec(f.label || '') || [])[1] || 'USD';  // a generic amount carries its currency in its label
   try {
@@ -80,6 +90,14 @@ function displayValue(f) {
   } catch (err) {
     return f.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
+}
+// A table field's value is an object (a row, the column mapping, the totals row): shown as one readable line.
+function objectSummary(f) {
+  const v = f.value;
+  if (/^row_\d+$/.test(f.name)) return [v.unit, v.tenant, v.status].filter(Boolean).join(' · ');
+  if (f.name === 'mapping') return `${(v.columns || []).length} columns mapped`;
+  if (f.name === 'totals') return 'stated totals row';
+  return JSON.stringify(v);
 }
 function pretty(name) { return String(name).replace(/\./g, ' · ').replace(/_/g, ' '); }
 function formatDate(iso) {
@@ -373,7 +391,7 @@ function onField(d, state) {
   } else {
     populateFieldRow(row, f);
   }
-  if (d.phase === 'validated') { flashField(f); renderSummary(); }
+  if (d.phase === 'validated') { flashField(f); renderSummary(); if (TABLE_TYPES.includes(state.meta.doc_type)) scheduleRows(); }
 }
 
 function populateFieldRow(row, f) {
@@ -460,7 +478,93 @@ function renderAll() {
   renderStepper();
   renderSummary();
   renderActions();
+  renderRows();
   renderTrace();
+}
+
+// ------------------------------------------------------------------------------------------------------------
+// rows (rent roll)
+// ------------------------------------------------------------------------------------------------------------
+
+const fmtNum = (n, d = 0) => (n === null || n === undefined ? '' : Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }));
+const fmtUsd = (n) => (n === null || n === undefined ? '' : '$' + fmtNum(n, 2));
+let rowsTimer = null;
+function scheduleRows() {
+  if (rowsTimer) return;
+  rowsTimer = setTimeout(() => { rowsTimer = null; renderRows(); }, 30);
+}
+function tableFields(pattern) {
+  return Object.values(R.fields)
+    .filter((f) => pattern.test(f.name) && f.value && typeof f.value === 'object')
+    .sort((a, b) => Number(a.name.replace(/\D+/g, '')) - Number(b.name.replace(/\D+/g, '')));
+}
+function addCell(tr, text, cls) { tr.appendChild(el('td', cls || '', text)); }
+function flagCell(tr, f) {
+  const td = el('td');
+  for (const flag of f.flags || []) td.appendChild(el('span', 'flag', flag));
+  tr.appendChild(td);
+}
+function renderRows() {
+  const isRR = !!R && R.meta.doc_type === 'rent_roll';
+  $('tabbtn-rows').hidden = !isRR;
+  if (!isRR) return;
+  const body = $('rowsBody');
+  body.replaceChildren();
+  const rows = tableFields(/^row_\d+$/);
+  const blocked = (f) => (f.flags || []).some((x) => BLOCKING.has(x));
+  const mapping = R.fields.mapping && R.fields.mapping.value;
+  $('rowsMapping').textContent = mapping && mapping.columns
+    ? 'Columns read as: ' + mapping.columns.map((c) => `${c.header} → ${c.field}`).join(', ') + (mapping.psf_basis === 'monthly' ? ' ($/sf annualised from a monthly rate)' : '')
+    : '';
+  const clean = rows.filter((f) => !blocked(f)).length;
+  const flaggedN = rows.length - clean;
+  const found = R.fields.table && R.fields.table.value === null;
+  $('rowsNote').textContent = found ? 'No rent roll table was found in this PDF, so nothing was guessed.'
+    : `${rows.length} row${rows.length === 1 ? '' : 's'}` + (flaggedN ? ` · ${flaggedN} flagged (kept out of every metric and action)` : ' · all rows passed their checks');
+  const link = $('rowsExport');
+  link.hidden = !(R.kind === 'live' && R.runId && clean);
+  if (!link.hidden) link.href = `/runs/${R.runId}/export.csv`;
+  for (const f of rows) {
+    const v = f.value;
+    const tr = el('tr', 'frow' + (blocked(f) ? ' flagged' : '') + (v.status === 'vacant' ? ' vacant' : ''));
+    addCell(tr, v.unit || '');
+    addCell(tr, v.tenant || (v.status === 'vacant' ? 'vacant' : ''));
+    addCell(tr, fmtNum(v.sqft), 'num');
+    addCell(tr, v.mtm ? 'month-to-month' : [v.lease_start, v.lease_end].filter(Boolean).join(' → '));
+    addCell(tr, v.annual_rent_used === null || v.annual_rent_used === undefined ? '' : fmtUsd(v.annual_rent_used) + (v.annual_source && v.annual_source !== 'annual' ? ` (${v.annual_source})` : ''), 'num');
+    addCell(tr, v.status || '');
+    flagCell(tr, f);
+    tr.title = (f.source_quote || '') + (f.page_no ? `  (page ${f.page_no})` : '');
+    tr.addEventListener('click', () => {
+      if (activeRow) activeRow.classList.remove('active');
+      activeRow = tr;
+      tr.classList.add('active');
+      highlight(f);
+    });
+    body.appendChild(tr);
+  }
+  const totals = R.fields.totals;
+  if (totals && totals.value) {
+    const v = totals.value;
+    const tr = el('tr', 'frow totals' + (blocked(totals) ? ' flagged' : ''));
+    addCell(tr, 'Stated totals');
+    addCell(tr, '');
+    addCell(tr, fmtNum(v.sqft), 'num');
+    addCell(tr, '');
+    addCell(tr, v.annual_rent !== null && v.annual_rent !== undefined ? fmtUsd(v.annual_rent) : (v.monthly_rent !== null && v.monthly_rent !== undefined ? fmtUsd(v.monthly_rent) + ' /mo' : ''), 'num');
+    addCell(tr, '');
+    flagCell(tr, totals);
+    tr.title = totals.label || totals.source_quote || '';
+    tr.addEventListener('click', () => highlight(totals));
+    body.appendChild(tr);
+    if (totals.label) {
+      const note = el('tr', 'frow flagged');
+      const td = el('td', '', totals.label);
+      td.colSpan = 7;
+      note.appendChild(td);
+      body.appendChild(note);
+    }
+  }
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -507,6 +611,26 @@ function renderGenericFields(root) {
     }
     root.appendChild(section);
   }
+}
+
+// Every number of a tabular document's brief, each clickable to show the rows it was computed from.
+function renderMetricList(root, shown) {
+  const rest = R.brief.lines.filter((l) => !shown.includes(l));
+  if (!rest.length) return;
+  const section = el('div', 'metric-list');
+  section.appendChild(el('h4', '', 'All numbers'));
+  for (const ln of rest) {
+    const row = el('button', 'grow');
+    row.type = 'button';
+    const text = el('span', 'gtext');
+    text.appendChild(el('small', '', ln.label));
+    text.appendChild(document.createTextNode(String(ln.text)));
+    if (ln.note) text.appendChild(el('small', '', ln.note));
+    row.appendChild(text);
+    row.addEventListener('click', () => highlight(ln.sources));
+    section.appendChild(row);
+  }
+  root.appendChild(section);
 }
 
 function sampleSelect(onChange) {
@@ -594,6 +718,7 @@ function renderSummary() {
     root.appendChild(el('div', 'empty', 'No numbers could be computed from verified fields.'));
   }
 
+  if (TABLE_TYPES.includes(type) && R.brief) renderMetricList(root, cards);
   if (isGeneric()) {
     root.appendChild(el('p', 'muted gnote', 'Paperbound has no schema for this type, so these fields were read generically. Confidence is capped, and only reminders and a review flag can be proposed.'));
     renderGenericFields(root);

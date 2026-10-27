@@ -1,0 +1,331 @@
+{
+ "id": "rr_009",
+ "doc_type": "rent_roll",
+ "dev_only": true,
+ "pdf": "doc.pdf",
+ "as_of": "2026-10-22",
+ "property": {
+  "name": "Westgate Office Park",
+  "address": "2300 Westgate Drive, Tempe, AZ 85281"
+ },
+ "layout": "D",
+ "pages": 1,
+ "headers": [
+  "Unit #",
+  "Tenant Name",
+  "Leased Area",
+  "Term Begin",
+  "Term End",
+  "Base Rent (Monthly)"
+ ],
+ "mapping": {
+  "0": "unit",
+  "1": "tenant",
+  "2": "sqft",
+  "3": "lease_start",
+  "4": "lease_end",
+  "5": "monthly_rent"
+ },
+ "rows": [
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "101",
+    "tenant": "Meridian Imaging",
+    "sqft": 10720,
+    "lease_start": "2019-11-28",
+    "lease_end": "2024-11-27",
+    "monthly_rent": 28131.07
+   },
+   "true_annual_rent": 337572.84
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "102",
+    "tenant": null,
+    "sqft": 6260,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "103",
+    "tenant": "Foxglove Florist",
+    "sqft": 1700,
+    "lease_start": "2022-02-02",
+    "lease_end": "2025-02-01",
+    "monthly_rent": 4057.33
+   },
+   "true_annual_rent": 48687.96
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "104",
+    "tenant": "Tern Software",
+    "sqft": 7220,
+    "lease_start": "2025-07-07",
+    "lease_end": "2032-07-06",
+    "monthly_rent": 19066.82
+   },
+   "true_annual_rent": 228801.84
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "105",
+    "tenant": "Paragon Dry Cleaners",
+    "sqft": 4420,
+    "lease_start": "2022-12-18",
+    "lease_end": "2027-12-17",
+    "monthly_rent": 14302.38
+   },
+   "true_annual_rent": 171628.56
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "106",
+    "tenant": null,
+    "sqft": 6990,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "107",
+    "tenant": "Evergreen Accounting",
+    "sqft": 6920,
+    "lease_start": "2025-01-24",
+    "lease_end": "2028-01-23",
+    "monthly_rent": 26197.97
+   },
+   "true_annual_rent": 314375.64
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "108",
+    "tenant": "Silverline Salon",
+    "sqft": 1650,
+    "lease_start": "2024-09-12",
+    "lease_end": "2027-09-11",
+    "monthly_rent": 2842.13
+   },
+   "true_annual_rent": 34105.56
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "109",
+    "tenant": null,
+    "sqft": 5200,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "110",
+    "tenant": "Falcon Security",
+    "sqft": 7780,
+    "lease_start": "2021-05-04",
+    "lease_end": "2026-05-03",
+    "monthly_rent": 21116.22
+   },
+   "true_annual_rent": 253394.64
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "111",
+    "tenant": "Atlas Staffing",
+    "sqft": 10980,
+    "lease_start": "2024-05-18",
+    "lease_end": "2029-05-17",
+    "monthly_rent": 31997.55
+   },
+   "true_annual_rent": 383970.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "112",
+    "tenant": "Starlight Cinema Cafe",
+    "sqft": 6890,
+    "lease_start": "2023-03-11",
+    "lease_end": "2028-03-10",
+    "monthly_rent": 27313.11
+   },
+   "true_annual_rent": 327757.32
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "113",
+    "tenant": "Apex Fitness",
+    "sqft": 6830,
+    "lease_start": "2021-10-26",
+    "lease_end": "2026-10-25",
+    "monthly_rent": 19488.27
+   },
+   "true_annual_rent": 233859.24
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "114",
+    "tenant": null,
+    "sqft": 6210,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "115",
+    "tenant": "Sable Coffee Roasters",
+    "sqft": 1710,
+    "lease_start": "2024-05-13",
+    "lease_end": "2027-05-12",
+    "monthly_rent": 5219.78
+   },
+   "true_annual_rent": 62637.36
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "116",
+    "tenant": "Orchard Pharmacy",
+    "sqft": 10120,
+    "lease_start": "2023-01-25",
+    "lease_end": "2028-01-24",
+    "monthly_rent": 15610.1
+   },
+   "true_annual_rent": 187321.2
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "117",
+    "tenant": "Delta Print & Ship",
+    "sqft": 9160,
+    "lease_start": "2022-03-27",
+    "lease_end": "2027-03-26",
+    "monthly_rent": 16938.37
+   },
+   "true_annual_rent": 203260.44
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "118",
+    "tenant": "Crescent Wireless",
+    "sqft": 6220,
+    "lease_start": "2022-01-22",
+    "lease_end": "2029-01-21",
+    "monthly_rent": 13741.02
+   },
+   "true_annual_rent": 164892.24
+  }
+ ],
+ "totals": {
+  "sqft": 116980.0,
+  "monthly_rent": 246022.12
+ },
+ "totals_row": [
+  "Total",
+  "",
+  "116,980",
+  "",
+  "",
+  "$246,022.12"
+ ],
+ "planted": {
+  "totals_mismatch": false
+ },
+ "expected_flags": [],
+ "metrics": {
+  "units": 18,
+  "occupied_units": 14,
+  "occupancy_units": 0.7777777777777778,
+  "total_sqft": 116980,
+  "occupied_sqft": 92320,
+  "occupancy_sqft": 0.7891947341425884,
+  "total_annual_rent": 2952265.44,
+  "avg_rent_psf": 31.97861178509532,
+  "walt_rent_years": 1.3875132810506559,
+  "walt_sqft_years": 1.3622106602989097,
+  "expirations_by_year": {
+   "2024": {
+    "count": 1,
+    "sqft": 10720,
+    "annual_rent": 337572.84
+   },
+   "2025": {
+    "count": 1,
+    "sqft": 1700,
+    "annual_rent": 48687.96
+   },
+   "2026": {
+    "count": 2,
+    "sqft": 14610,
+    "annual_rent": 487253.88
+   },
+   "2027": {
+    "count": 4,
+    "sqft": 16940,
+    "annual_rent": 471631.92
+   },
+   "2028": {
+    "count": 3,
+    "sqft": 23930,
+    "annual_rent": 829454.16
+   },
+   "2029": {
+    "count": 2,
+    "sqft": 17200,
+    "annual_rent": 548862.84
+   },
+   "2032": {
+    "count": 1,
+    "sqft": 7220,
+    "annual_rent": 228801.84
+   }
+  },
+  "expiring_24_months": 8
+ }
+}

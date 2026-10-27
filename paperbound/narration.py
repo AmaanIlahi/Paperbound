@@ -23,12 +23,21 @@ GENERIC_ACTION_TEXT = {
 }
 
 
+# Action cards of the tabular types (rent roll, T-12).
+TABLE_ACTION_TEXT = {
+    "lease_expirations_12m": "One reminder on the end date of each lease that expires within 12 months. Code built every title, date and fact from parsed cells: no model wrote any of it. Approve them together or one by one.",
+    "lease_expirations_24m": "One reminder on the end date of each lease that expires in the 13 to 24 months from now. Code built every title, date and fact from parsed cells: no model wrote any of it.",
+    "tool:flag_for_review": "Something in this table did not check out, so a person should look before anyone relies on it. Approving only adds it to the sandbox review queue.",
+}
+
+
 @dataclass
 class Narrator:
     kind: str  # lower-case document kind, e.g. "lease"
     filename: str
     pages: int
     as_of: str
+    table: str | None = None  # "rent_roll" or "t12": the tabular types, whose narration differs
 
     # ---- framing ----
 
@@ -132,6 +141,29 @@ class Narrator:
             f"No model is used here. Code proposed {n_actions} action(s): a calendar reminder for each verified future deadline, and "
             "a flag asking a person to review. There are no email drafts, because a document of an unknown type gives Paperbound no "
             "trusted recipient, and a flagged or low-confidence field can never produce an action."
+        )
+
+    def extract_table(self, summary: str, step: dict) -> str:
+        return (
+            f"Code found the table with PyMuPDF and read every cell itself: {summary}. The model was used for one thing only, to say "
+            "which column (or which line label) means what; it never read or wrote a number "
+            f"({step.get('tokens', 0)} tokens, ${step.get('cost_usd', 0.0):.4f})."
+        )
+
+    def validate_table(self, fields: list[dict]) -> str:
+        flagged = [f for f in fields if f["flags"]]
+        names = "; ".join(f"{f['name']} ({', '.join(f['flags'])})" for f in flagged[:6]) + ("; ..." if len(flagged) > 6 else "")
+        return (
+            "Code checks the table with arithmetic: every figure must agree with the others on its row or line, dates must run forward, "
+            "and the parts must add up to the stated totals. A flagged row stays visible "
+            "but never feeds a metric or an action. " + (f"Flagged: {names}." if flagged else "No row, line or total was flagged.")
+        )
+
+    def planner_table(self, n_actions: int) -> str:
+        return (
+            f"No model is used here. Code proposed {n_actions} action(s): a calendar reminder for each verified lease that ends soon, and "
+            "a review flag if anything failed a check. A flagged row never produces a reminder, and there are no email drafts "
+            "because a table gives Paperbound no trusted recipient."
         )
 
     def gate(self, group_keys: set[str], live: bool = False) -> str:

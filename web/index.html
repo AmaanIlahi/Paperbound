@@ -84,11 +84,22 @@
         <div class="tabs" role="tablist">
           <button class="tab active" role="tab" type="button" data-tab="summary" id="tabbtn-summary" aria-selected="true">Summary</button>
           <button class="tab" role="tab" type="button" data-tab="actions" id="tabbtn-actions" aria-selected="false">Actions</button>
+          <button class="tab" role="tab" type="button" data-tab="rows" id="tabbtn-rows" aria-selected="false" hidden>Rows</button>
           <button class="tab" role="tab" type="button" data-tab="fields" id="tabbtn-fields" aria-selected="false">Fields</button>
           <button class="tab" role="tab" type="button" data-tab="trace" id="tabbtn-trace" aria-selected="false">Trace</button>
         </div>
         <div class="tabpane" id="tab-summary" role="tabpanel"><div id="summary"></div></div>
         <div class="tabpane" id="tab-actions" role="tabpanel" hidden><div id="actionsFlash" class="flash" hidden></div><div id="actions"></div></div>
+        <div class="tabpane" id="tab-rows" role="tabpanel" hidden>
+          <div class="table-tools"><span id="rowsNote" class="muted"></span><a id="rowsExport" class="btn" href="#" download hidden>Export clean rows (CSV)</a></div>
+          <div id="rowsMapping" class="muted mapping-note"></div>
+          <div class="table-wrap">
+            <table class="fields-table rows-table">
+              <thead><tr><th>Unit</th><th>Tenant</th><th>Sq ft</th><th>Lease</th><th>Annual rent</th><th>Status</th><th>Flags</th></tr></thead>
+              <tbody id="rowsBody"></tbody>
+            </table>
+          </div>
+        </div>
         <div class="tabpane" id="tab-fields" role="tabpanel" hidden>
           <div class="table-wrap">
             <table class="fields-table">

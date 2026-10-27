@@ -1,0 +1,679 @@
+{
+ "id": "rr_002",
+ "doc_type": "rent_roll",
+ "dev_only": true,
+ "pdf": "doc.pdf",
+ "as_of": "2026-10-22",
+ "property": {
+  "name": "Cedar Point Plaza",
+  "address": "455 Cedar Point Road, Columbus, OH 43215"
+ },
+ "layout": "A",
+ "pages": 2,
+ "headers": [
+  "Suite",
+  "Tenant",
+  "Sq Ft",
+  "Lease Start",
+  "Lease End",
+  "Monthly Rent",
+  "Annual Rent",
+  "Rent $/SF"
+ ],
+ "mapping": {
+  "0": "unit",
+  "1": "tenant",
+  "2": "sqft",
+  "3": "lease_start",
+  "4": "lease_end",
+  "5": "monthly_rent",
+  "6": "annual_rent",
+  "7": "rent_psf"
+ },
+ "rows": [
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 100",
+    "tenant": "Ridgeway Surgical",
+    "sqft": 4910,
+    "lease_start": "2025-03-04",
+    "lease_end": "2028-03-03",
+    "monthly_rent": 9828.18,
+    "annual_rent": 117938.2,
+    "rent_psf": 24.02
+   },
+   "true_annual_rent": 117938.2
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 110",
+    "tenant": "Granite Title",
+    "sqft": 10550,
+    "lease_start": "2022-07-06",
+    "lease_end": "2032-07-05",
+    "monthly_rent": 41197.75,
+    "annual_rent": 494373.0,
+    "rent_psf": 46.86
+   },
+   "true_annual_rent": 494373.0
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 120",
+    "tenant": null,
+    "sqft": 6510,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 130",
+    "tenant": "Foxglove Florist",
+    "sqft": 3080,
+    "lease_start": "2022-07-05",
+    "lease_end": "2027-07-04",
+    "monthly_rent": 10921.17,
+    "annual_rent": 131054.0,
+    "rent_psf": 42.55
+   },
+   "true_annual_rent": 131054.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 140",
+    "tenant": "Redwood Realty",
+    "sqft": 10740,
+    "lease_start": "2022-01-04",
+    "lease_end": "2027-01-03",
+    "monthly_rent": 30259.95,
+    "annual_rent": 363119.4,
+    "rent_psf": 33.81
+   },
+   "true_annual_rent": 363119.4
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 150",
+    "tenant": "Juniper Pediatrics",
+    "sqft": 8210,
+    "lease_start": "2021-03-03",
+    "lease_end": "2026-03-02",
+    "monthly_rent": 23336.93,
+    "annual_rent": 280043.1,
+    "rent_psf": 34.11
+   },
+   "true_annual_rent": 280043.1
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 160",
+    "tenant": null,
+    "sqft": 9160,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 170",
+    "tenant": null,
+    "sqft": 11180,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 180",
+    "tenant": "Copperleaf Yoga",
+    "sqft": 11420,
+    "lease_start": "2024-11-21",
+    "lease_end": "2027-11-20",
+    "monthly_rent": 35287.8,
+    "annual_rent": 423453.6,
+    "rent_psf": 37.08
+   },
+   "true_annual_rent": 423453.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 190",
+    "tenant": "Apex Fitness",
+    "sqft": 10740,
+    "lease_start": "2025-11-03",
+    "lease_end": "2030-11-02",
+    "monthly_rent": 18472.8,
+    "annual_rent": 221673.6,
+    "rent_psf": 20.64
+   },
+   "true_annual_rent": 221673.6
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 200",
+    "tenant": null,
+    "sqft": 6710,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 210",
+    "tenant": "Cobalt Labs",
+    "sqft": 10700,
+    "lease_start": "2021-07-27",
+    "lease_end": "2028-07-26",
+    "monthly_rent": 25457.08,
+    "annual_rent": 305485.0,
+    "rent_psf": 28.55
+   },
+   "true_annual_rent": 305485.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 220",
+    "tenant": "Falcon Security",
+    "sqft": 6360,
+    "lease_start": "2021-10-31",
+    "lease_end": "2028-10-30",
+    "monthly_rent": 18576.5,
+    "annual_rent": 222918.0,
+    "rent_psf": 35.05
+   },
+   "true_annual_rent": 222918.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 230",
+    "tenant": "Linden Wealth",
+    "sqft": 11040,
+    "lease_start": "2021-10-08",
+    "lease_end": "2026-10-07",
+    "monthly_rent": 41344.8,
+    "annual_rent": 496137.6,
+    "rent_psf": 44.94
+   },
+   "true_annual_rent": 496137.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 240",
+    "tenant": "Quarry Hill Brewing",
+    "sqft": 1130,
+    "lease_start": "2022-09-26",
+    "lease_end": "2027-09-25",
+    "monthly_rent": 3264.76,
+    "annual_rent": 39177.1,
+    "rent_psf": 34.67
+   },
+   "true_annual_rent": 39177.1
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 250",
+    "tenant": "Starlight Cinema Cafe",
+    "sqft": 7540,
+    "lease_start": "2024-08-16",
+    "lease_end": "2027-08-15",
+    "monthly_rent": 28620.58,
+    "annual_rent": 343447.0,
+    "rent_psf": 45.55
+   },
+   "true_annual_rent": 343447.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 260",
+    "tenant": "Meridian Imaging",
+    "sqft": 1470,
+    "lease_start": "2022-12-18",
+    "lease_end": "2027-12-17",
+    "monthly_rent": 5051.9,
+    "annual_rent": 60622.8,
+    "rent_psf": 41.24
+   },
+   "true_annual_rent": 60622.8
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 270",
+    "tenant": "Northwind Dental",
+    "sqft": 7870,
+    "lease_start": "2023-07-08",
+    "lease_end": "2028-07-07",
+    "monthly_rent": 12808.43,
+    "annual_rent": 153701.1,
+    "rent_psf": 19.53
+   },
+   "true_annual_rent": 153701.1
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 280",
+    "tenant": "Maple Street Bakery",
+    "sqft": 5850,
+    "lease_start": "2024-10-20",
+    "lease_end": "2034-10-19",
+    "monthly_rent": 20104.5,
+    "annual_rent": 241254.0,
+    "rent_psf": 41.24
+   },
+   "true_annual_rent": 241254.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 290",
+    "tenant": "Tern Software",
+    "sqft": 6830,
+    "lease_start": "2026-02-02",
+    "lease_end": "2036-02-01",
+    "monthly_rent": 18093.81,
+    "annual_rent": 217125.7,
+    "rent_psf": 31.79
+   },
+   "true_annual_rent": 217125.7
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 300",
+    "tenant": "Zephyr Travel",
+    "sqft": 4010,
+    "lease_start": "2021-12-27",
+    "lease_end": "2026-12-26",
+    "monthly_rent": 11602.27,
+    "annual_rent": 139227.2,
+    "rent_psf": 34.72
+   },
+   "true_annual_rent": 139227.2
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 310",
+    "tenant": "Blue Heron Cafe",
+    "sqft": 1780,
+    "lease_start": "2025-02-15",
+    "lease_end": "2028-02-14",
+    "monthly_rent": 4513.78,
+    "annual_rent": 54165.4,
+    "rent_psf": 30.43
+   },
+   "true_annual_rent": 54165.4
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 320",
+    "tenant": "Harbor Physical Therapy",
+    "sqft": 8100,
+    "lease_start": "2025-09-15",
+    "lease_end": "2028-09-14",
+    "monthly_rent": 23760.0,
+    "annual_rent": 285120.0,
+    "rent_psf": 35.2
+   },
+   "true_annual_rent": 285120.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 330",
+    "tenant": "Silverline Salon",
+    "sqft": 7080,
+    "lease_start": "2022-10-27",
+    "lease_end": "2027-10-26",
+    "monthly_rent": 13499.2,
+    "annual_rent": 161990.4,
+    "rent_psf": 22.88
+   },
+   "true_annual_rent": 161990.4
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 340",
+    "tenant": "Vantage Consulting",
+    "sqft": 6030,
+    "lease_start": "2021-12-01",
+    "lease_end": "2026-11-30",
+    "monthly_rent": 11542.43,
+    "annual_rent": 138509.1,
+    "rent_psf": 22.97
+   },
+   "true_annual_rent": 138509.1
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 350",
+    "tenant": "Tidewater Bank",
+    "sqft": 11770,
+    "lease_start": "2020-03-09",
+    "lease_end": "2027-03-08",
+    "monthly_rent": 22843.61,
+    "annual_rent": 274123.3,
+    "rent_psf": 23.29
+   },
+   "true_annual_rent": 274123.3
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 360",
+    "tenant": null,
+    "sqft": 8520,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 370",
+    "tenant": null,
+    "sqft": 8470,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 380",
+    "tenant": "Brightpath Tutoring",
+    "sqft": 6920,
+    "lease_start": "2025-04-14",
+    "lease_end": "2035-04-13",
+    "monthly_rent": 22034.43,
+    "annual_rent": 264413.2,
+    "rent_psf": 38.21
+   },
+   "true_annual_rent": 264413.2
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 390",
+    "tenant": null,
+    "sqft": 4490,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 400",
+    "tenant": "Birchwood Pet Care",
+    "sqft": 1010,
+    "lease_start": "2025-07-31",
+    "lease_end": "2030-07-30",
+    "monthly_rent": 3951.63,
+    "annual_rent": 47419.5,
+    "rent_psf": 46.95
+   },
+   "true_annual_rent": 47419.5
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 410",
+    "tenant": "Keystone Insurance",
+    "sqft": 9700,
+    "lease_start": "2021-03-01",
+    "lease_end": "2026-02-28",
+    "monthly_rent": 28412.92,
+    "annual_rent": 340955.0,
+    "rent_psf": 35.15
+   },
+   "true_annual_rent": 340955.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 420",
+    "tenant": "Summit Legal Group",
+    "sqft": 9270,
+    "lease_start": "2024-02-11",
+    "lease_end": "2027-02-10",
+    "monthly_rent": 28652.03,
+    "annual_rent": 343824.3,
+    "rent_psf": 37.09
+   },
+   "true_annual_rent": 343824.3
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 430",
+    "tenant": null,
+    "sqft": 4320,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 440",
+    "tenant": "Delta Print & Ship",
+    "sqft": 10340,
+    "lease_start": "2023-03-28",
+    "lease_end": "2028-03-27",
+    "monthly_rent": 23790.62,
+    "annual_rent": 285487.4,
+    "rent_psf": 27.61
+   },
+   "true_annual_rent": 285487.4
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 450",
+    "tenant": "Ironbridge Capital",
+    "sqft": 8950,
+    "lease_start": "2019-12-08",
+    "lease_end": "2026-12-07",
+    "monthly_rent": 26894.75,
+    "annual_rent": 322737.0,
+    "rent_psf": 36.06
+   },
+   "true_annual_rent": 322737.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 460",
+    "tenant": "Pioneer Engineering",
+    "sqft": 6150,
+    "lease_start": "2023-09-15",
+    "lease_end": "2028-09-14",
+    "monthly_rent": 12433.25,
+    "annual_rent": 149199.0,
+    "rent_psf": 24.26
+   },
+   "true_annual_rent": 149199.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 470",
+    "tenant": "Beacon Credit Union",
+    "sqft": 2890,
+    "lease_start": "2025-09-10",
+    "lease_end": "2032-09-09",
+    "monthly_rent": 9811.55,
+    "annual_rent": 117738.6,
+    "rent_psf": 40.74
+   },
+   "true_annual_rent": 117738.6
+  }
+ ],
+ "totals": {
+  "sqft": 271800.0,
+  "monthly_rent": 586369.41,
+  "annual_rent": 7036432.6
+ },
+ "totals_row": [
+  "Total",
+  "",
+  "271,800",
+  "",
+  "",
+  "$586,369.41",
+  "$7,036,432.60",
+  ""
+ ],
+ "planted": {
+  "totals_mismatch": false
+ },
+ "expected_flags": [],
+ "metrics": {
+  "units": 38,
+  "occupied_units": 30,
+  "occupancy_units": 0.7894736842105263,
+  "total_sqft": 271800,
+  "occupied_sqft": 212440,
+  "occupancy_sqft": 0.7816041206769684,
+  "total_annual_rent": 7036432.6,
+  "avg_rent_psf": 33.121976087365844,
+  "walt_rent_years": 2.1232824431981587,
+  "walt_sqft_years": 2.0305853399715,
+  "expirations_by_year": {
+   "2026": {
+    "count": 6,
+    "sqft": 47940,
+    "annual_rent": 1717609.0
+   },
+   "2027": {
+    "count": 9,
+    "sqft": 63500,
+    "annual_rent": 2140811.9
+   },
+   "2028": {
+    "count": 8,
+    "sqft": 56210,
+    "annual_rent": 1574014.1
+   },
+   "2030": {
+    "count": 2,
+    "sqft": 11750,
+    "annual_rent": 269093.1
+   },
+   "2032": {
+    "count": 2,
+    "sqft": 13440,
+    "annual_rent": 612111.6
+   },
+   "2034": {
+    "count": 1,
+    "sqft": 5850,
+    "annual_rent": 241254.0
+   },
+   "2035": {
+    "count": 1,
+    "sqft": 6920,
+    "annual_rent": 264413.2
+   },
+   "2036": {
+    "count": 1,
+    "sqft": 6830,
+    "annual_rent": 217125.7
+   }
+  },
+  "expiring_24_months": 19
+ }
+}

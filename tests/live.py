@@ -104,6 +104,7 @@ def live(tmp_path, monkeypatch):
     app.dependency_overrides[get_session] = override
     app.dependency_overrides[session_factory] = lambda: Session
     app.dependency_overrides[get_storage] = lambda: storage
+    monkeypatch.setattr(jobs, "get_storage", lambda: storage)  # the worker reads the stored PDF from the same place
     enable_uploads(monkeypatch)
     cookie, session_hash = new_visitor()
     client = TestClient(app)

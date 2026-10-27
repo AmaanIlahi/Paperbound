@@ -1,0 +1,366 @@
+{
+ "id": "rr_008",
+ "doc_type": "rent_roll",
+ "dev_only": true,
+ "pdf": "doc.pdf",
+ "as_of": "2026-10-22",
+ "property": {
+  "name": "Mill Creek Center",
+  "address": "88 Mill Creek Parkway, Raleigh, NC 27601"
+ },
+ "layout": "C",
+ "pages": 2,
+ "headers": [
+  "Space",
+  "Occupant",
+  "Area (SF)",
+  "Start",
+  "Expires",
+  "Rent / Mo",
+  "Rent / Yr"
+ ],
+ "mapping": {
+  "0": "unit",
+  "1": "tenant",
+  "2": "sqft",
+  "3": "lease_start",
+  "4": "lease_end",
+  "5": "monthly_rent",
+  "6": "annual_rent"
+ },
+ "rows": [
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-001",
+    "tenant": null,
+    "sqft": 5570,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-002",
+    "tenant": "Northwind Dental",
+    "sqft": 9930,
+    "lease_start": "2023-06-17",
+    "lease_end": "2028-06-16",
+    "monthly_rent": 34233.68,
+    "annual_rent": 410804.1
+   },
+   "true_annual_rent": 410804.1
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-003",
+    "tenant": "Tern Software",
+    "sqft": 9620,
+    "lease_start": "2024-07-01",
+    "lease_end": "2027-06-30",
+    "monthly_rent": 37397.75,
+    "annual_rent": 448773.0
+   },
+   "true_annual_rent": 448773.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-004",
+    "tenant": "Brightpath Tutoring",
+    "sqft": 9080,
+    "lease_start": "2022-10-02",
+    "lease_end": "2027-10-01",
+    "monthly_rent": 16419.67,
+    "annual_rent": 197036.0
+   },
+   "true_annual_rent": 197036.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-005",
+    "tenant": "Pioneer Engineering",
+    "sqft": 4590,
+    "lease_start": "2022-04-21",
+    "lease_end": "2027-04-20",
+    "monthly_rent": 10029.15,
+    "annual_rent": 120349.8
+   },
+   "true_annual_rent": 120349.8
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-006",
+    "tenant": "Atlas Staffing",
+    "sqft": 10590,
+    "lease_start": "2024-03-30",
+    "lease_end": "2034-03-29",
+    "monthly_rent": 24251.1,
+    "annual_rent": 291013.2
+   },
+   "true_annual_rent": 291013.2
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-007",
+    "tenant": "Ridgeway Surgical",
+    "sqft": 1990,
+    "lease_start": "2022-12-13",
+    "lease_end": "2027-12-12",
+    "monthly_rent": 7752.71,
+    "annual_rent": 93032.5
+   },
+   "true_annual_rent": 93032.5
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-008",
+    "tenant": null,
+    "sqft": 1030,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-009",
+    "tenant": null,
+    "sqft": 3630,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-010",
+    "tenant": null,
+    "sqft": 6980,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-011",
+    "tenant": "Beacon Credit Union",
+    "sqft": 4050,
+    "lease_start": "2022-12-28",
+    "lease_end": "2027-12-27",
+    "monthly_rent": 8646.75,
+    "annual_rent": 103761.0
+   },
+   "true_annual_rent": 103761.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-012",
+    "tenant": "Linden Wealth",
+    "sqft": 4240,
+    "lease_start": "2023-02-14",
+    "lease_end": "2028-02-13",
+    "monthly_rent": 16090.8,
+    "annual_rent": 193089.6
+   },
+   "true_annual_rent": 193089.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-013",
+    "tenant": "Harbor Physical Therapy",
+    "sqft": 1860,
+    "lease_start": "2021-04-02",
+    "lease_end": "2026-04-01",
+    "monthly_rent": 6313.15,
+    "annual_rent": 75757.8
+   },
+   "true_annual_rent": 75757.8
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-014",
+    "tenant": "Quarry Hill Brewing",
+    "sqft": 8590,
+    "lease_start": "2022-02-23",
+    "lease_end": "2027-02-22",
+    "monthly_rent": 15132.72,
+    "annual_rent": 181592.6
+   },
+   "true_annual_rent": 181592.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-015",
+    "tenant": "Sable Coffee Roasters",
+    "sqft": 10290,
+    "lease_start": "2025-02-11",
+    "lease_end": "2028-02-10",
+    "monthly_rent": 39822.3,
+    "annual_rent": 477867.6
+   },
+   "true_annual_rent": 477867.6
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-016",
+    "tenant": null,
+    "sqft": 800,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-017",
+    "tenant": "Zephyr Travel",
+    "sqft": 5850,
+    "lease_start": "2025-01-31",
+    "lease_end": "2028-01-30",
+    "monthly_rent": 11193.0,
+    "annual_rent": 134316.0
+   },
+   "true_annual_rent": 134316.0
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-018",
+    "tenant": null,
+    "sqft": 1330,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-019",
+    "tenant": "Evergreen Accounting",
+    "sqft": 11520,
+    "lease_start": "2024-05-03",
+    "lease_end": "2027-05-02",
+    "monthly_rent": 40723.2,
+    "annual_rent": 488678.4
+   },
+   "true_annual_rent": 488678.4
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-020",
+    "tenant": "Keystone Insurance",
+    "sqft": 8550,
+    "lease_start": "2023-04-04",
+    "lease_end": "2028-04-03",
+    "monthly_rent": 13694.25,
+    "annual_rent": 164331.0
+   },
+   "true_annual_rent": 164331.0
+  }
+ ],
+ "totals": {
+  "sqft": 120090.0,
+  "monthly_rent": 281700.23,
+  "annual_rent": 3380402.6
+ },
+ "totals_row": [
+  "Total",
+  "",
+  "120,090",
+  "",
+  "",
+  "281,700.23",
+  "3,380,402.60"
+ ],
+ "planted": {
+  "totals_mismatch": false
+ },
+ "expected_flags": [],
+ "metrics": {
+  "units": 20,
+  "occupied_units": 14,
+  "occupancy_units": 0.7,
+  "total_sqft": 120090,
+  "occupied_sqft": 100750,
+  "occupancy_sqft": 0.8389541177450246,
+  "total_annual_rent": 3380402.6,
+  "avg_rent_psf": 33.55238312655087,
+  "walt_rent_years": 1.545995756950973,
+  "walt_sqft_years": 1.660862626808179,
+  "expirations_by_year": {
+   "2026": {
+    "count": 1,
+    "sqft": 1860,
+    "annual_rent": 75757.8
+   },
+   "2027": {
+    "count": 7,
+    "sqft": 49440,
+    "annual_rent": 1633223.3
+   },
+   "2028": {
+    "count": 5,
+    "sqft": 38860,
+    "annual_rent": 1380408.3
+   },
+   "2034": {
+    "count": 1,
+    "sqft": 10590,
+    "annual_rent": 291013.2
+   }
+  },
+  "expiring_24_months": 12
+ }
+}

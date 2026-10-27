@@ -67,7 +67,7 @@ def test_title_is_a_layout_signal():
 
 
 def test_page_count_only_helps_a_type_that_already_has_hits():
-    assert classify.heuristic_scores([page(i, "weather") for i in range(1, 6)])[0] == {"insurance_certificate": 0, "lease": 0}
+    assert classify.heuristic_scores([page(i, "weather") for i in range(1, 6)])[0] == {"insurance_certificate": 0, "lease": 0, "rent_roll": 0, "t12": 0}
     short = classify.heuristic_scores([page(1, "certificate holder")])[0]["insurance_certificate"]
     long = classify.heuristic_scores([page(i, "certificate holder" if i == 1 else "x") for i in range(1, 6)])[0]["insurance_certificate"]
     assert short == long + 1
@@ -101,7 +101,7 @@ def test_llm_prompt_treats_the_document_as_untrusted_and_sees_only_two_pages():
 def test_the_llm_can_only_answer_with_a_known_type():
     with pytest.raises(ValueError):
         classify._LLMChoice(doc_type="invoice", reason="x", type_label="invoice")
-    assert set(classify.DOC_TYPES) == {"lease", "insurance_certificate", "generic"}
+    assert set(classify.DOC_TYPES) == {"lease", "insurance_certificate", "rent_roll", "t12", "generic"}
 
 
 def test_a_typed_answer_carries_no_label_and_the_label_never_picks_a_type():

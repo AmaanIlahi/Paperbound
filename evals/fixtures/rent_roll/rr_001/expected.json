@@ -1,0 +1,309 @@
+{
+ "id": "rr_001",
+ "doc_type": "rent_roll",
+ "dev_only": true,
+ "pdf": "doc.pdf",
+ "as_of": "2026-10-22",
+ "property": {
+  "name": "Harborview Commons",
+  "address": "1200 Harbor Street, Baltimore, MD 21202"
+ },
+ "layout": "A",
+ "pages": 1,
+ "headers": [
+  "Suite",
+  "Tenant",
+  "Sq Ft",
+  "Lease Start",
+  "Lease End",
+  "Monthly Rent",
+  "Annual Rent",
+  "Rent $/SF"
+ ],
+ "mapping": {
+  "0": "unit",
+  "1": "tenant",
+  "2": "sqft",
+  "3": "lease_start",
+  "4": "lease_end",
+  "5": "monthly_rent",
+  "6": "annual_rent",
+  "7": "rent_psf"
+ },
+ "rows": [
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 100",
+    "tenant": null,
+    "sqft": 10800,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 110",
+    "tenant": "Brightpath Tutoring",
+    "sqft": 820,
+    "lease_start": "2023-11-18",
+    "lease_end": "2026-11-17",
+    "monthly_rent": 3144.02,
+    "annual_rent": 37728.2,
+    "rent_psf": 46.01
+   },
+   "true_annual_rent": 37728.2
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 120",
+    "tenant": "Oakline Architects",
+    "sqft": 3030,
+    "lease_start": "2023-09-16",
+    "lease_end": "2028-09-15",
+    "monthly_rent": 4845.48,
+    "annual_rent": 58145.7,
+    "rent_psf": 19.19
+   },
+   "true_annual_rent": 58145.7
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 130",
+    "tenant": "Apex Fitness",
+    "sqft": 4000,
+    "lease_start": "2021-11-07",
+    "lease_end": "2026-11-06",
+    "monthly_rent": 12270.0,
+    "annual_rent": 147240.0,
+    "rent_psf": 36.81
+   },
+   "true_annual_rent": 147240.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 140",
+    "tenant": "Summit Legal Group",
+    "sqft": 9160,
+    "lease_start": "2025-10-16",
+    "lease_end": "2032-10-15",
+    "monthly_rent": 24182.4,
+    "annual_rent": 290188.8,
+    "rent_psf": 31.68
+   },
+   "true_annual_rent": 290188.8
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 150",
+    "tenant": "Nimbus Cloud Services",
+    "sqft": 10770,
+    "lease_start": "2022-04-07",
+    "lease_end": "2027-04-06",
+    "monthly_rent": 34239.63,
+    "annual_rent": 410875.5,
+    "rent_psf": 38.15
+   },
+   "true_annual_rent": 410875.5
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 160",
+    "tenant": "Silverline Salon",
+    "sqft": 880,
+    "lease_start": "2023-07-09",
+    "lease_end": "2028-07-08",
+    "monthly_rent": 1949.93,
+    "annual_rent": 23399.2,
+    "rent_psf": 26.59
+   },
+   "true_annual_rent": 23399.2
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 170",
+    "tenant": "Crescent Wireless",
+    "sqft": 10700,
+    "lease_start": "2023-09-07",
+    "lease_end": "2028-09-06",
+    "monthly_rent": 30423.67,
+    "annual_rent": 365084.0,
+    "rent_psf": 34.12
+   },
+   "true_annual_rent": 365084.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 180",
+    "tenant": "Copperleaf Yoga",
+    "sqft": 11540,
+    "lease_start": "2022-07-28",
+    "lease_end": "2027-07-27",
+    "monthly_rent": 44919.45,
+    "annual_rent": 539033.4,
+    "rent_psf": 46.71
+   },
+   "true_annual_rent": 539033.4
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 190",
+    "tenant": null,
+    "sqft": 7420,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 200",
+    "tenant": "Willow Learning Center",
+    "sqft": 6930,
+    "lease_start": "2022-08-09",
+    "lease_end": "2029-08-08",
+    "monthly_rent": 20651.4,
+    "annual_rent": 247816.8,
+    "rent_psf": 35.76
+   },
+   "true_annual_rent": 247816.8
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 210",
+    "tenant": "Ridgeway Surgical",
+    "sqft": 4240,
+    "lease_start": "2023-05-24",
+    "lease_end": "2028-05-23",
+    "monthly_rent": 8172.6,
+    "annual_rent": 98071.2,
+    "rent_psf": 23.13
+   },
+   "true_annual_rent": 98071.2
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "Suite 220",
+    "tenant": "Foxglove Florist",
+    "sqft": 9860,
+    "lease_start": "2025-03-04",
+    "lease_end": "2035-03-03",
+    "monthly_rent": 31938.18,
+    "annual_rent": 383258.2,
+    "rent_psf": 38.87
+   },
+   "true_annual_rent": 383258.2
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "Suite 230",
+    "tenant": null,
+    "sqft": 11430,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  }
+ ],
+ "totals": {
+  "sqft": 101580.0,
+  "monthly_rent": 216736.76,
+  "annual_rent": 2600841.0
+ },
+ "totals_row": [
+  "Total",
+  "",
+  "101,580",
+  "",
+  "",
+  "$216,736.76",
+  "$2,600,841.00",
+  ""
+ ],
+ "planted": {
+  "totals_mismatch": false
+ },
+ "expected_flags": [],
+ "metrics": {
+  "units": 14,
+  "occupied_units": 11,
+  "occupancy_units": 0.7857142857142857,
+  "total_sqft": 101580,
+  "occupied_sqft": 71930,
+  "occupancy_sqft": 0.7081118330379996,
+  "total_annual_rent": 2600841.0,
+  "avg_rent_psf": 36.15794522452384,
+  "walt_rent_years": 2.7797501028454916,
+  "walt_sqft_years": 2.843935749002305,
+  "expirations_by_year": {
+   "2026": {
+    "count": 2,
+    "sqft": 4820,
+    "annual_rent": 184968.2
+   },
+   "2027": {
+    "count": 2,
+    "sqft": 22310,
+    "annual_rent": 949908.9
+   },
+   "2028": {
+    "count": 4,
+    "sqft": 18850,
+    "annual_rent": 544700.1
+   },
+   "2029": {
+    "count": 1,
+    "sqft": 6930,
+    "annual_rent": 247816.8
+   },
+   "2032": {
+    "count": 1,
+    "sqft": 9160,
+    "annual_rent": 290188.8
+   },
+   "2035": {
+    "count": 1,
+    "sqft": 9860,
+    "annual_rent": 383258.2
+   }
+  },
+  "expiring_24_months": 8
+ }
+}

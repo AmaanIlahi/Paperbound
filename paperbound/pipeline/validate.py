@@ -20,6 +20,9 @@ CHECK_FLAGS = {
     "invalid_date", "end_before_start", "invalid_amount", "invalid_notice_period", "invalid_percent",
     "value_not_in_quote", "quote_rule_failed", "conflicting_values", "notice_unit_business_days", "invalid_currency",
     "amount_mismatch", "field_context_mismatch", "date_not_concrete",
+    # tables (rent roll, T-12); month_anomaly is informational and is deliberately not here
+    "totals_mismatch", "row_math_mismatch", "bad_dates", "header_mapping_suspect", "cell_unparsed", "vacant_row_has_data",
+    "status_conflict", "line_sum_mismatch", "subtotal_mismatch", "noi_mismatch", "category_suspect",
 }
 # Fields carrying any of these flags are never used for obligations or actions.
 BLOCKING_FLAGS = CHECK_FLAGS | {"ungrounded", "suspicious_instruction", "not_found"}

@@ -348,6 +348,14 @@ body[data-view="run"] { overflow: hidden; }
 
 /* ---- fields ---- */
 .table-wrap { overflow-x: auto; }
+.table-tools { display: flex; align-items: center; justify-content: space-between; gap: var(--s1); flex-wrap: wrap; margin-bottom: var(--s1); }
+.mapping-note { font-size: 12px; margin-bottom: var(--s1); overflow-wrap: anywhere; }
+.rows-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rows-table tr.flagged td { background: var(--bad-soft); }
+.rows-table tr.vacant td { color: var(--muted); }
+.rows-table tr.totals td { font-weight: 600; border-top: 2px solid var(--border); }
+.metric-list { margin: var(--s2) 0; }
+.metric-list h4 { font-size: 13px; margin: 0 0 var(--s1); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .fields-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .fields-table th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); padding: 0 var(--s1) var(--s1); border-bottom: 1px solid var(--border); white-space: nowrap; }
 .fields-table td { padding: 6px var(--s1); border-bottom: 1px solid var(--border); vertical-align: top; }

@@ -84,12 +84,15 @@ def test_the_run_view_is_a_stepper_a_sticky_viewer_and_four_tabs():
     html = (WEB / "index.html").read_text(encoding="utf-8")
     stepper = re.findall(r'id="stp-(\w+)"', html)
     assert stepper == ["read", "extract", "verify", "decide", "act"]
-    tabs = re.findall(r'<button class="tab[^"]*" role="tab"[^>]*data-tab="(\w+)"', html)
-    assert tabs == ["summary", "actions", "fields", "trace"]
+    buttons = re.findall(r'<button class="tab[^"]*" role="tab"([^>]*)>', html)
+    tabs = [re.search(r'data-tab="(\w+)"', b).group(1) for b in buttons if " hidden" not in b]
+    assert tabs == ["summary", "actions", "fields", "trace"]  # the four every run has
+    table_tabs = [re.search(r'data-tab="(\w+)"', b).group(1) for b in buttons if " hidden" in b]
+    assert table_tabs == ["rows"]  # shown only for tabular documents (rent roll)
     assert 'class="tab active" role="tab" type="button" data-tab="summary"' in html  # Summary is the default
     assert re.search(r'id="tab-summary" role="tabpanel"><div', html) and re.search(r'id="tab-actions" role="tabpanel" hidden', html)
     assert 'id="viewer"' in html and html.index('id="viewer"') < html.index('class="panel"')  # the viewer is on the left
-    table = re.search(r"<thead>(.*?)</thead>", html, re.S).group(1)
+    table = re.search(r'<table class="fields-table">\s*<thead>(.*?)</thead>', html, re.S).group(1)
     assert re.findall(r"<th>(.*?)</th>", table) == ["Field", "Value", "Confidence", "Flags"]
     assert html.count('<link rel="stylesheet" href="/web/style.css">') == 1 and "fonts.googleapis.com/css2?family=Inter" in html
 

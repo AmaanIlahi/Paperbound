@@ -16,7 +16,7 @@ from paperbound import config
 from paperbound.pipeline.extract import MODEL, PRICE_IN_PER_M, PRICE_OUT_PER_M
 from paperbound.pipeline.validate import looks_like_instruction
 
-DOC_TYPES = ("lease", "insurance_certificate", "generic")
+DOC_TYPES = ("lease", "insurance_certificate", "rent_roll", "t12", "generic")
 LABEL_MAX_CHARS = 40
 UNKNOWN_LABEL = "unknown"
 
@@ -33,10 +33,36 @@ TERMS: dict[str, list[tuple[str, float]]] = {
         ("expiration date", 1),
     ],
 }
+# Tabular types are recognised by regular expressions (whole words: "sf" must not match inside another word).
+# (pattern, weight); a pattern counts once.
+PATTERNS: dict[str, list[tuple[re.Pattern, float]]] = {
+    "rent_roll": [
+        (re.compile(r"rent\s*roll", re.I), 4),
+        (re.compile(r"(?:sq\.?\s*ft\.?|rsf|sf|nra|square\s+feet)", re.I), 2),
+        (re.compile(r"lease\s+(?:start|from|begin\w*|commencement|end|to|expir\w*|term)|(?:commencement|term\s+begin|term\s+end)", re.I), 2),
+        (re.compile(r"(?:occupied|vacant)", re.I), 2),
+        (re.compile(r"\$\s*/\s*(?:sf|sq\.?\s*ft)|psf|per\s+sf|sf\s*/\s*yr", re.I), 2),
+        (re.compile(r"(?:suite|unit|space)", re.I), 1),
+        (re.compile(r"tenant|occupant", re.I), 1),
+        (re.compile(r"(?:monthly|annual)\s+(?:base\s+)?rent|rent\s*/\s*(?:mo|yr)", re.I), 1),
+    ],
+    "t12": [
+        (re.compile(r"trailing[\s-]*(?:12|twelve)|t[\s-]?12", re.I), 4),
+        (re.compile(r"net\s+operating\s+income|noi", re.I), 3),
+        (re.compile(r"effective\s+gross\s+(?:income|revenue)|egi", re.I), 2),
+        (re.compile(r"operating\s+expenses?|total\s+expenses", re.I), 2),
+        (re.compile(r"(?:total\s+)?(?:income|revenue)s?", re.I), 1),
+        (re.compile(r"(?:real\s+estate\s+)?taxes|utilities|repairs?", re.I), 1),
+    ],
+}
+_MONTH_HEADER = re.compile(r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s'/-]*(?:\d{2}|\d{4})", re.I)
+MONTH_COLUMNS_BONUS = (10, 4)  # this many distinct month headings add this much to t12
 TITLE_BONUS = 4  # a type's key phrase in the first lines of page 1 is the strongest layout signal
 TITLE_PHRASES = {
     "insurance_certificate": ("certificate of liability insurance", "certificate of insurance"),
     "lease": ("lease agreement", "lease"),
+    "rent_roll": ("rent roll",),
+    "t12": ("trailing twelve", "trailing 12", "trailing-12", "t-12", "t12", "operating statement", "income and expense"),
 }
 CONFIDENT_SCORE = 6.0  # the top type needs at least this score...
 CONFIDENT_MARGIN = 4.0  # ...and this lead over the runner-up, else the LLM decides
@@ -51,7 +77,7 @@ what kind of document it is. Give a one-sentence reason. type_label is your shor
 
 
 class _LLMChoice(BaseModel):
-    doc_type: Literal["lease", "insurance_certificate", "other"]
+    doc_type: Literal["lease", "insurance_certificate", "rent_roll", "t12", "other"]
     reason: str
     type_label: str
 
@@ -95,6 +121,20 @@ def heuristic_scores(pages) -> tuple[dict[str, float], list[str]]:
         scores[doc_type] = score
         if hits:
             evidence.append(f"{doc_type}: " + ", ".join(p for p, _ in hits[:5]))
+    full = "\n".join(p.text for p in pages)
+    months = {m.group(1).casefold() for m in _MONTH_HEADER.finditer(full)}
+    for doc_type, patterns in PATTERNS.items():
+        hits = [(rx, w) for rx, w in patterns if rx.search(full)]
+        score = sum(w for _, w in hits)
+        if score and any(phrase in first_lines for phrase in TITLE_PHRASES[doc_type]):
+            score += TITLE_BONUS
+            evidence.append(f"{doc_type}: title matches")
+        if doc_type == "t12" and score and len(months) >= MONTH_COLUMNS_BONUS[0]:
+            score += MONTH_COLUMNS_BONUS[1]
+            evidence.append(f"t12: {len(months)} month headings")
+        scores[doc_type] = score
+        if hits:
+            evidence.append(f"{doc_type}: " + ", ".join(rx.pattern.split("|")[0][:24] for rx, _ in hits[:4]))
     return scores, evidence
 
 

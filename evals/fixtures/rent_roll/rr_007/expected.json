@@ -1,0 +1,737 @@
+{
+ "id": "rr_007",
+ "doc_type": "rent_roll",
+ "dev_only": true,
+ "pdf": "doc.pdf",
+ "as_of": "2026-10-22",
+ "property": {
+  "name": "Cedar Point Plaza",
+  "address": "455 Cedar Point Road, Columbus, OH 43215"
+ },
+ "layout": "C",
+ "pages": 3,
+ "headers": [
+  "Space",
+  "Occupant",
+  "Area (SF)",
+  "Start",
+  "Expires",
+  "Rent / Mo",
+  "Rent / Yr"
+ ],
+ "mapping": {
+  "0": "unit",
+  "1": "tenant",
+  "2": "sqft",
+  "3": "lease_start",
+  "4": "lease_end",
+  "5": "monthly_rent",
+  "6": "annual_rent"
+ },
+ "rows": [
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-001",
+    "tenant": "Brightpath Tutoring",
+    "sqft": 4280,
+    "lease_start": "2024-12-28",
+    "lease_end": "2031-12-27",
+    "monthly_rent": 11959.03,
+    "annual_rent": 143508.4
+   },
+   "true_annual_rent": 143508.4
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-002",
+    "tenant": "Apex Fitness",
+    "sqft": 4240,
+    "lease_start": "2024-04-30",
+    "lease_end": "2029-04-29",
+    "monthly_rent": 7063.13,
+    "annual_rent": 84757.6
+   },
+   "true_annual_rent": 84757.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-003",
+    "tenant": "Birchwood Pet Care",
+    "sqft": 9070,
+    "lease_start": "2024-07-25",
+    "lease_end": "2029-07-24",
+    "monthly_rent": 16802.18,
+    "annual_rent": 201626.1
+   },
+   "true_annual_rent": 201626.1
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-004",
+    "tenant": "Zephyr Travel",
+    "sqft": 8920,
+    "lease_start": "2021-04-01",
+    "lease_end": "2028-03-31",
+    "monthly_rent": 14301.73,
+    "annual_rent": 171620.8
+   },
+   "true_annual_rent": 171620.8
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-005",
+    "tenant": null,
+    "sqft": 8270,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-006",
+    "tenant": "Orchard Pharmacy",
+    "sqft": 6310,
+    "lease_start": "2025-07-22",
+    "lease_end": "2028-07-21",
+    "monthly_rent": 24456.51,
+    "annual_rent": 293478.1
+   },
+   "true_annual_rent": 293478.1
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-007",
+    "tenant": "Harbor Physical Therapy",
+    "sqft": 5160,
+    "lease_start": "2020-12-17",
+    "lease_end": "2030-12-16",
+    "monthly_rent": 14581.3,
+    "annual_rent": 174975.6
+   },
+   "true_annual_rent": 174975.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-008",
+    "tenant": "Vantage Consulting",
+    "sqft": 1900,
+    "lease_start": "2020-08-10",
+    "lease_end": "2023-08-09",
+    "monthly_rent": 5909.0,
+    "annual_rent": 70908.0
+   },
+   "true_annual_rent": 70908.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-009",
+    "tenant": "Crescent Wireless",
+    "sqft": 990,
+    "lease_start": "2026-03-05",
+    "lease_end": "2031-03-04",
+    "monthly_rent": 1645.05,
+    "annual_rent": 19740.6
+   },
+   "true_annual_rent": 19740.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-010",
+    "tenant": "Linden Wealth",
+    "sqft": 9430,
+    "lease_start": "2023-05-26",
+    "lease_end": "2028-05-25",
+    "monthly_rent": 18207.76,
+    "annual_rent": 218493.1
+   },
+   "true_annual_rent": 218493.1
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-011",
+    "tenant": "Evergreen Accounting",
+    "sqft": 2820,
+    "lease_start": "2026-02-06",
+    "lease_end": "2031-02-05",
+    "monthly_rent": 9432.9,
+    "annual_rent": 113194.8
+   },
+   "true_annual_rent": 113194.8
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-012",
+    "tenant": "Northwind Dental",
+    "sqft": 3690,
+    "lease_start": "2022-02-05",
+    "lease_end": "2027-02-04",
+    "monthly_rent": 11482.05,
+    "annual_rent": 137784.6
+   },
+   "true_annual_rent": 137784.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-013",
+    "tenant": "Juniper Pediatrics",
+    "sqft": 830,
+    "lease_start": "2025-10-01",
+    "lease_end": "2035-09-30",
+    "monthly_rent": 1619.19,
+    "annual_rent": 19430.3
+   },
+   "true_annual_rent": 19430.3
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-014",
+    "tenant": "Lumen Optical",
+    "sqft": 3720,
+    "lease_start": "2023-03-09",
+    "lease_end": "2028-03-08",
+    "monthly_rent": 6190.7,
+    "annual_rent": 74288.4
+   },
+   "true_annual_rent": 74288.4
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-015",
+    "tenant": "Ironbridge Capital",
+    "sqft": 4790,
+    "lease_start": "2023-09-18",
+    "lease_end": "2028-09-17",
+    "monthly_rent": 13631.54,
+    "annual_rent": 163578.5
+   },
+   "true_annual_rent": 163578.5
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-016",
+    "tenant": "Tidewater Bank",
+    "sqft": 2470,
+    "lease_start": "2022-08-26",
+    "lease_end": "2027-08-25",
+    "monthly_rent": 6035.03,
+    "annual_rent": 72420.4
+   },
+   "true_annual_rent": 72420.4
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-017",
+    "tenant": "Quarry Hill Brewing",
+    "sqft": 9400,
+    "lease_start": "2022-05-17",
+    "lease_end": "2027-05-16",
+    "monthly_rent": 20257.0,
+    "annual_rent": 243084.0
+   },
+   "true_annual_rent": 243084.0
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-018",
+    "tenant": null,
+    "sqft": 2100,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-019",
+    "tenant": "Sable Coffee Roasters",
+    "sqft": 3580,
+    "lease_start": "2021-05-07",
+    "lease_end": "2024-05-06",
+    "monthly_rent": 11811.02,
+    "annual_rent": 141732.2
+   },
+   "true_annual_rent": 141732.2
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-020",
+    "tenant": "Ridgeway Surgical",
+    "sqft": 11430,
+    "lease_start": "2025-04-13",
+    "lease_end": "2035-04-12",
+    "monthly_rent": 31832.55,
+    "annual_rent": 381990.6
+   },
+   "true_annual_rent": 381990.6
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-021",
+    "tenant": "Starlight Cinema Cafe",
+    "sqft": 7690,
+    "lease_start": "2025-04-27",
+    "lease_end": "2032-04-26",
+    "monthly_rent": 30401.13,
+    "annual_rent": 364813.6
+   },
+   "true_annual_rent": 364813.6
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-022",
+    "tenant": "Paragon Dry Cleaners",
+    "sqft": 820,
+    "lease_start": "2023-08-12",
+    "lease_end": "2028-08-11",
+    "monthly_rent": 2011.73,
+    "annual_rent": 24140.8
+   },
+   "true_annual_rent": 24140.8
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-023",
+    "tenant": "Keystone Insurance",
+    "sqft": 11820,
+    "lease_start": "2021-05-24",
+    "lease_end": "2026-05-23",
+    "monthly_rent": 26388.15,
+    "annual_rent": 316657.8
+   },
+   "true_annual_rent": 316657.8
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-024",
+    "tenant": "Falcon Security",
+    "sqft": 6020,
+    "lease_start": "2022-05-23",
+    "lease_end": "2027-05-22",
+    "monthly_rent": 11287.5,
+    "annual_rent": 135450.0
+   },
+   "true_annual_rent": 135450.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-025",
+    "tenant": "Granite Title",
+    "sqft": 6440,
+    "lease_start": "2024-08-23",
+    "lease_end": "2027-08-22",
+    "monthly_rent": 22540.0,
+    "annual_rent": 270480.0
+   },
+   "true_annual_rent": 270480.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-026",
+    "tenant": "Maple Street Bakery",
+    "sqft": 5440,
+    "lease_start": "2025-09-06",
+    "lease_end": "2035-09-05",
+    "monthly_rent": 12756.8,
+    "annual_rent": 153081.6
+   },
+   "true_annual_rent": 153081.6
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-027",
+    "tenant": "Redwood Realty",
+    "sqft": 6230,
+    "lease_start": "2025-05-08",
+    "lease_end": "2032-05-07",
+    "monthly_rent": 19920.43,
+    "annual_rent": 239045.1
+   },
+   "true_annual_rent": 239045.1
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-028",
+    "tenant": "Willow Learning Center",
+    "sqft": 5900,
+    "lease_start": "2022-11-05",
+    "lease_end": "2027-11-04",
+    "monthly_rent": 15816.92,
+    "annual_rent": 189803.0
+   },
+   "true_annual_rent": 189803.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-029",
+    "tenant": "Tern Software",
+    "sqft": 1510,
+    "lease_start": "2023-04-05",
+    "lease_end": "2033-04-04",
+    "monthly_rent": 3461.68,
+    "annual_rent": 41540.1
+   },
+   "true_annual_rent": 41540.1
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-030",
+    "tenant": null,
+    "sqft": 2050,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-031",
+    "tenant": "Nimbus Cloud Services",
+    "sqft": 9430,
+    "lease_start": "2020-05-31",
+    "lease_end": "2030-05-30",
+    "monthly_rent": 34278.05,
+    "annual_rent": 411336.6
+   },
+   "true_annual_rent": 411336.6
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-032",
+    "tenant": "Silverline Salon",
+    "sqft": 10340,
+    "lease_start": "2022-01-07",
+    "lease_end": "2027-01-06",
+    "monthly_rent": 37603.13,
+    "annual_rent": 451237.6
+   },
+   "true_annual_rent": 451237.6
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-033",
+    "tenant": null,
+    "sqft": 3500,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-034",
+    "tenant": null,
+    "sqft": 5690,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-035",
+    "tenant": "Beacon Credit Union",
+    "sqft": 3220,
+    "lease_start": "2023-05-08",
+    "lease_end": "2028-05-07",
+    "monthly_rent": 6198.5,
+    "annual_rent": 74382.0
+   },
+   "true_annual_rent": 74382.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-036",
+    "tenant": "Delta Print & Ship",
+    "sqft": 1440,
+    "lease_start": "2021-11-13",
+    "lease_end": "2026-11-12",
+    "monthly_rent": 4538.4,
+    "annual_rent": 54460.8
+   },
+   "true_annual_rent": 54460.8
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-037",
+    "tenant": "Copperleaf Yoga",
+    "sqft": 4110,
+    "lease_start": "2023-05-03",
+    "lease_end": "2028-05-02",
+    "monthly_rent": 8117.25,
+    "annual_rent": 97407.0
+   },
+   "true_annual_rent": 97407.0
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-038",
+    "tenant": "Atlas Staffing",
+    "sqft": 10470,
+    "lease_start": "2026-02-07",
+    "lease_end": "2029-02-06",
+    "monthly_rent": 33312.05,
+    "annual_rent": 399744.6
+   },
+   "true_annual_rent": 399744.6
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-039",
+    "tenant": "Summit Legal Group",
+    "sqft": 2480,
+    "lease_start": "2024-02-07",
+    "lease_end": "2027-02-06",
+    "monthly_rent": 9820.8,
+    "annual_rent": 117849.6
+   },
+   "true_annual_rent": 117849.6
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-040",
+    "tenant": null,
+    "sqft": 2050,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-041",
+    "tenant": "Brightpath Tutoring",
+    "sqft": 5420,
+    "lease_start": "2024-04-24",
+    "lease_end": "2029-04-23",
+    "monthly_rent": 16336.78,
+    "annual_rent": 196041.4
+   },
+   "true_annual_rent": 196041.4
+  },
+  {
+   "page": 2,
+   "status": "vacant",
+   "cells": {
+    "unit": "S-042",
+    "tenant": null,
+    "sqft": 4610,
+    "lease_start": null,
+    "lease_end": null,
+    "monthly_rent": null,
+    "annual_rent": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-043",
+    "tenant": "Birchwood Pet Care",
+    "sqft": 1570,
+    "lease_start": "2021-12-11",
+    "lease_end": "2026-12-10",
+    "monthly_rent": 2980.38,
+    "annual_rent": 35764.6
+   },
+   "true_annual_rent": 35764.6
+  },
+  {
+   "page": 2,
+   "status": "occupied",
+   "cells": {
+    "unit": "S-044",
+    "tenant": "Zephyr Travel",
+    "sqft": 5670,
+    "lease_start": "2025-04-25",
+    "lease_end": "2028-04-24",
+    "monthly_rent": 19618.2,
+    "annual_rent": 235418.4
+   },
+   "true_annual_rent": 235418.4
+  }
+ ],
+ "totals": {
+  "sqft": 227320.0,
+  "monthly_rent": 544605.55,
+  "annual_rent": 6535266.7
+ },
+ "totals_row": [
+  "Total",
+  "",
+  "227,320",
+  "",
+  "",
+  "544,605.55",
+  "6,535,266.70"
+ ],
+ "planted": {
+  "totals_mismatch": false
+ },
+ "expected_flags": [],
+ "metrics": {
+  "units": 44,
+  "occupied_units": 37,
+  "occupancy_units": 0.8409090909090909,
+  "total_sqft": 227320,
+  "occupied_sqft": 199050,
+  "occupancy_sqft": 0.8756378673235967,
+  "total_annual_rent": 6535266.7,
+  "avg_rent_psf": 32.832286862597336,
+  "walt_rent_years": 2.620792402521398,
+  "walt_sqft_years": 2.5487051172741984,
+  "expirations_by_year": {
+   "2023": {
+    "count": 1,
+    "sqft": 1900,
+    "annual_rent": 70908.0
+   },
+   "2024": {
+    "count": 1,
+    "sqft": 3580,
+    "annual_rent": 141732.2
+   },
+   "2026": {
+    "count": 3,
+    "sqft": 14830,
+    "annual_rent": 406883.2
+   },
+   "2027": {
+    "count": 8,
+    "sqft": 46740,
+    "annual_rent": 1618109.2
+   },
+   "2028": {
+    "count": 9,
+    "sqft": 46990,
+    "annual_rent": 1352807.1
+   },
+   "2029": {
+    "count": 4,
+    "sqft": 29200,
+    "annual_rent": 882169.7
+   },
+   "2030": {
+    "count": 2,
+    "sqft": 14590,
+    "annual_rent": 586312.2
+   },
+   "2031": {
+    "count": 3,
+    "sqft": 8090,
+    "annual_rent": 276443.8
+   },
+   "2032": {
+    "count": 2,
+    "sqft": 13920,
+    "annual_rent": 603858.7
+   },
+   "2033": {
+    "count": 1,
+    "sqft": 1510,
+    "annual_rent": 41540.1
+   },
+   "2035": {
+    "count": 3,
+    "sqft": 17700,
+    "annual_rent": 554502.5
+   }
+  },
+  "expiring_24_months": 19
+ }
+}

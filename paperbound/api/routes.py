@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
-from paperbound import config, deploy, jobs, usage
+from paperbound import config, deploy, exports, jobs, usage
 from paperbound.agent.executor import execute_action
 from paperbound.db.models import (
     Document,
@@ -301,6 +301,23 @@ def get_brief(
         for f in rows
     ]
     return brief_json(spec.brief(validated, today), {f.name: f for f in rows})
+
+
+@router.get("/runs/{run_id}/export.csv")
+def export_csv(run_id: int, session: Session = Depends(get_session), caller: str = Depends(current_session)):
+    """The clean rows (rent roll) or lines (T-12) of a run as CSV. Rows with a blocking flag are left out."""
+    run = owned_run(session, run_id, caller)
+    document = session.get(Document, run.document_id)
+    export = exports.EXPORTERS.get(document.doc_type if document else "")
+    if export is None:
+        raise HTTPException(404, "This document type has no CSV export")
+    rows = session.scalars(select(Field).where(Field.run_id == run_id).order_by(Field.id))
+    validated = [
+        ValidatedField(f.name, f.value_json, f.source_quote, f.page_no, f.bbox, f.confidence or 0.0, 0.0, list(f.flags or []), False, f.bboxes or [], f.label)
+        for f in rows
+    ]
+    return Response(export(validated), media_type="text/csv", headers={
+        "Content-Disposition": f'attachment; filename="paperbound-run-{run_id}.csv"', "Cache-Control": "private, no-store"})
 
 
 @router.get("/runs/{run_id}/actions")

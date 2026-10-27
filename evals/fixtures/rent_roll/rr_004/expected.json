@@ -1,0 +1,312 @@
+{
+ "id": "rr_004",
+ "doc_type": "rent_roll",
+ "dev_only": true,
+ "pdf": "doc.pdf",
+ "as_of": "2026-10-22",
+ "property": {
+  "name": "Westgate Office Park",
+  "address": "2300 Westgate Drive, Tempe, AZ 85281"
+ },
+ "layout": "B",
+ "pages": 1,
+ "headers": [
+  "Tenant",
+  "Unit",
+  "RSF",
+  "Commencement",
+  "Expiration",
+  "Annual $/SF",
+  "Status"
+ ],
+ "mapping": {
+  "0": "tenant",
+  "1": "unit",
+  "2": "sqft",
+  "3": "lease_start",
+  "4": "lease_end",
+  "5": "rent_psf",
+  "6": "status"
+ },
+ "rows": [
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Lumen Optical",
+    "unit": "1A",
+    "sqft": 1790,
+    "lease_start": "2020-05-24",
+    "lease_end": "2025-05-23",
+    "rent_psf": 28.09
+   },
+   "true_annual_rent": 50281.1
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Starlight Cinema Cafe",
+    "unit": "1B",
+    "sqft": 6430,
+    "lease_start": "2025-07-09",
+    "lease_end": "2030-07-08",
+    "rent_psf": 45.56
+   },
+   "true_annual_rent": 292950.8
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Copperleaf Yoga",
+    "unit": "1C",
+    "sqft": 9350,
+    "lease_start": "2023-01-04",
+    "lease_end": "2028-01-03",
+    "rent_psf": 25.71
+   },
+   "true_annual_rent": 240388.5
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Quarry Hill Brewing",
+    "unit": "1D",
+    "sqft": 1360,
+    "lease_start": "2025-02-13",
+    "lease_end": "2028-02-12",
+    "rent_psf": 42.9
+   },
+   "true_annual_rent": 58344.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Summit Legal Group",
+    "unit": "1E",
+    "sqft": 8810,
+    "lease_start": "2025-04-17",
+    "lease_end": "2035-04-16",
+    "rent_psf": 24.3
+   },
+   "true_annual_rent": 214083.0
+  },
+  {
+   "page": 1,
+   "status": "vacant",
+   "cells": {
+    "tenant": null,
+    "unit": "1F",
+    "sqft": 6770,
+    "lease_start": null,
+    "lease_end": null,
+    "rent_psf": null
+   },
+   "true_annual_rent": null
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Maple Street Bakery",
+    "unit": "1G",
+    "sqft": 2760,
+    "lease_start": "2021-11-30",
+    "lease_end": "2026-11-29",
+    "rent_psf": 38.93
+   },
+   "true_annual_rent": 107446.8
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Pioneer Engineering",
+    "unit": "1H",
+    "sqft": 2340,
+    "lease_start": "2020-11-22",
+    "lease_end": "2027-11-21",
+    "rent_psf": 31.1
+   },
+   "true_annual_rent": 72774.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Evergreen Accounting",
+    "unit": "2A",
+    "sqft": 3480,
+    "lease_start": "2025-03-01",
+    "lease_end": "2028-02-28",
+    "rent_psf": 42.48
+   },
+   "true_annual_rent": 147830.4
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Foxglove Florist",
+    "unit": "2B",
+    "sqft": 3820,
+    "lease_start": "2020-03-13",
+    "lease_end": "2025-03-12",
+    "rent_psf": 20.52
+   },
+   "true_annual_rent": 78386.4
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Orchard Pharmacy",
+    "unit": "2C",
+    "sqft": 8930,
+    "lease_start": "2026-05-08",
+    "lease_end": "2036-05-07",
+    "rent_psf": 44.87
+   },
+   "true_annual_rent": 400689.1
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Granite Title",
+    "unit": "2D",
+    "sqft": 10310,
+    "lease_start": "2025-11-07",
+    "lease_end": "2030-11-06",
+    "rent_psf": 37.36
+   },
+   "true_annual_rent": 385181.6
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Cobalt Labs",
+    "unit": "2E",
+    "sqft": 5400,
+    "lease_start": "2024-04-19",
+    "lease_end": "2031-04-18",
+    "rent_psf": 41.77
+   },
+   "true_annual_rent": 225558.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Ironbridge Capital",
+    "unit": "2F",
+    "sqft": 2320,
+    "lease_start": "2026-05-02",
+    "lease_end": "2031-05-01",
+    "rent_psf": 43.9
+   },
+   "true_annual_rent": 101848.0
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Delta Print & Ship",
+    "unit": "2G",
+    "sqft": 1640,
+    "lease_start": "2022-04-02",
+    "lease_end": "2027-04-01",
+    "rent_psf": 23.51
+   },
+   "true_annual_rent": 38556.4
+  },
+  {
+   "page": 1,
+   "status": "occupied",
+   "cells": {
+    "tenant": "Vantage Consulting",
+    "unit": "2H",
+    "sqft": 5600,
+    "lease_start": "2023-07-31",
+    "lease_end": "2028-07-30",
+    "rent_psf": 29.86
+   },
+   "true_annual_rent": 167216.0
+  }
+ ],
+ "totals": {
+  "sqft": 81110.0
+ },
+ "totals_row": [
+  "Total",
+  "",
+  "81,110",
+  "",
+  "",
+  "",
+  ""
+ ],
+ "planted": {
+  "totals_mismatch": false
+ },
+ "expected_flags": [],
+ "metrics": {
+  "units": 16,
+  "occupied_units": 15,
+  "occupancy_units": 0.9375,
+  "total_sqft": 81110,
+  "occupied_sqft": 74340,
+  "occupancy_sqft": 0.9165331031931945,
+  "total_annual_rent": 2581534.1,
+  "avg_rent_psf": 34.726043852569276,
+  "walt_rent_years": 4.153631557471585,
+  "walt_sqft_years": 3.918905257435867,
+  "expirations_by_year": {
+   "2025": {
+    "count": 2,
+    "sqft": 5610,
+    "annual_rent": 128667.5
+   },
+   "2026": {
+    "count": 1,
+    "sqft": 2760,
+    "annual_rent": 107446.8
+   },
+   "2027": {
+    "count": 2,
+    "sqft": 3980,
+    "annual_rent": 111330.4
+   },
+   "2028": {
+    "count": 4,
+    "sqft": 19790,
+    "annual_rent": 613778.9
+   },
+   "2030": {
+    "count": 2,
+    "sqft": 16740,
+    "annual_rent": 678132.4
+   },
+   "2031": {
+    "count": 2,
+    "sqft": 7720,
+    "annual_rent": 327406.0
+   },
+   "2035": {
+    "count": 1,
+    "sqft": 8810,
+    "annual_rent": 214083.0
+   },
+   "2036": {
+    "count": 1,
+    "sqft": 8930,
+    "annual_rent": 400689.1
+   }
+  },
+  "expiring_24_months": 7
+ }
+}

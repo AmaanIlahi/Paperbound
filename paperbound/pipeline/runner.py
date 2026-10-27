@@ -87,12 +87,14 @@ def run_pipeline(
     classifier: Callable = classify_document,
     observer: Callable | None = None,
     generic_planner: Callable = plan_generic_actions,
+    pdf: bytes | None = None,
 ) -> PipelineResult:
     """classify -> extract -> validate -> obligations -> impact -> planner over already-parsed pages.
 
     Never raises on stage failure. `extractor(pages)` overrides the document type's own extractor (used by tests).
     A document the classifier calls unsupported is `generic` and follows the same stages with the generic schema
     (`generic_planner` stands in for the planner; it is deterministic and calls no model).
+    Tabular types (rent roll, T-12) detect their tables in `pdf`, the file's bytes; their planner is code, not a model.
     `observer(event, stage, step, result)` is told when a stage starts ("start", step None) and when it has been
     appended to result.steps ("end", including skipped stages); result already holds that stage's output.
     """
@@ -149,9 +151,17 @@ def run_pipeline(
         return result
 
     def do_extract(step: StepRecord):
-        extraction = extractor(pages) if extractor else spec.extract(pages, today)
-        step.model, step.tokens, step.cost_usd = extraction.model, extraction.tokens, extraction.cost_usd
+        if extractor:
+            extraction = extractor(pages)
+        else:
+            extraction = spec.extract(pages, today, pdf) if spec.table else spec.extract(pages, today)
+        step.model, step.tokens, step.cost_usd = extraction.model or None, extraction.tokens, extraction.cost_usd
         extracted = extraction.fields
+        if spec.table:
+            result.extracted_present = extracted.count()
+            step.output_summary = extracted.summary()
+            step.reason = extracted.explain()
+            return extracted
         names = type(extracted).model_fields
         if spec.name == "generic":
             result.extracted_present = count_generic(extracted)
@@ -216,7 +226,7 @@ def run_pipeline(
         result.status = "partial"
 
     is_generic = spec.name == "generic"
-    if not derived and not is_generic:  # the generic path always proposes at least the review flag
+    if not derived and not is_generic and spec.planner is None:  # the generic and tabular paths are code and may still propose a review flag
         result.steps.append(
             StepRecord(stage="planner", status="skipped", ts_offset_ms=elapsed, reason="No obligations, so there is nothing to plan.")
         )
@@ -226,6 +236,8 @@ def run_pipeline(
     def do_planner(step: StepRecord):
         if is_generic:
             plan = generic_planner(validated, derived, existing_obligations, brief=result.brief, today=today, type_label=result.type_label)
+        elif spec.planner is not None:
+            plan = spec.planner(validated, derived, existing_obligations, brief=result.brief, today=today, doc_type=spec.name)
         else:
             plan = planner(validated, derived, existing_obligations, brief=result.brief, today=today, doc_type=spec.name)
         result.plan = plan
@@ -233,6 +245,7 @@ def run_pipeline(
         step.output_summary = f"{len(plan.actions)} action(s) proposed, {len(plan.rejected)} rejected"
         step.reason = (
             ("Built by code with no model: a reminder per usable future deadline and a review flag. " if is_generic
+             else "Built by code with no model: reminders for usable leases that expire soon, and a review flag if any check failed. " if spec.planner is not None
              else "The agent only proposes; every side-effect action waits for approval. ")
             + f"{plan.api_calls} model call(s), {plan.tool_calls} tool call(s)."
             + (f" Rejected: {'; '.join(r['tool'] + ': ' + r['reason'] for r in plan.rejected)}." if plan.rejected else "")

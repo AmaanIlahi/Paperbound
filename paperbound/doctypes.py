@@ -6,10 +6,18 @@ from typing import Callable
 from paperbound.pipeline.extract import extract_coi, extract_fallback, extract_lease
 from paperbound.pipeline.generic import build_generic_brief, derive_generic_obligations
 from paperbound.pipeline.impact import build_brief, build_coi_brief
+from paperbound.pipeline.rent_roll import build_rent_roll_brief, derive_rent_roll_obligations, extract_rent_roll, validate_rent_roll
 from paperbound.pipeline.obligations import derive_coi_obligations, derive_obligations
 from paperbound.pipeline.validate import validate_coi, validate_fields, validate_generic
 from paperbound.schemas.insurance import COI_ANCHORS
 from paperbound.schemas.lease import LEASE_ANCHORS
+
+
+def _table_planner():
+    """Imported on first use: the planner module imports this one."""
+    from paperbound.agent import table_planner
+
+    return table_planner
 
 
 @dataclass(frozen=True)
@@ -21,6 +29,8 @@ class DocType:
     obligations: Callable  # (validated fields) -> (obligations, skipped reasons)
     brief: Callable  # (validated fields, today) -> Brief
     anchors: dict | None = None  # field -> words its quote (or sentence) must contain; None: no schema, no check (generic)
+    table: bool = False  # tabular types: tables found by code, the model only maps columns or labels (section 4.9); extract also takes the PDF bytes
+    planner: Callable | None = None  # a code-only planner (no model); typed documents use the planner agent instead
 
 
 SUPPORTED: dict[str, DocType] = {
@@ -31,6 +41,11 @@ SUPPORTED: dict[str, DocType] = {
     "insurance_certificate": DocType(
         "insurance_certificate", "Certificate of liability insurance",
         lambda pages, today: extract_coi(pages, today=today), validate_coi, derive_coi_obligations, build_coi_brief, COI_ANCHORS,
+    ),
+    "rent_roll": DocType(
+        "rent_roll", "Rent roll",
+        lambda pages, today, pdf: extract_rent_roll(pages, pdf, today), validate_rent_roll, derive_rent_roll_obligations,
+        build_rent_roll_brief, None, True, lambda *a, **k: _table_planner().plan_rent_roll_actions(*a, **k),
     ),
 }
 

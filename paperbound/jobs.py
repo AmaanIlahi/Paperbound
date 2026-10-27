@@ -22,12 +22,13 @@ from paperbound.agent.planner import resolve_placeholders
 from paperbound.db.models import Document, Field, Job, Obligation, ProposedAction, Run, RunEvent, Step
 from paperbound.db.session import new_session
 from paperbound.doctypes import UNSUPPORTED_MESSAGE, spec_for
-from paperbound.narration import DEFAULT_ACTION_TEXT, GENERIC_ACTION_TEXT, Narrator
+from paperbound.narration import DEFAULT_ACTION_TEXT, GENERIC_ACTION_TEXT, TABLE_ACTION_TEXT, Narrator
 from paperbound.pipeline.extract import MODEL
 from paperbound.pipeline.parse import ParsedPage
 from paperbound.pipeline.runner import make_parse_step, run_pipeline
 from paperbound.pipeline.types import StepRecord
 from paperbound.presenters import action_json, brief_json, field_json, obligation_json
+from paperbound.storage import get_storage
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +39,17 @@ TERMINAL = ("done", "partial", "failed")
 def pipeline_overrides() -> dict:
     """Extra keyword arguments for run_pipeline (extractor, planner, classifier, today). Tests replace this."""
     return {}
+
+
+def load_pdf(document: Document) -> bytes | None:
+    """The stored PDF, for the tabular types that detect tables in it. None if the file is not in this storage (the
+    run then reports that its tables cannot be detected rather than guessing)."""
+    try:
+        with get_storage().open(document.storage_key) as f:
+            return f.read()
+    except (FileNotFoundError, ValueError, OSError):
+        log.warning("source PDF %s is not in storage", document.storage_key)
+        return None
 
 
 def pages_from_document(document: Document) -> list[ParsedPage]:
@@ -85,7 +97,7 @@ def step_event(seq: int, step: StepRecord, narration: str, status: str | None = 
 
 
 def action_narration(group_key: str | None, tool: str) -> str:
-    texts = {**DEFAULT_ACTION_TEXT, **GENERIC_ACTION_TEXT}
+    texts = {**DEFAULT_ACTION_TEXT, **GENERIC_ACTION_TEXT, **TABLE_ACTION_TEXT}
     return texts.get(group_key or "") or texts.get("tool:" + tool) or texts["default"]
 
 
@@ -124,7 +136,8 @@ def _execute(session: Session, job: Job, run: Run, document: Document) -> None:
         cls = result.classification
         spec = spec_for(result.doc_type)
         generic = result.doc_type == "generic"
-        narrator = Narrator(spec.label.lower() if spec and not generic else "document", document.filename, len(pages), as_of)
+        narrator = Narrator(spec.label.lower() if spec and not generic else "document", document.filename, len(pages), as_of,
+                            table=spec.name if spec and spec.table else None)
         document.doc_type = result.doc_type
         document.type_label = result.type_label
         info = {"method": cls.method, "reason": cls.reason, "scores": cls.scores} if cls else None
@@ -145,6 +158,8 @@ def _execute(session: Session, job: Job, run: Run, document: Document) -> None:
                            "source_quote": r.source_quote, "label": r.label})
         for r in rows:
             send("field", {"phase": "validated", **field_json(r)})
+        if narrator.table:
+            return narrator.validate_table([{"flags": f.flags, "name": f.name} for f in result.fields])
         return narrator.validate([{"value": f.value, "flags": f.flags, "name": f.name} for f in result.fields])
 
     def on_obligations(step: StepRecord, result) -> str:
@@ -178,6 +193,8 @@ def _execute(session: Session, job: Job, run: Run, document: Document) -> None:
                 execute_action(session, action)
             actions.append(action)
         state["actions"] = actions
+        if narrator.table:
+            return narrator.planner_table(len(actions))
         return narrator.planner_generic(len(actions)) if result.doc_type == "generic" else narrator.planner(len(actions), step.reason)
 
     handlers = {"classify": on_classified, "validate": on_validated, "obligations": on_obligations,
@@ -209,6 +226,8 @@ def _execute(session: Session, job: Job, run: Run, document: Document) -> None:
             text = narrator.failed(stage, step.error or "unknown error")
         elif step.status == "skipped":
             text = narrator.no_planner() if stage == "planner" and not result.obligations else narrator.skipped(stage, step.reason)
+        elif stage == "extract" and narrator.table:
+            text = narrator.extract_table(step.output_summary, {"tokens": step.tokens, "cost_usd": step.cost_usd})
         elif stage == "extract":
             text = narrator.extract(result.extracted_present, {"tokens": step.tokens, "cost_usd": step.cost_usd})
         elif stage in handlers:
@@ -228,7 +247,7 @@ def _execute(session: Session, job: Job, run: Run, document: Document) -> None:
         {"kind": o.kind, "due_date": o.due_date.isoformat() if o.due_date else None, "description": o.description}
         for o in earlier
     ]
-    result = run_pipeline(pages, parse_step, existing_obligations=existing, observer=observer, **pipeline_overrides())
+    result = run_pipeline(pages, parse_step, existing_obligations=existing, observer=observer, pdf=load_pdf(document), **pipeline_overrides())
 
     run.status = result.status
     run.cost_usd = result.cost_usd
