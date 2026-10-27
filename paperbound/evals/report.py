@@ -6,6 +6,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from paperbound import config
+from paperbound.evals import cre as cre_eval
 from paperbound.evals import generic as generic_eval
 from paperbound.evals import metrics
 from paperbound.pipeline.validate import BLOCKING_FLAGS
@@ -24,6 +25,20 @@ GENERIC_RATES = (
     "action_correct", "confidence_cap_respected",
 )
 CUAD_RATES = ("f1", "precision", "recall", "date_exact", "grounding_rate", "detection_rate")
+RENT_ROLL_RATES = (
+    "classification_accuracy", "header_mapping_accuracy", "header_mapping_exact_docs", "row_count_correct", "cell_accuracy", "row_exact_rate",
+    "page_accuracy", "totals_check_correct", "flags_exact", "metric_accuracy", "metric_docs_correct", "action_correct", "usable_view_cell_accuracy",
+)
+T12_RATES = (
+    "classification_accuracy", "month_headers_correct", "line_count_correct", "line_category_accuracy", "category_exact_docs", "cell_accuracy",
+    "page_accuracy", "noi_exact_match", "figure_accuracy", "mismatch_detection_recall", "mismatch_detection_precision",
+    "mismatch_detection_exact_docs", "anomaly_recall", "anomaly_precision", "action_correct", "usable_view_category_accuracy",
+)
+CROSSCHECK_RATES = (
+    "pair_flags_exact", "rent_income_detection", "rent_income_difference_ok", "property_same_recognised", "property_mismatch_detection",
+    "clean_pairs_passed", "detection_correct",
+)
+CRE_SUITES = ("rent_roll", "t12", "crosscheck")  # dev fixtures; the held-out runs are saved apart and never reach the baseline
 
 
 def _ratio(hits: int, total: int):
@@ -176,6 +191,22 @@ def summarize_generic(records: list[dict]) -> dict:
 
 
 # ---------------------------------------------------------------------------------------------------------------
+# commercial real estate pack: rent roll, T-12, cross-check
+# ---------------------------------------------------------------------------------------------------------------
+
+def summarize_rent_roll(records: list[dict]) -> dict:
+    return {"all": cre_eval.summarize_rent_roll(records)}
+
+
+def summarize_t12(records: list[dict]) -> dict:
+    return {"all": cre_eval.summarize_t12(records)}
+
+
+def summarize_crosscheck(records: list[dict]) -> dict:
+    return {"all": cre_eval.summarize_crosscheck(records)}
+
+
+# ---------------------------------------------------------------------------------------------------------------
 # CUAD
 # ---------------------------------------------------------------------------------------------------------------
 
@@ -234,7 +265,8 @@ def failures_cuad(rows: list[dict], f1_floor: float = 0.5) -> list[dict]:
 
 def flat_metrics(suite: str, groups: dict) -> dict[str, float]:
     """Higher-is-better rates keyed 'suite/group/metric', for the baseline diff."""
-    rates = {"synthetic": SYNTHETIC_RATES, "generic": GENERIC_RATES}.get(suite, CUAD_RATES)
+    rates = {"synthetic": SYNTHETIC_RATES, "generic": GENERIC_RATES, "rent_roll": RENT_ROLL_RATES, "t12": T12_RATES,
+             "crosscheck": CROSSCHECK_RATES}.get(suite, CUAD_RATES)
     flat = {}
     for group, values in groups.items():
         for name in rates:
@@ -267,6 +299,22 @@ def save_baseline(flat: dict[str, float], extra: dict, path: Path = BASELINE, re
     path.write_text(json.dumps({**extra, "metrics": dict(sorted(existing.items()))}, indent=1) + "\n", encoding="utf-8", newline="\n")
 
 
+def merge_median_baseline(files: list[Path], path: Path = BASELINE, saved: str | None = None) -> list[str]:
+    """Add the per-metric median of these saved runs to the baseline, leaving every key of other suites exactly as it is.
+    Used to record a new suite (rent roll, T-12, cross-check) without re-recording the old ones. Returns the keys written."""
+    flat = median_baseline(files)
+    existing = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"metrics": {}}
+    suites = sorted({k.split("/")[0] for k in flat})
+    metrics_ = {k: v for k, v in existing.get("metrics", {}).items() if k.split("/")[0] not in suites}  # replace only these suites' keys
+    metrics_.update(flat)
+    names = ", ".join(Path(f).name for f in files)
+    existing["note"] = (existing.get("note", "") + f" | merged later, median of the runs {names} for {', '.join(suites)}").strip(" |")
+    existing["merged"] = {**existing.get("merged", {}), **{s: saved or "" for s in suites}}
+    existing["metrics"] = dict(sorted(metrics_.items()))
+    path.write_text(json.dumps(existing, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return sorted(flat)
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # reading saved runs and markdown
 # ---------------------------------------------------------------------------------------------------------------
@@ -278,7 +326,7 @@ def latest_runs(directory: Path | None = None) -> dict[str, dict]:
     run of each type; `runs` says which timestamp each type comes from.
     """
     out = {}
-    for suite in ("synthetic", "generic", "cuad"):
+    for suite in ("synthetic", "generic", "cuad", *CRE_SUITES):
         files = sorted((directory or RESULTS_DIR).glob(f"{suite}_[0-9]*.json"))
         merged, records, fallback_modes = None, [], []
         for path in reversed(files):
@@ -288,7 +336,7 @@ def latest_runs(directory: Path | None = None) -> dict[str, dict]:
                 continue
             if data.get("suite") != suite or not data.get("groups"):
                 continue
-            if suite in ("cuad", "generic"):
+            if suite in ("cuad", "generic", *CRE_SUITES):
                 out[suite] = {**data, "_file": path.name}
                 break
             types = {g.split("/")[0] for g in data["groups"]}
@@ -324,6 +372,37 @@ def _calibration_table(cal: dict) -> list[str]:
 USABLE_NOTE = ("**Usable view** (beside the metrics above, which are unchanged): a field carrying a blocking flag counts as abstained, "
                "not extracted, because the pipeline shows it but never uses it. \"Wrong among answered\" is the share of unblocked "
                "answers that are wrong, the errors that reach the user.")
+
+
+CRE_NOTE = ("DEV fixtures: template-generated and used while building the code, so they say little about real documents. "
+            "The held-out set is the honest measure and is reported apart.")
+
+
+def render_cre_markdown(suite: str, g: dict) -> list[str]:
+    if suite == "rent_roll":
+        md = ["| Docs | Classif. | Header mapping | Cell acc. | Row exact | Totals check | Metrics | Actions | Cost/doc |", "|---|---|---|---|---|---|---|---|---|",
+              f"| {g['n_docs']} | {pct(g['classification_accuracy'])} | {pct(g['header_mapping_accuracy'])} ({g['n_columns']} cols) | "
+              f"{pct(g['cell_accuracy'])} ({g['n_cells']} cells) | {pct(g['row_exact_rate'])} | {pct(g['totals_check_correct'])} | "
+              f"{pct(g['metric_accuracy'])} | {pct(g['action_correct'])} | ${g['cost_usd_mean']:.4f} |", "", CRE_NOTE, "",
+              f"Usable view: cell accuracy {pct(g['cell_accuracy'])} -> {pct(g['usable_view_cell_accuracy'])}; wrong among answered "
+              f"{pct(g['usable_view_wrong_rate'])}; abstained {g['usable_view_abstained']}.", "",
+              "| Metric | Right |", "|---|---|"]
+        md += [f"| {m.replace('_', ' ')} | {pct(g[f'metric_{m}'])} |" for m in
+               ("occupancy_units", "occupancy_sqft", "total_annual_rent", "avg_rent_psf", "walt_rent", "walt_sqft", "expirations_by_year", "expiring_24m")]
+        md += ["", "| Layout | Docs | Header mapping | Cell acc. |", "|---|---|---|---|"]
+        md += [f"| {lay} | {v['n_docs']} | {pct(v['header_mapping_accuracy'])} | {pct(v['cell_accuracy'])} |" for lay, v in g["by_layout"].items()]
+        return md
+    if suite == "t12":
+        return ["| Docs | Classif. | Months | Line category | Cell acc. | NOI exact | Mismatch recall | Mismatch precision | Anomaly recall | Anomaly precision | Cost/doc |",
+                "|---|---|---|---|---|---|---|---|---|---|---|",
+                f"| {g['n_docs']} | {pct(g['classification_accuracy'])} | {pct(g['month_headers_correct'])} | {pct(g['line_category_accuracy'])} ({g['n_lines']} lines) | "
+                f"{pct(g['cell_accuracy'])} | {pct(g['noi_exact_match'])} | {pct(g['mismatch_detection_recall'])} | {pct(g['mismatch_detection_precision'])} | "
+                f"{pct(g['anomaly_recall'])} | {pct(g['anomaly_precision'])} | ${g['cost_usd_mean']:.4f} |", "", CRE_NOTE, "",
+                f"Usable view: line category accuracy {pct(g['line_category_accuracy'])} -> {pct(g['usable_view_category_accuracy'])}; wrong among answered "
+                f"{pct(g['usable_view_wrong_rate'])}; abstained {g['usable_view_abstained']}."]
+    return ["| Pairs | Negatives | Planted rent mismatch found | False alarms | Same property recognised | Different property found | All correct |", "|---|---|---|---|---|---|---|",
+            f"| {g['n_pairs']} | {g['n_negatives']} | {pct(g['rent_income_detection'])} | {g['rent_income_false_alarms']} | {pct(g['property_same_recognised'])} | "
+            f"{pct(g['property_mismatch_detection'])} | {pct(g['detection_correct'])} |", "", CRE_NOTE]
 
 
 def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None = None) -> str:
@@ -375,6 +454,8 @@ def render_markdown(runs: dict[str, dict], drops: dict[str, list[dict]] | None =
                    f"{pct(g.get('usable_view_wrong_rate'))}; abstained {g.get('usable_view_abstained', '-')}.",
                    "", f"Label guess right: {pct(g['type_label_ok'])}; field label right (of matched): {pct(g['label_accuracy'])}; "
                    f"email drafts proposed: {g['email_drafts']}; extra fields not in the ground truth: {g['n_extras']}."]
+        elif suite in CRE_SUITES:
+            md += render_cre_markdown(suite, groups["all"])
         else:
             md += ["| Category | Labeled | Token P | Token R | Token F1 | Detected | False pos. | Date exact | Grounding |",
                    "|---|---|---|---|---|---|---|---|---|"]

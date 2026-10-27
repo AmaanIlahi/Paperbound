@@ -158,6 +158,46 @@ def _cuad_html(run: dict) -> str:
     return "<h3>Summary</h3>" + _table(head, rows) + cost + usable
 
 
+def _cre_html(suite: str, run: dict) -> str:
+    g = run["groups"]["all"]
+    if suite == "rent_roll":
+        head = ["Docs", "Classified", "Header mapping", "Cell accuracy", "Row exact", "Totals check", "Metrics right", "Actions right", "Cost/doc"]
+        rows = [[str(g["n_docs"]), _pct(g["classification_accuracy"]), f'{_pct(g["header_mapping_accuracy"])} ({g["n_columns"]} columns)',
+                 f'{_pct(g["cell_accuracy"])} ({g["n_cells"]} cells)', _pct(g["row_exact_rate"]), _pct(g["totals_check_correct"]),
+                 _pct(g["metric_accuracy"]), _pct(g["action_correct"]), f'${g["cost_usd_mean"]:.4f}']]
+        usable = (f'<p class="muted"><strong>Usable view:</strong> cell accuracy {_pct(g["cell_accuracy"])} &rarr; {_pct(g["usable_view_cell_accuracy"])} '
+                  f'(a cell in a flagged row is abstained); wrong among answered {_pct(g["usable_view_wrong_rate"])}; abstained {g["usable_view_abstained"]}.</p>')
+        metric_rows = [[escape(m.replace("_", " ")), _pct(g[f"metric_{m}"])] for m in
+                       ("occupancy_units", "occupancy_sqft", "total_annual_rent", "avg_rent_psf", "walt_rent", "walt_sqft", "expirations_by_year", "expiring_24m")]
+        layout_rows = [[escape(k), str(v["n_docs"]), _pct(v["header_mapping_accuracy"]), _pct(v["cell_accuracy"])] for k, v in g["by_layout"].items()]
+        return (_table(head, rows) + usable + "<h3>Metrics</h3>" + _table(["Metric", "Right"], metric_rows)
+                + "<h3>By layout</h3>" + _table(["Layout", "Docs", "Header mapping", "Cell accuracy"], layout_rows))
+    if suite == "t12":
+        head = ["Docs", "Classified", "Months read", "Line category", "Cell accuracy", "NOI exact", "Mismatch recall", "Mismatch precision",
+                "Anomaly recall", "Anomaly precision", "Cost/doc"]
+        rows = [[str(g["n_docs"]), _pct(g["classification_accuracy"]), _pct(g["month_headers_correct"]), f'{_pct(g["line_category_accuracy"])} ({g["n_lines"]} lines)',
+                 _pct(g["cell_accuracy"]), _pct(g["noi_exact_match"]), _pct(g["mismatch_detection_recall"]), _pct(g["mismatch_detection_precision"]),
+                 _pct(g["anomaly_recall"]), _pct(g["anomaly_precision"]), f'${g["cost_usd_mean"]:.4f}']]
+        usable = (f'<p class="muted"><strong>Usable view:</strong> line category accuracy {_pct(g["line_category_accuracy"])} &rarr; '
+                  f'{_pct(g["usable_view_category_accuracy"])} (a flagged line is abstained); wrong among answered {_pct(g["usable_view_wrong_rate"])}; '
+                  f'abstained {g["usable_view_abstained"]}.</p>')
+        return _table(head, rows) + usable
+    head = ["Pairs", "Negative controls", "Planted rent mismatch found", "False alarms", "Same property recognised", "Different property found", "All correct"]
+    rows = [[str(g["n_pairs"]), str(g["n_negatives"]), _pct(g["rent_income_detection"]), str(g["rent_income_false_alarms"]),
+             _pct(g["property_same_recognised"]), _pct(g["property_mismatch_detection"]), _pct(g["detection_correct"])]]
+    return _table(head, rows)
+
+
+CRE_TITLES = {
+    "rent_roll": ("Rent roll (dev fixtures)", "Ten template-generated rent rolls in four layouts (header names, column order, $/SF only, annual only, monthly only, "
+                  "multi-page with a repeated header, totals rows, vacancies, one planted totals mismatch)."),
+    "t12": ("T-12 operating statement (dev fixtures)", "Ten template-generated statements in three layouts, with a planted NOI mismatch, capex inside the operating "
+            "expenses, a line whose months do not add to its total, and month spikes."),
+    "crosscheck": ("Rent roll &harr; T-12 cross-check (dev fixtures)", "Five rent roll + T-12 pairs for one property (one with a planted rent income mismatch) and "
+                   "five negative controls (a rent roll against another property's T-12)."),
+}
+
+
 def _modes_html(run: dict) -> str:
     items = "".join(f'<li>{escape(m["mode"])} <span class="muted">({m["count"]})</span></li>' for m in run["failure_modes"]) or "<li>none</li>"
     return f"<h3>Top failure modes</h3><ol>{items}</ol>"
@@ -195,6 +235,16 @@ def _suite_html(directory=None) -> str:
             "Scores are token overlap between our quote and the human-labeled span, so a correct answer worded differently can score "
             f'low. Run {escape(r["timestamp"])}.</p>{_cuad_html(r)}{_modes_html(r)}</section>'
         )
+    for suite in report.CRE_SUITES:
+        if suite in runs:
+            r = runs[suite]
+            title, blurb = CRE_TITLES[suite]
+            out.append(
+                f'<section class="eval-suite"><h2>{title}</h2><p class="note"><b>Dev only.</b> {blurb} These documents were used while '
+                "building and tuning the code, so they are a regression check, not a measure of accuracy on real documents; "
+                f'the held-out set is reported separately. Run {escape(r["timestamp"])}; as of {escape(r["as_of"])}.</p>'
+                f"{_cre_html(suite, r)}{_modes_html(r)}</section>"
+            )
     return "".join(out)
 
 

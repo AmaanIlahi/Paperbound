@@ -345,3 +345,17 @@ def test_the_full_pipeline_reads_a_rent_roll_and_proposes_only_code_built_action
     assert result.steps[2].tokens == 100 and "22 unit row" in result.steps[2].output_summary  # the mapping call is the only model use
     assert {a.tool for a in result.plan.actions} == {"create_calendar_event", "flag_for_review"}  # rr_003 has the planted mismatch
     assert result.extracted_present == 22
+
+
+def test_a_pipeline_run_counts_from_its_own_date_not_the_system_clock(monkeypatch):
+    """Reminders and the 24-month window follow run_pipeline's `today` (the eval and AS_OF contract), never the real date."""
+    exp, pdf = _expected("rr_009"), _pdf_of("rr_009")
+    pages = parse_pdf(pdf)
+    mapping = {int(k): v for k, v in exp["mapping"].items()}
+    monkeypatch.delenv("AS_OF", raising=False)
+    counts = {}
+    for today in (date(2026, 10, 22), date(2026, 10, 30)):  # one lease ends 2026-10-25
+        result = run_pipeline(pages, make_parse_step(pages, 1, False), today=today, pdf=pdf, classifier=lambda p: Classification("rent_roll", "heuristic", "t"),
+                              extractor=lambda p: rr.extract_rent_roll(p, pdf, mapper=fake_mapper(mapping)))
+        counts[today] = len(result.obligations)
+    assert counts[date(2026, 10, 22)] == exp["metrics"]["expiring_24_months"] == 8 and counts[date(2026, 10, 30)] == 7

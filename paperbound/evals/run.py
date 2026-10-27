@@ -4,6 +4,7 @@
     python -m paperbound.evals.run --suite synthetic --doc-type lease --variant injection
     python -m paperbound.evals.run --suite generic
     python -m paperbound.evals.run --suite cuad --limit 10
+    python -m paperbound.evals.run --suite rent_roll        # also t12, crosscheck, or cre for the three
 
 Every run is as of AS_OF (default 2026-10-22). OpenAI calls are capped per run (--budget, default 500; evals/.budget.json
 keeps a cumulative count as a report only) and only gpt-4o-mini is allowed. Results go to evals/results/<suite>_<timestamp>.json,
@@ -20,6 +21,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from paperbound import config
+from paperbound.evals import cre as cre_eval
 from paperbound.evals import cuad, report, synthetic
 from paperbound.evals import generic as generic_eval
 from paperbound.evals.budget import DEFAULT_LIMIT, Budget, BudgetExceeded
@@ -92,6 +94,61 @@ def run_generic(args, budget: Budget, as_of: date) -> dict:
                 "Five hand-written notices, invoices and orders: a type Paperbound has no schema for. Scored by value, not label."]}
 
 
+CRE_SCORERS = {
+    "rent_roll": (cre_eval.score_rent_roll, report.summarize_rent_roll, cre_eval.failures_rent_roll,
+                  "Template-generated dev rent rolls in four layouts. Not a measure of accuracy on real documents."),
+    "t12": (cre_eval.score_t12, report.summarize_t12, cre_eval.failures_t12,
+            "Template-generated dev T-12 statements in three layouts. Not a measure of accuracy on real documents."),
+}
+
+
+def run_cre(suite: str, args, budget: Budget, as_of: date, root: Path = cre_eval.FIXTURES, label: str = "dev") -> dict:
+    """Rent roll, T-12 or cross-check over the fixtures under `root` (the dev set, or evals/heldout with --heldout)."""
+    records, aborted = [], None
+    if suite == "crosscheck":
+        print(f"crosscheck ({label}): pairs and negative controls, {budget.remaining} OpenAI calls left")
+        try:
+            records = cre_eval.run_crosscheck(as_of, budget, root, args.limit)
+        except BudgetExceeded as exc:
+            aborted = str(exc)
+            print(f"  STOP: {aborted}")
+        for r in records:
+            print(f"  {r['id']:22} {r['kind']:9} flags {r['got_flags']} expected {r['expected_flags']} {'ok' if r['match'] else 'NO'}")
+        log, groups = report_failures(suite, records), (report.summarize_crosscheck(records) if records else {})
+        notes = ["Five rent roll + T-12 pairs and five negative controls. No model call of its own: it reuses the rent roll and T-12 runs."]
+    else:
+        scorer, summarize, failures, note = CRE_SCORERS[suite]
+        folders = cre_eval.discover(suite, args.limit, root)
+        print(f"{suite} ({label}): {len(folders)} fixtures, {budget.remaining} OpenAI calls left")
+        for folder in folders:
+            try:
+                rec = scorer(cre_eval.run_document(folder, as_of, budget))
+            except BudgetExceeded as exc:
+                aborted = str(exc)
+                print(f"  STOP: {aborted}")
+                break
+            records.append(rec)
+            if suite == "rent_roll":
+                print(f"  {rec['id']:10} {str(rec['layout']):3} map {sum(m['ok'] for m in rec['mapping'])}/{len(rec['mapping'])} "
+                      f"cells {sum(c['ok'] for c in rec['cells'])}/{len(rec['cells'])} totals {'flagged' if rec['totals']['flagged'] else 'clean'}"
+                      f"{' (planted)' if rec['totals']['planted'] else ''} metrics {sum(m['ok'] for m in rec['metrics'])}/{len(rec['metrics'])} "
+                      f"calls {rec['calls']} {rec['latency_ms'] / 1000:.1f}s" + (f"  ERRORS {rec['errors']}" if rec["errors"] else ""))
+            else:
+                print(f"  {rec['id']:10} {str(rec['layout']):3} categories {sum(ln['category_ok'] for ln in rec['lines'])}/{len(rec['lines'])} "
+                      f"cells {sum(ln['months_ok'] and ln['total_ok'] for ln in rec['lines'])}/{len(rec['lines'])} detection {'ok' if rec['detection']['match'] else 'NO'} "
+                      f"anomalies {'ok' if rec['anomalies']['match'] else 'NO'} calls {rec['calls']} {rec['latency_ms'] / 1000:.1f}s"
+                      + (f"  ERRORS {rec['errors']}" if rec["errors"] else ""))
+        log, groups, notes = failures(records), (summarize(records) if records else {}), [note]
+    ts = stamp()
+    return {"suite": suite, "timestamp": ts, "as_of": as_of.isoformat(), "n_docs": len(records), "groups": groups,
+            "failure_modes": report.failure_modes(log), "failure_log": f"failures_{suite}_{ts}.json", "_log": log, "records": records,
+            "aborted": aborted, "notes": notes, "dataset": label}
+
+
+def report_failures(suite: str, records: list[dict]) -> list[dict]:
+    return cre_eval.failures_crosscheck(records)
+
+
 def run_cuad(args, budget: Budget, as_of: date) -> dict | None:
     if not cuad.DATASET.exists():
         print("cuad: dataset not downloaded (evals/datasets/cuad/CUAD_v1.json), skipping")
@@ -142,6 +199,16 @@ def run_cuad(args, budget: Budget, as_of: date) -> dict | None:
             "notes": notes + ["Real contracts, span-scored: token overlap of our quote with the labeled span(s)."]}
 
 
+def failed_everywhere(run: dict) -> bool:
+    """True when every document of a suite ended in an error (no credits, no network, a bad key): there is nothing to report,
+    and saving it would replace the newest good result with zeros."""
+    records = run.get("records") or []
+    if run["suite"] == "crosscheck":
+        return False  # it makes no calls of its own; its inputs are the rent roll and T-12 runs
+    key = "error" if run["suite"] == "cuad" else "errors"
+    return bool(records) and all(r.get(key) for r in records)
+
+
 def save(run: dict) -> None:
     report.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     log = run.pop("_log")
@@ -171,7 +238,7 @@ def rescore_file(path) -> dict:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--suite", choices=["synthetic", "generic", "cuad", "all"], default="all")
+    parser.add_argument("--suite", choices=["synthetic", "generic", "cuad", "rent_roll", "t12", "crosscheck", "cre", "all"], default="all")
     parser.add_argument("--doc-type", choices=list(synthetic.DOC_TYPES), help="synthetic only")
     parser.add_argument("--variant", choices=["clean", "missing_field", "late_page", "injection"], help="synthetic only")
     parser.add_argument("--limit", type=int, help="at most this many documents per suite")
@@ -180,6 +247,8 @@ def main(argv=None) -> int:
     parser.add_argument("--cuad-n", type=int, help="contracts to score (default 50, or 25 when the budget is tight)")
     parser.add_argument("--median-baseline", nargs="+", metavar="RESULT_JSON",
                         help="re-record evals/baseline.json as the per-metric median of these saved runs (no model calls)")
+    parser.add_argument("--merge-median-baseline", nargs="+", metavar="RESULT_JSON",
+                        help="add the per-metric median of these saved runs to evals/baseline.json, replacing only the keys of their suites (no model calls)")
     parser.add_argument("--rescore", metavar="RESULT_JSON", help="re-score a saved synthetic run with the current rules; no model calls")
     parser.add_argument("--as-of", default=os.environ.get("AS_OF") or DEFAULT_AS_OF)
     args = parser.parse_args(argv)
@@ -193,6 +262,11 @@ def main(argv=None) -> int:
             "note": f"median over saved runs per suite {per_suite}: " + ", ".join(Path(f).name for f in args.median_baseline),
         }, replace=True)
         print(f"baseline re-recorded: {len(flat)} metrics, median of {per_suite}")
+        return 0
+
+    if args.merge_median_baseline:
+        keys = report.merge_median_baseline(args.merge_median_baseline, saved=date.today().isoformat())
+        print(f"baseline updated: {len(keys)} metrics merged, all other keys untouched")
         return 0
 
     if args.rescore:
@@ -221,10 +295,20 @@ def main(argv=None) -> int:
     if args.suite in ("cuad", "all") and not (runs and runs[-1]["aborted"]):
         if (run := run_cuad(args, budget, as_of)) is not None:
             runs.append(run)
+    for suite in report.CRE_SUITES:
+        if (args.suite in (suite, "cre", "all")) and not (runs and runs[-1]["aborted"]):
+            runs.append(run_cre(suite, args, budget, as_of))
 
     baseline = report.load_baseline()
     drops: dict[str, list[dict]] = {}
     flat_all: dict[str, float] = {}
+    unusable = [r for r in runs if failed_everywhere(r)]
+    for run in unusable:
+        first = next(iter(run["records"]), {})
+        error = (first.get("errors") or [first.get("error")] or [""])[0]
+        print(f"NOT SAVED: every {run['suite']} document failed (first error: {str(error)[:160]}). "
+              "Nothing was written to evals/results and the baseline was not touched.")
+    runs = [r for r in runs if r not in unusable]
     for run in runs:
         flat = report.flat_metrics(run["suite"], run["groups"])
         flat_all |= flat
@@ -233,8 +317,9 @@ def main(argv=None) -> int:
         save(run)
         print(f"saved evals/results/{run['suite']}_{run['timestamp']}.json  ({run['n_docs']} docs"
               + (f", ABORTED: {run['aborted']}" if run["aborted"] else "") + ")")
-    report.LATEST_MD.write_text(report.render_markdown(report.latest_runs(), drops), encoding="utf-8", newline="\n")
-    print("wrote evals/results/latest.md")
+    if runs:
+        report.LATEST_MD.write_text(report.render_markdown(report.latest_runs(), drops), encoding="utf-8", newline="\n")
+        print("wrote evals/results/latest.md")
     for suite, items in drops.items():
         for d in items:
             print(f"DROP over 2 points: {d['metric']} {d['baseline']:.3f} -> {d['current']:.3f} ({d['delta_points']} points)")
@@ -244,7 +329,7 @@ def main(argv=None) -> int:
     elif args.save_baseline:
         print("baseline NOT saved: a run was aborted or produced no metrics")
     print(f"OpenAI calls this run: {budget.session_calls} of {budget.limit} allowed (cumulative ledger: {budget.calls}, report only)")
-    return 1 if any(r["aborted"] for r in runs) else 0
+    return 2 if unusable else (1 if any(r["aborted"] for r in runs) else 0)
 
 
 if __name__ == "__main__":

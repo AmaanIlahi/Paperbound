@@ -197,7 +197,7 @@ def run_pipeline(
     result.fields = validated
 
     def do_obligations(step: StepRecord):
-        derived, skipped = spec.obligations(validated)
+        derived, skipped = spec.obligations(validated, today) if spec.table else spec.obligations(validated)  # a table's dates are counted from this run's `today`
         result.obligations = derived
         step.output_summary = f"{len(derived)} obligation(s)"
         step.reason = (

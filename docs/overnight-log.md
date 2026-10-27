@@ -106,3 +106,44 @@ Rules followed: no server started, nothing merged or deployed, no Fly or Supabas
 - **UI.** A "Compare" link in the header and a `#compare` view: two selects (completed runs only), a tolerance box (percent), the
   report as cards with both sides, "Source: page N" links that open the run at that page, and the difference.
 
+### Phase 4: dev fixtures and evals
+
+- **BLOCKER: the OpenAI account has no credits.** The first real eval run returned `429 insufficient_quota` ("You have no credits
+  remaining") for all 20 calls. So **no real-model eval result exists for any suite tonight**: not for the new rent roll, T-12
+  and cross-check suites, and not the re-run of lease, certificate, generic and CUAD. That run also wrote six junk result files
+  (all zeros) and overwrote `latest.md`; I deleted them and restored `latest.md`, then added a guard so it cannot happen again:
+  a suite where every document errored is reported as `NOT SAVED`, writes nothing, leaves the baseline alone and exits 2.
+  (The 20 failed calls are in the local, git-ignored `evals/.budget.json` ledger; they cost nothing.)
+- **What I could verify offline instead** (none of this replaces the real runs):
+  1. *Oracle run.* With each fixture's true column mapping and true label categories standing in for the model, the whole eval path
+     scores: rent roll header mapping 100%, cells 100% (1,880 cells), row exact 100%, totals check 100% (planted one found, no
+     false alarm), metrics 100%, actions 100%; T-12 line category 100%, cells 100%, NOI exact 100%, mismatch recall/precision 100%
+     (4 planted mismatches), anomaly recall/precision 100%, usable-view category accuracy 97.5% (the 4 flagged lines are abstained
+     by design); cross-check 5/5 pairs right, planted rent income mismatch found, 5/5 negative controls give a property mismatch.
+     **This is the ceiling of the code with a perfect model, not a model result.** It is what tests/test_cre_evals.py asserts.
+  2. *Classification parity.* On all 47 existing documents (20 leases, 20 certificates, the demo PDFs and the 5 generic fixtures)
+     the heuristic classifier makes the identical decision on `main` and on this branch (21 lease, 21 certificate, 5 left to the LLM).
+  3. *Scoring parity.* Re-deriving the summaries of the newest saved synthetic, generic and CUAD runs with the current scoring code
+     reproduces them exactly, and every one of the 160 baseline keys is still produced.
+  4. *Open risk I cannot close offline:* the classifier's LLM prompt now offers `rent_roll` and `t12` too. It is only used when the
+     heuristics are unsure (the 5 generic fixtures). A real run should confirm none of them is claimed by a new type.
+- **Bug the scorer found:** `run_pipeline` called a table type's obligations step without the run's `today`, so a run "as of
+  2026-10-22" counted from the system date (one lease ending 2026-10-25 vanished). Fixed (`spec.obligations(validated, today)` for
+  table types) with a regression test.
+- **Metrics (what each suite reports, all with a usable view beside it).** Rent roll: header-mapping accuracy (per column, and
+  documents with every column right), cell accuracy (every mapped cell of every row), row exact, page accuracy, totals check
+  correct (flagged exactly when planted), metric accuracy (occupancy by units and area, total rent, average rent per sf, WALT by
+  rent and area, expirations by year, leases expiring within 24 months), action correctness, per-layout breakdown. T-12: month
+  headers, line category accuracy, cell accuracy as printed, NOI exact match, the other figures, mismatch detection recall/precision
+  (line sums, subtotals, NOI, capex), anomaly recall/precision. Cross-check: planted mismatch found, false alarms, same property
+  recognised, different property found. Usable view: a cell/line carrying a blocking flag is abstained.
+- **Reuse of runs:** the cross-check suite reuses the rent roll and T-12 runs of the same fixtures in-process (no extra model calls);
+  `--suite all` is the 5 old suites plus these three. Expected cost of the new suites: 20 mapping calls.
+- **Baseline:** I did not write anything to `evals/baseline.json` (no real result exists). `--merge-median-baseline <runs>` adds the
+  median of saved runs for the new suites only and leaves every old key untouched; see the morning list.
+- **Planted problems in the dev set:** rent roll rr_003 (stated annual rent total off by $12,000); T-12 t12_006 (stated NOI +$1,500 a
+  month), t12_007 (insurance total +$900), t12_008 (capex inside operating expenses, stated totals include it), t12_002 / t12_009
+  (a month ~90% above its line), and pair 4 (T-12 base rent 18% under the rent roll). Layouts: rent roll A (ruled grid, MM/DD/YYYY,
+  monthly + annual + $/SF), B (ruled grid, tenant first, $/SF only, status column, "Mon D, YYYY"), C (borderless, ISO dates, no
+  currency signs, up to three pages with a repeated header), D (banded, two-digit years, monthly rent only, wrapped headers).
+
