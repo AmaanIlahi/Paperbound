@@ -88,7 +88,7 @@ def test_the_run_view_is_a_stepper_a_sticky_viewer_and_four_tabs():
     tabs = [re.search(r'data-tab="(\w+)"', b).group(1) for b in buttons if " hidden" not in b]
     assert tabs == ["summary", "actions", "fields", "trace"]  # the four every run has
     table_tabs = [re.search(r'data-tab="(\w+)"', b).group(1) for b in buttons if " hidden" in b]
-    assert table_tabs == ["rows"]  # shown only for tabular documents (rent roll)
+    assert table_tabs == ["rows", "lines"]  # shown only for tabular documents (rent roll)
     assert 'class="tab active" role="tab" type="button" data-tab="summary"' in html  # Summary is the default
     assert re.search(r'id="tab-summary" role="tabpanel"><div', html) and re.search(r'id="tab-actions" role="tabpanel" hidden', html)
     assert 'id="viewer"' in html and html.index('id="viewer"') < html.index('class="panel"')  # the viewer is on the left

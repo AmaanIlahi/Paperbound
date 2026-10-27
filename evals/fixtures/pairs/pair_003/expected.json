@@ -1,0 +1,23 @@
+{
+ "id": "pair_003",
+ "doc_type": "pair",
+ "dev_only": true,
+ "rent_roll": "rr_003",
+ "t12": "t12_003",
+ "property": {
+  "name": "Mill Creek Center",
+  "address": "88 Mill Creek Parkway, Raleigh, NC 27601"
+ },
+ "as_of": "2026-10-22",
+ "tolerance": 0.05,
+ "rent_roll_total_annual_rent": 3596386.7,
+ "t12_base_rent": 3607329.0,
+ "difference": 10942.3,
+ "difference_share": 0.003043,
+ "expected_flags": [],
+ "planted": {
+  "rent_income_mismatch": false
+ },
+ "rent_roll_occupancy_sqft": 0.8800570026126198,
+ "t12_vacancy_loss": 76726.0
+}

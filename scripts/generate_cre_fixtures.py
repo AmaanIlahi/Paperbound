@@ -331,6 +331,248 @@ def build_rent_roll(layout: str, n_units: int, planted: bool, rng: random.Random
 
 
 # ----------------------------------------------------------------------------------------------------------------
+# T-12 operating statements
+# ----------------------------------------------------------------------------------------------------------------
+
+MONTHS = [(2025, 10), (2025, 11), (2025, 12), (2026, 1), (2026, 2), (2026, 3), (2026, 4), (2026, 5), (2026, 6), (2026, 7), (2026, 8), (2026, 9)]
+MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+T12_LAYOUTS = {
+    "L1": dict(  # ruled grid, cents, Mon-YY headers, losses in brackets
+        month="mon2", grid=True, cents=True, sign=True, total_header="Total", first_header="Account", vacancy_negative=True,
+        labels=dict(base_rent="Base Rental Income", recoveries="Expense Recoveries", other_income="Parking and Other Income",
+                    vacancy_credit_loss="Vacancy and Credit Loss", taxes="Real Estate Taxes", insurance="Insurance", utilities="Utilities",
+                    repairs_maintenance="Repairs and Maintenance", management="Management Fee", payroll="Payroll",
+                    general_admin="General and Administrative", other_opex="Other Operating Expenses", capex="Capital Expenditures"),
+        sections=("INCOME", "OPERATING EXPENSES"), egi="Effective Gross Income", opex="Total Operating Expenses", noi="Net Operating Income",
+        income_total=None, below_line=False,
+    ),
+    "L2": dict(  # borderless, whole dollars, MM/YYYY headers, different words, a section below the line
+        month="num", grid=False, cents=False, sign=False, total_header="T-12", first_header="", vacancy_negative=True,
+        labels=dict(base_rent="Rent", recoveries="Reimbursements", other_income="Misc. Income", vacancy_credit_loss="Less: Vacancy",
+                    taxes="Property Taxes", insurance="Insurance Expense", utilities="Electric, Water and Gas", repairs_maintenance="R&M",
+                    management="Mgmt Fees", payroll="Salaries and Wages", general_admin="Admin", other_opex="Contract Services",
+                    capex="Capital Improvements"),
+        sections=("REVENUE", "EXPENSES"), egi="Total Revenue", opex="Total Expenses", noi="NOI", income_total=None, below_line=True,
+    ),
+    "L3": dict(  # banded rows, $ whole dollars, long month headers, losses printed positive, a gross income subtotal before vacancy
+        month="long", grid=False, cents=False, sign=True, total_header="T-12 Total", first_header="Line Item", vacancy_negative=False,
+        labels=dict(base_rent="Rental Income", recoveries="CAM, Tax and Insurance Reimbursements", other_income="Other Income",
+                    vacancy_credit_loss="Less: Vacancy and Credit Loss", taxes="Real Estate Taxes", insurance="Property Insurance",
+                    utilities="Utilities", repairs_maintenance="Repairs and Maintenance", management="Management Fees", payroll="Payroll and Benefits",
+                    general_admin="General and Administrative", other_opex="Other Operating Expenses", capex="Capital Expenditures"),
+        sections=("INCOME", "EXPENSES"), egi="Effective Gross Income", opex="Total Operating Expenses", noi="Net Operating Income",
+        income_total="Total Income", below_line=False,
+    ),
+}
+
+# (layout, pair index or None, plants). Plants: noi (stated NOI off), capex (capex inside the operating expenses, stated totals include it),
+# line (a line whose months do not add up to its total), spike (category, month index), rent (base rent 18% below the rent roll)
+T12_PLAN = [
+    ("L1", 1, {}), ("L1", 2, {"spike": ("repairs_maintenance", 5)}), ("L2", 3, {}), ("L2", 4, {"rent": True}), ("L3", 5, {}),
+    ("L1", None, {"noi": True}), ("L2", None, {"line": "insurance"}), ("L3", None, {"capex": True}),
+    ("L3", None, {"spike": ("utilities", 8)}), ("L2", None, {}),
+]
+
+
+def month_label(style: str, ym: tuple[int, int]) -> str:
+    y, m = ym
+    if style == "mon2":
+        return f"{MONTH_ABBR[m - 1]}-{y % 100:02d}"
+    if style == "num":
+        return f"{m:02d}/{y}"
+    return f"{MONTH_ABBR[m - 1]} {y}"
+
+
+def t12_money(x, layout: dict, loss: bool = False) -> str:
+    x = Decimal(x)
+    shown = abs(x) if loss and not layout["vacancy_negative"] else x
+    body = f"{abs(shown):,.2f}" if layout["cents"] else f"{abs(shown):,.0f}"
+    text = ("$" if layout["sign"] else "") + body
+    return f"({text})" if shown < 0 else text
+
+
+def make_t12_values(rng: random.Random, base_rent_year: Decimal, layout: dict, plants: dict, cents: bool) -> dict[str, list[Decimal]]:
+    """Monthly values per category, rounded to what the layout prints, so every printed total adds up exactly."""
+    def rnd(x):
+        return q2(x) if cents else Decimal(x).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+
+    def noisy(level: Decimal, spread: float = 0.03):
+        return [rnd(level * Decimal(1 + rng.uniform(-spread, spread))) for _ in MONTHS]
+
+    base_year = base_rent_year * (Decimal("0.82") if plants.get("rent") else 1)
+    out = {"base_rent": noisy(base_year / 12, 0.01)}
+    out["recoveries"] = noisy(base_year / 12 * Decimal(str(rng.uniform(0.18, 0.28))))
+    out["other_income"] = noisy(base_year / 12 * Decimal(str(rng.uniform(0.015, 0.03))))
+    out["vacancy_credit_loss"] = [-v for v in noisy(base_year / 12 * Decimal(str(rng.uniform(0.01, 0.03))))]
+    gross = [a + b + c for a, b, c in zip(out["base_rent"], out["recoveries"], out["other_income"])]
+    for cat, share in (("taxes", 0.12), ("insurance", 0.04), ("utilities", 0.07), ("repairs_maintenance", 0.06), ("payroll", 0.055),
+                       ("general_admin", 0.02), ("other_opex", 0.02)):
+        out[cat] = noisy(base_year / 12 * Decimal(str(share * rng.uniform(0.85, 1.15))), 0.03)
+    egi = [g + v for g, v in zip(gross, out["vacancy_credit_loss"])]
+    out["management"] = [rnd(e * Decimal("0.035")) for e in egi]
+    if plants.get("spike"):
+        cat, month = plants["spike"]
+        out[cat][month] = rnd(out[cat][month] * Decimal("1.9"))
+    if plants.get("capex"):
+        out["capex"] = noisy(base_year / 12 * Decimal("0.03"), 0.05)
+    elif layout["below_line"]:
+        out["capex"] = [rnd(base_year / 12 * Decimal("0.025"))] * len(MONTHS)
+    return out
+
+
+OPEX_CATS = ["taxes", "insurance", "utilities", "repairs_maintenance", "management", "payroll", "general_admin", "other_opex"]
+
+
+def t12_truth(values: dict[str, list[Decimal]]) -> dict:
+    gross = [a + b + c for a, b, c in zip(values["base_rent"], values["recoveries"], values["other_income"])]
+    egi = [g + v for g, v in zip(gross, values["vacancy_credit_loss"])]
+    opex = [sum((values[c][i] for c in OPEX_CATS), Decimal(0)) for i in range(len(MONTHS))]
+    return {"gross": gross, "egi": egi, "opex": opex, "noi": [e - o for e, o in zip(egi, opex)]}
+
+
+def build_t12(layout_name: str, plants: dict, rng: random.Random, prop: tuple[str, str], base_rent_year: Decimal, occupancy: float) -> tuple[bytes, dict]:
+    layout = T12_LAYOUTS[layout_name]
+    values = make_t12_values(rng, base_rent_year, layout, plants, layout["cents"])
+    t = t12_truth(values)
+    labels = layout["labels"]
+    capex_in_opex = bool(plants.get("capex"))
+
+    def total(xs):
+        return sum(xs, Decimal(0))
+
+    # stated subtotals (what the document prints) versus the true ones
+    stated_opex = [o + (values["capex"][i] if capex_in_opex else 0) for i, o in enumerate(t["opex"])]
+    stated_noi = [e - o for e, o in zip(t["egi"], stated_opex)]
+    if plants.get("noi"):
+        bump = Decimal("1500.00") if layout["cents"] else Decimal(1500)
+        stated_noi = [n + bump for n in stated_noi]
+
+    rows: list[dict] = []
+
+    def heading(text):
+        rows.append({"kind": "heading", "label": text})
+
+    def line(key, label, category, months, total_override=None):
+        rows.append({"kind": "line", "label": label, "category": category, "months": months,
+                     "total": total_override if total_override is not None else total(months), "key": key})
+
+    def sub(label, months, key):
+        rows.append({"kind": "subtotal", "label": label, "category": "subtotal", "months": months, "total": total(months), "key": key})
+
+    heading(layout["sections"][0])
+    for key in ("base_rent", "recoveries", "other_income"):
+        line(key, labels[key], key, values[key])
+    if layout["income_total"]:
+        sub(layout["income_total"], t["gross"], "income_total")
+    line("vacancy_credit_loss", labels["vacancy_credit_loss"], "vacancy_credit_loss", values["vacancy_credit_loss"])
+    sub(layout["egi"], t["egi"], "egi")
+    heading(layout["sections"][1])
+    for key in OPEX_CATS:
+        override = total(values[key]) + Decimal(900) if plants.get("line") == key else None
+        line(key, labels[key], key, values[key], override)
+    if capex_in_opex:
+        line("capex", labels["capex"], "capex", values["capex"])
+    sub(layout["opex"], stated_opex, "opex")
+    sub(layout["noi"], stated_noi, "noi")
+    if layout["below_line"]:
+        heading("BELOW THE LINE")
+        line("capex", labels["capex"], "capex", values["capex"])
+        sub("Cash Flow After Reserves", [n - c for n, c in zip(stated_noi, values["capex"])], "cash_flow")
+
+    styles = getSampleStyleSheet()
+    buf = io.BytesIO()
+    pagesize = landscape(LETTER)
+    doc = SimpleDocTemplate(buf, pagesize=pagesize, invariant=1, leftMargin=0.35 * inch, rightMargin=0.35 * inch, topMargin=0.6 * inch, bottomMargin=0.5 * inch)
+    month_heads = [month_label(layout["month"], ym) for ym in MONTHS]
+    header = [layout["first_header"], *month_heads, layout["total_header"]]
+    data = [header]
+    spans, bold, bands = [], [], []
+    for r in rows:
+        i = len(data)
+        if r["kind"] == "heading":
+            data.append([r["label"]] + [""] * (len(header) - 1))
+            spans.append(i)
+            bold.append(i)
+            continue
+        loss = r["category"] == "vacancy_credit_loss"
+        data.append([r["label"], *[t12_money(v, layout, loss) for v in r["months"]], t12_money(r["total"], layout, loss)])
+        if r["kind"] == "subtotal":
+            bold.append(i)
+        elif layout_name == "L3" and i % 2 == 0:
+            bands.append(i)
+    width = pagesize[0] - 0.7 * inch
+    label_w = 1.9 * inch
+    col_w = [label_w] + [(width - label_w) / 13] * 13
+    table = Table(data, colWidths=col_w, repeatRows=1)
+    style = [("FONTSIZE", (0, 0), (-1, -1), 6.6), ("ALIGN", (1, 0), (-1, -1), "RIGHT"), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+             ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"), ("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 3)]
+    for i in spans:
+        style.append(("SPAN", (0, i), (-1, i)))
+        style.append(("ALIGN", (0, i), (-1, i), "LEFT"))
+    for i in bold:
+        style.append(("FONTNAME", (0, i), (-1, i), "Helvetica-Bold"))
+    if layout["grid"]:
+        style += [("GRID", (0, 0), (-1, -1), 0.4, colors.grey), ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e6e6e6"))]
+    elif layout_name == "L3":
+        style += [("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f3a5f")), ("TEXTCOLOR", (0, 0), (-1, 0), colors.white)]
+        style += [("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f0f3f7")) for i in bands]
+    else:
+        style += [("LINEBELOW", (0, 0), (-1, 0), 0.8, colors.black)]
+        style += [("LINEABOVE", (0, i), (-1, i), 0.5, colors.black) for i in bold if i not in spans]
+    table.setStyle(TableStyle(style))
+    title = {"L1": "Trailing 12 Month Operating Statement", "L2": "T-12 Income Statement", "L3": "Operating Statement - Trailing Twelve Months"}[layout_name]
+    story = [Paragraph(f"<b>{prop[0]}</b>", styles["Title"]), Paragraph(prop[1], styles["Normal"]),
+             Paragraph(f"{title}: {month_heads[0]} through {month_heads[-1]}", styles["Heading3"]), Spacer(1, 6), table, Spacer(1, 8),
+             Paragraph("Unaudited statement prepared by property management.", ParagraphStyle("n", parent=styles["Normal"], fontSize=7))]
+
+    def footer(canvas, d):
+        canvas.setFont("Helvetica", 7)
+        canvas.drawString(0.35 * inch, 0.3 * inch, f"{prop[0]} - operating statement - page {d.page}")
+
+    doc.build(story, onFirstPage=footer, onLaterPages=footer)
+    pdf = buf.getvalue()
+
+    pages = pages_of(pdf, [r["label"] for r in rows if r["kind"] != "heading"])
+    truth_lines, p = [], 0
+    for r in rows:
+        if r["kind"] == "heading":
+            continue
+        printed = (lambda v: abs(v)) if r["category"] == "vacancy_credit_loss" and not layout["vacancy_negative"] else (lambda v: v)
+        truth_lines.append({"label": r["label"], "kind": r["kind"], "category": r["category"],  # months and total exactly as printed
+                            "months": [float(printed(v)) for v in r["months"]], "total": float(printed(r["total"])), "page": pages[p]})
+        p += 1
+    expected_flags: dict[str, list[str]] = {}
+    if plants.get("noi"):
+        expected_flags[layout["noi"]] = ["noi_mismatch"]
+    if capex_in_opex:
+        expected_flags[layout["opex"]] = ["subtotal_mismatch"]
+        expected_flags[layout["noi"]] = ["noi_mismatch"]
+    if plants.get("line"):
+        expected_flags[labels[plants["line"]]] = ["line_sum_mismatch"]
+    anomalies = []
+    if plants.get("spike"):
+        cat, month = plants["spike"]
+        anomalies.append({"label": labels[cat], "month": month_heads[month]})
+        expected_flags.setdefault(labels[cat], []).append("month_anomaly")
+    tot_egi, tot_opex, tot_noi = total(t["egi"]), total(t["opex"]), total(t["noi"])
+    truth = {
+        "layout": layout_name, "pages": page_count(pdf), "months": month_heads, "total_header": layout["total_header"], "lines": truth_lines,
+        "expected": {
+            "egi": float(tot_egi), "opex": float(tot_opex), "noi": float(tot_noi), "expense_ratio": float(tot_opex / tot_egi),
+            "noi_monthly": [float(v) for v in t["noi"]], "base_rent": float(total(values["base_rent"])),
+            "vacancy_loss": float(abs(total(values["vacancy_credit_loss"]))),
+            "below_line": float(total(values["capex"])) if "capex" in values else 0.0,
+            "opex_by_category": {c: float(total([abs(v) for v in values[c]])) for c in OPEX_CATS},
+        },
+        "planted": {"noi_mismatch": bool(plants.get("noi")), "capex_in_opex": capex_in_opex, "line_sum_mismatch": bool(plants.get("line")),
+                    "month_spike": bool(plants.get("spike")), "rent_income_mismatch": bool(plants.get("rent"))},
+        "expected_flags": expected_flags, "expected_anomalies": anomalies,
+    }
+    return pdf, truth
+
+
+# ----------------------------------------------------------------------------------------------------------------
 # writing
 # ----------------------------------------------------------------------------------------------------------------
 
@@ -349,14 +591,63 @@ def write_rent_rolls(out: Path) -> list[dict]:
         (folder / "doc.pdf").write_bytes(pdf)
         dump(folder / "expected.json", {"id": f"rr_{i:03d}", "doc_type": "rent_roll", "dev_only": True, "pdf": "doc.pdf",
                                           "as_of": AS_OF.isoformat(), "property": {"name": prop[0], "address": prop[1]}, **truth})
-        made.append({"id": f"rr_{i:03d}", "layout": layout, "pages": truth["pages"]})
+        made.append({"id": f"rr_{i:03d}", "layout": layout, "pages": truth["pages"], "metrics": truth["metrics"], "property": prop})
+    return made
+
+
+def write_t12s(out: Path, rent_rolls: list[dict]) -> list[dict]:
+    rng = random.Random(SEED + 1)
+    made = []
+    for i, (layout, pair, plants) in enumerate(T12_PLAN, start=1):
+        if pair:  # a pair shares the property and the in-place rent of its rent roll
+            rr = rent_rolls[pair - 1]
+            prop, rent_year, occ = rr["property"], Decimal(str(rr["metrics"]["total_annual_rent"])), rr["metrics"]["occupancy_sqft"]
+        else:
+            prop = PROPERTIES[(i - 1) % len(PROPERTIES)]
+            rent_year, occ = Decimal(rng.randrange(1_200_000, 6_000_000, 1000)), 0.9
+        pdf, truth = build_t12(layout, plants, rng, prop, rent_year, occ)
+        folder = out / "t12" / f"t12_{i:03d}"
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "doc.pdf").write_bytes(pdf)
+        dump(folder / "expected.json", {"id": f"t12_{i:03d}", "doc_type": "t12", "dev_only": True, "pdf": "doc.pdf", "as_of": AS_OF.isoformat(),
+                                          "property": {"name": prop[0], "address": prop[1]}, "pair": f"pair_{pair:03d}" if pair else None, **truth})
+        made.append({"id": f"t12_{i:03d}", "layout": layout, "pair": pair, "truth": truth})
+    return made
+
+
+def write_pairs(out: Path, rent_rolls: list[dict], t12s: list[dict]) -> list[str]:
+    """Five pairs: rent roll i with the T-12 that lists the same property and the same in-place rent. Pair 4 plants a
+    rent income mismatch (its T-12 reports base rent 18% below the rent roll)."""
+    made = []
+    for t in t12s:
+        if not t["pair"]:
+            continue
+        rr = rent_rolls[t["pair"] - 1]
+        rent_roll_total = rr["metrics"]["total_annual_rent"]
+        base_rent = t["truth"]["expected"]["base_rent"]
+        planted = t["truth"]["planted"]["rent_income_mismatch"]
+        folder = out / "pairs" / f"pair_{t['pair']:03d}"
+        folder.mkdir(parents=True, exist_ok=True)
+        dump(folder / "expected.json", {
+            "id": f"pair_{t['pair']:03d}", "doc_type": "pair", "dev_only": True, "rent_roll": f"rr_{t['pair']:03d}", "t12": t["id"],
+            "property": {"name": rr["property"][0], "address": rr["property"][1]},
+            "as_of": AS_OF.isoformat(), "tolerance": 0.05,
+            "rent_roll_total_annual_rent": rent_roll_total, "t12_base_rent": base_rent,
+            "difference": round(base_rent - rent_roll_total, 2), "difference_share": round((base_rent - rent_roll_total) / rent_roll_total, 6),
+            "expected_flags": ["rent_income_mismatch"] if planted else [], "planted": {"rent_income_mismatch": planted},
+            "rent_roll_occupancy_sqft": rr["metrics"]["occupancy_sqft"], "t12_vacancy_loss": t["truth"]["expected"]["vacancy_loss"],
+        })
+        made.append(f"pair_{t['pair']:03d}")
     return made
 
 
 def generate(out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
-    made = write_rent_rolls(out)
-    print(f"rent rolls: {len(made)} ->", ", ".join(f"{m['id']}[{m['layout']},{m['pages']}p]" for m in made))
+    rent_rolls = write_rent_rolls(out)
+    print(f"rent rolls: {len(rent_rolls)} ->", ", ".join(f"{m['id']}[{m['layout']},{m['pages']}p]" for m in rent_rolls))
+    t12s = write_t12s(out, rent_rolls)
+    print(f"T-12s: {len(t12s)} ->", ", ".join(f"{m['id']}[{m['layout']}{'*' if m['pair'] else ''}]" for m in t12s))
+    print("pairs:", ", ".join(write_pairs(out, rent_rolls, t12s)))
 
 
 def main(argv=None) -> int:

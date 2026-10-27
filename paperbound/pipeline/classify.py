@@ -38,24 +38,24 @@ TERMS: dict[str, list[tuple[str, float]]] = {
 PATTERNS: dict[str, list[tuple[re.Pattern, float]]] = {
     "rent_roll": [
         (re.compile(r"rent\s*roll", re.I), 4),
-        (re.compile(r"(?:sq\.?\s*ft\.?|rsf|sf|nra|square\s+feet)", re.I), 2),
-        (re.compile(r"lease\s+(?:start|from|begin\w*|commencement|end|to|expir\w*|term)|(?:commencement|term\s+begin|term\s+end)", re.I), 2),
-        (re.compile(r"(?:occupied|vacant)", re.I), 2),
-        (re.compile(r"\$\s*/\s*(?:sf|sq\.?\s*ft)|psf|per\s+sf|sf\s*/\s*yr", re.I), 2),
-        (re.compile(r"(?:suite|unit|space)", re.I), 1),
-        (re.compile(r"tenant|occupant", re.I), 1),
-        (re.compile(r"(?:monthly|annual)\s+(?:base\s+)?rent|rent\s*/\s*(?:mo|yr)", re.I), 1),
+        (re.compile(r"\b(?:sq\.?\s*ft\.?|rsf|sf|nra|square\s+feet)\b", re.I), 2),
+        (re.compile(r"\blease\s+(?:start|from|begin\w*|commencement|end|to|expir\w*|term)\b|\b(?:commencement|term\s+begin|term\s+end)\b", re.I), 2),
+        (re.compile(r"\b(?:occupied|vacant)\b", re.I), 2),
+        (re.compile(r"\$\s*/\s*(?:sf|sq\.?\s*ft)|\bpsf\b|\bper\s+sf\b|\bsf\s*/\s*yr", re.I), 2),
+        (re.compile(r"\b(?:suite|unit|space)\b", re.I), 1),
+        (re.compile(r"\btenant|occupant\b", re.I), 1),
+        (re.compile(r"\b(?:monthly|annual)\s+(?:base\s+)?rent\b|rent\s*/\s*(?:mo|yr)", re.I), 1),
     ],
     "t12": [
-        (re.compile(r"trailing[\s-]*(?:12|twelve)|t[\s-]?12", re.I), 4),
-        (re.compile(r"net\s+operating\s+income|noi", re.I), 3),
-        (re.compile(r"effective\s+gross\s+(?:income|revenue)|egi", re.I), 2),
-        (re.compile(r"operating\s+expenses?|total\s+expenses", re.I), 2),
-        (re.compile(r"(?:total\s+)?(?:income|revenue)s?", re.I), 1),
-        (re.compile(r"(?:real\s+estate\s+)?taxes|utilities|repairs?", re.I), 1),
+        (re.compile(r"trailing[\s-]*(?:12|twelve)|\bt[\s-]?12\b", re.I), 4),
+        (re.compile(r"\bnet\s+operating\s+income\b|\bnoi\b", re.I), 3),
+        (re.compile(r"\beffective\s+gross\s+(?:income|revenue)\b|\begi\b", re.I), 2),
+        (re.compile(r"\boperating\s+expenses?\b|\btotal\s+expenses\b", re.I), 2),
+        (re.compile(r"\b(?:total\s+)?(?:income|revenue)s?\b", re.I), 1),
+        (re.compile(r"\b(?:real\s+estate\s+)?taxes\b|\butilities\b|\brepairs?\b", re.I), 1),
     ],
 }
-_MONTH_HEADER = re.compile(r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s'/-]*(?:\d{2}|\d{4})", re.I)
+_MONTH_HEADER = re.compile(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s'/-]*(?:\d{2}|\d{4})\b", re.I)
 MONTH_COLUMNS_BONUS = (10, 4)  # this many distinct month headings add this much to t12
 TITLE_BONUS = 4  # a type's key phrase in the first lines of page 1 is the strongest layout signal
 TITLE_PHRASES = {

@@ -353,6 +353,10 @@ body[data-view="run"] { overflow: hidden; }
 .rows-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .rows-table tr.flagged td { background: var(--bad-soft); }
 .rows-table tr.vacant td { color: var(--muted); }
+.lines-table td.num, .lines-table th.num { font-size: 12px; }
+.lines-table tr.subtotal td { font-weight: 600; background: var(--surface-2); }
+.lines-table tr.heading td { font-weight: 600; color: var(--muted); }
+.lines-table .cat { font-size: 11px; color: var(--muted); display: block; }
 .rows-table tr.totals td { font-weight: 600; border-top: 2px solid var(--border); }
 .metric-list { margin: var(--s2) 0; }
 .metric-list h4 { font-size: 13px; margin: 0 0 var(--s1); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
@@ -424,3 +428,4 @@ body[data-view="run"] { overflow: hidden; }
 .evals h3 { font-size: 15px; margin: var(--s3) 0 var(--s1); }
 .evals .note { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--s2); font-size: 14px; }
 .evals ol { padding-left: var(--s3); font-size: 14px; }
+.lines-table td.anomaly { color: var(--bad); font-weight: 600; }

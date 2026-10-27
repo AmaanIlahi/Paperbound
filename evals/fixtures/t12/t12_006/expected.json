@@ -1,0 +1,392 @@
+{
+ "id": "t12_006",
+ "doc_type": "t12",
+ "dev_only": true,
+ "pdf": "doc.pdf",
+ "as_of": "2026-10-22",
+ "property": {
+  "name": "Harborview Commons",
+  "address": "1200 Harbor Street, Baltimore, MD 21202"
+ },
+ "pair": null,
+ "layout": "L1",
+ "pages": 1,
+ "months": [
+  "Oct-25",
+  "Nov-25",
+  "Dec-25",
+  "Jan-26",
+  "Feb-26",
+  "Mar-26",
+  "Apr-26",
+  "May-26",
+  "Jun-26",
+  "Jul-26",
+  "Aug-26",
+  "Sep-26"
+ ],
+ "total_header": "Total",
+ "lines": [
+  {
+   "label": "Base Rental Income",
+   "kind": "line",
+   "category": "base_rent",
+   "months": [
+    131357.54,
+    132282.14,
+    132521.78,
+    133166.6,
+    132589.0,
+    132349.3,
+    130984.48,
+    131187.94,
+    133043.52,
+    131490.79,
+    131143.48,
+    132009.43
+   ],
+   "total": 1584126.0,
+   "page": 1
+  },
+  {
+   "label": "Expense Recoveries",
+   "kind": "line",
+   "category": "recoveries",
+   "months": [
+    34981.26,
+    35362.0,
+    35094.57,
+    35155.72,
+    34870.47,
+    35972.25,
+    35493.1,
+    35410.02,
+    35866.34,
+    36254.15,
+    35851.18,
+    35903.57
+   ],
+   "total": 426214.63,
+   "page": 1
+  },
+  {
+   "label": "Parking and Other Income",
+   "kind": "line",
+   "category": "other_income",
+   "months": [
+    2201.54,
+    2166.41,
+    2287.75,
+    2204.68,
+    2164.75,
+    2201.26,
+    2225.49,
+    2206.21,
+    2173.63,
+    2247.84,
+    2207.44,
+    2265.35
+   ],
+   "total": 26552.35,
+   "page": 1
+  },
+  {
+   "label": "Vacancy and Credit Loss",
+   "kind": "line",
+   "category": "vacancy_credit_loss",
+   "months": [
+    -2043.61,
+    -2130.97,
+    -2095.91,
+    -2092.48,
+    -2117.59,
+    -2046.0,
+    -2138.63,
+    -2125.66,
+    -2111.68,
+    -2094.9,
+    -2061.98,
+    -2134.67
+   ],
+   "total": -25194.08,
+   "page": 1
+  },
+  {
+   "label": "Effective Gross Income",
+   "kind": "subtotal",
+   "category": "subtotal",
+   "months": [
+    166496.73,
+    167679.58,
+    167808.19,
+    168434.52,
+    167506.63,
+    168476.81,
+    166564.44,
+    166678.51,
+    168971.81,
+    167897.88,
+    167140.12,
+    168043.68
+   ],
+   "total": 2011698.9,
+   "page": 1
+  },
+  {
+   "label": "Real Estate Taxes",
+   "kind": "line",
+   "category": "taxes",
+   "months": [
+    15685.55,
+    15795.51,
+    15703.83,
+    15668.11,
+    16037.78,
+    16006.26,
+    16029.31,
+    15727.93,
+    16250.7,
+    15445.9,
+    16012.46,
+    15503.31
+   ],
+   "total": 189866.65,
+   "page": 1
+  },
+  {
+   "label": "Insurance",
+   "kind": "line",
+   "category": "insurance",
+   "months": [
+    5528.22,
+    5562.67,
+    5438.56,
+    5502.1,
+    5540.08,
+    5667.37,
+    5682.39,
+    5577.75,
+    5514.59,
+    5594.17,
+    5567.03,
+    5458.59
+   ],
+   "total": 66633.52,
+   "page": 1
+  },
+  {
+   "label": "Utilities",
+   "kind": "line",
+   "category": "utilities",
+   "months": [
+    8769.93,
+    9234.9,
+    8927.4,
+    9122.64,
+    8944.96,
+    8828.09,
+    9177.35,
+    9022.83,
+    8791.48,
+    8754.02,
+    8855.48,
+    8892.98
+   ],
+   "total": 107322.06,
+   "page": 1
+  },
+  {
+   "label": "Repairs and Maintenance",
+   "kind": "line",
+   "category": "repairs_maintenance",
+   "months": [
+    8874.46,
+    9172.51,
+    8952.22,
+    9074.39,
+    9094.88,
+    8777.91,
+    8832.99,
+    9251.92,
+    9035.56,
+    9042.16,
+    8873.8,
+    9055.33
+   ],
+   "total": 108038.13,
+   "page": 1
+  },
+  {
+   "label": "Management Fee",
+   "kind": "line",
+   "category": "management",
+   "months": [
+    5827.39,
+    5868.79,
+    5873.29,
+    5895.21,
+    5862.73,
+    5896.69,
+    5829.76,
+    5833.75,
+    5914.01,
+    5876.43,
+    5849.9,
+    5881.53
+   ],
+   "total": 70409.48,
+   "page": 1
+  },
+  {
+   "label": "Payroll",
+   "kind": "line",
+   "category": "payroll",
+   "months": [
+    6358.95,
+    6448.03,
+    6264.72,
+    6349.88,
+    6341.74,
+    6421.92,
+    6321.21,
+    6441.45,
+    6153.76,
+    6197.03,
+    6217.48,
+    6358.33
+   ],
+   "total": 75874.5,
+   "page": 1
+  },
+  {
+   "label": "General and Administrative",
+   "kind": "line",
+   "category": "general_admin",
+   "months": [
+    2251.31,
+    2295.55,
+    2298.23,
+    2330.71,
+    2248.11,
+    2366.46,
+    2350.04,
+    2272.46,
+    2323.45,
+    2265.6,
+    2316.58,
+    2310.16
+   ],
+   "total": 27628.66,
+   "page": 1
+  },
+  {
+   "label": "Other Operating Expenses",
+   "kind": "line",
+   "category": "other_opex",
+   "months": [
+    2249.01,
+    2233.65,
+    2244.9,
+    2227.98,
+    2220.01,
+    2235.73,
+    2279.24,
+    2224.5,
+    2322.92,
+    2340.56,
+    2235.18,
+    2350.73
+   ],
+   "total": 27164.41,
+   "page": 1
+  },
+  {
+   "label": "Total Operating Expenses",
+   "kind": "subtotal",
+   "category": "subtotal",
+   "months": [
+    55544.82,
+    56611.61,
+    55703.15,
+    56171.02,
+    56290.29,
+    56200.43,
+    56502.29,
+    56352.59,
+    56306.47,
+    55515.87,
+    55927.91,
+    55810.96
+   ],
+   "total": 672937.41,
+   "page": 1
+  },
+  {
+   "label": "Net Operating Income",
+   "kind": "subtotal",
+   "category": "subtotal",
+   "months": [
+    112451.91,
+    112567.97,
+    113605.04,
+    113763.5,
+    112716.34,
+    113776.38,
+    111562.15,
+    111825.92,
+    114165.34,
+    113882.01,
+    112712.21,
+    113732.72
+   ],
+   "total": 1356761.49,
+   "page": 1
+  }
+ ],
+ "expected": {
+  "egi": 2011698.9,
+  "opex": 672937.41,
+  "noi": 1338761.49,
+  "expense_ratio": 0.3345119938177627,
+  "noi_monthly": [
+   110951.91,
+   111067.97,
+   112105.04,
+   112263.5,
+   111216.34,
+   112276.38,
+   110062.15,
+   110325.92,
+   112665.34,
+   112382.01,
+   111212.21,
+   112232.72
+  ],
+  "base_rent": 1584126.0,
+  "vacancy_loss": 25194.08,
+  "below_line": 0.0,
+  "opex_by_category": {
+   "taxes": 189866.65,
+   "insurance": 66633.52,
+   "utilities": 107322.06,
+   "repairs_maintenance": 108038.13,
+   "management": 70409.48,
+   "payroll": 75874.5,
+   "general_admin": 27628.66,
+   "other_opex": 27164.41
+  }
+ },
+ "planted": {
+  "noi_mismatch": true,
+  "capex_in_opex": false,
+  "line_sum_mismatch": false,
+  "month_spike": false,
+  "rent_income_mismatch": false
+ },
+ "expected_flags": {
+  "Net Operating Income": [
+   "noi_mismatch"
+  ]
+ },
+ "expected_anomalies": []
+}

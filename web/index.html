@@ -85,6 +85,7 @@
           <button class="tab active" role="tab" type="button" data-tab="summary" id="tabbtn-summary" aria-selected="true">Summary</button>
           <button class="tab" role="tab" type="button" data-tab="actions" id="tabbtn-actions" aria-selected="false">Actions</button>
           <button class="tab" role="tab" type="button" data-tab="rows" id="tabbtn-rows" aria-selected="false" hidden>Rows</button>
+          <button class="tab" role="tab" type="button" data-tab="lines" id="tabbtn-lines" aria-selected="false" hidden>Lines</button>
           <button class="tab" role="tab" type="button" data-tab="fields" id="tabbtn-fields" aria-selected="false">Fields</button>
           <button class="tab" role="tab" type="button" data-tab="trace" id="tabbtn-trace" aria-selected="false">Trace</button>
         </div>
@@ -97,6 +98,15 @@
             <table class="fields-table rows-table">
               <thead><tr><th>Unit</th><th>Tenant</th><th>Sq ft</th><th>Lease</th><th>Annual rent</th><th>Status</th><th>Flags</th></tr></thead>
               <tbody id="rowsBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tabpane" id="tab-lines" role="tabpanel" hidden>
+          <div class="table-tools"><span id="linesNote" class="muted"></span><a id="linesExport" class="btn" href="#" download hidden>Export clean lines (CSV)</a></div>
+          <div class="table-wrap">
+            <table class="fields-table rows-table lines-table">
+              <thead id="linesHead"></thead>
+              <tbody id="linesBody"></tbody>
             </table>
           </div>
         </div>

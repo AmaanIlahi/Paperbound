@@ -56,3 +56,59 @@ class FakeParseClient:
     def _parse(self, **kwargs):
         self.requests.append(kwargs)
         return self.reply
+
+
+# ---- T-12 ----
+
+from paperbound.pipeline import t12 as t12_mod  # noqa: E402
+
+MONTHS12 = ["Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26", "Jul-26", "Aug-26", "Sep-26"]
+T12_HEADER = ["Account", *MONTHS12, "Total"]
+
+
+def money_cell(v) -> str:
+    return f"({abs(v):,.0f})" if v < 0 else f"{v:,.0f}"
+
+
+def t12_row(label, values, total=None):
+    """A statement row: label, twelve monthly figures (a number repeats for every month), the total column."""
+    values = [values] * 12 if isinstance(values, (int, float)) else list(values)
+    return [label, *[money_cell(v) for v in values], money_cell(sum(values) if total is None else total)]
+
+
+# category of each label in the standard statement below; the real model would return these
+CATEGORIES = {
+    "Rent": "base_rent", "Reimbursements": "recoveries", "Other Income": "other_income", "Vacancy": "vacancy_credit_loss",
+    "Effective Gross Income": "subtotal", "Real Estate Taxes": "taxes", "Insurance": "insurance", "Utilities": "utilities",
+    "Repairs": "repairs_maintenance", "Management": "management", "Payroll": "payroll", "Admin": "general_admin", "Other Opex": "other_opex",
+    "Total Operating Expenses": "subtotal", "Net Operating Income": "subtotal", "Capital Expenditures": "capex", "Debt Service": "debt_service",
+}
+
+
+def standard_rows(**over):
+    """Rent 100k, recoveries 20k, other 5k, vacancy -5k = EGI 120k; opex 50k; NOI 70k, every month."""
+    rows = {
+        "Rent": 100000, "Reimbursements": 20000, "Other Income": 5000, "Vacancy": -5000, "Effective Gross Income": 120000,
+        "Real Estate Taxes": 15000, "Insurance": 5000, "Utilities": 8000, "Repairs": 6000, "Management": 4000, "Payroll": 7000, "Admin": 3000,
+        "Other Opex": 2000, "Total Operating Expenses": 50000, "Net Operating Income": 70000,
+    }
+    rows.update(over)
+    return [t12_row(label, value) for label, value in rows.items() if value is not None]
+
+
+def t12_extraction(rows=None, categories=None, notes=None):
+    rows = standard_rows() if rows is None else rows
+    table = make_table(T12_HEADER, rows)
+    if notes:
+        table.notes, table.note_at = [n for n, _ in notes], [at for _, at in notes]
+    cols = list(range(1, 13))
+    lines = t12_mod.build_lines(table, cols, 13, 0)
+    cats = CATEGORIES if categories is None else categories
+    for ln in lines:
+        ln.category = cats.get(ln.label)
+    return t12_mod.T12Extraction(True, months=MONTHS12, month_cols=cols, total_col=13, label_col=0, header=T12_HEADER, header_page=1,
+                                 header_bbox=[0.0, 0.0, 100.0, 10.0], lines=lines, pages=[1])
+
+
+def t12_validated(rows=None, categories=None, notes=None):
+    return t12_mod.validate_t12(t12_extraction(rows, categories, notes), PAGES)

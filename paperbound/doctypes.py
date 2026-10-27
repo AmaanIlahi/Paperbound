@@ -8,6 +8,7 @@ from paperbound.pipeline.generic import build_generic_brief, derive_generic_obli
 from paperbound.pipeline.impact import build_brief, build_coi_brief
 from paperbound.pipeline.rent_roll import build_rent_roll_brief, derive_rent_roll_obligations, extract_rent_roll, validate_rent_roll
 from paperbound.pipeline.obligations import derive_coi_obligations, derive_obligations
+from paperbound.pipeline.t12 import build_t12_brief, derive_t12_obligations, extract_t12, validate_t12
 from paperbound.pipeline.validate import validate_coi, validate_fields, validate_generic
 from paperbound.schemas.insurance import COI_ANCHORS
 from paperbound.schemas.lease import LEASE_ANCHORS
@@ -46,6 +47,11 @@ SUPPORTED: dict[str, DocType] = {
         "rent_roll", "Rent roll",
         lambda pages, today, pdf: extract_rent_roll(pages, pdf, today), validate_rent_roll, derive_rent_roll_obligations,
         build_rent_roll_brief, None, True, lambda *a, **k: _table_planner().plan_rent_roll_actions(*a, **k),
+    ),
+    "t12": DocType(
+        "t12", "T-12 operating statement",
+        lambda pages, today, pdf: extract_t12(pages, pdf, today), validate_t12, derive_t12_obligations,
+        build_t12_brief, None, True, lambda *a, **k: _table_planner().plan_t12_actions(*a, **k),
     ),
 }
 

@@ -37,7 +37,8 @@ class Table:
     header_bbox: list[float]
     col_edges: list[float]
     rows: list[TableRow] = field(default_factory=list)
-    notes: list[str] = field(default_factory=list)  # single-cell rows (titles, footnotes) set aside
+    notes: list[str] = field(default_factory=list)  # single-cell rows (titles, footnotes, section headings) set aside
+    note_at: list[int] = field(default_factory=list)  # how many data rows came before each note (a heading's position)
     pages: list[int] = field(default_factory=list)
 
     @property
@@ -162,6 +163,7 @@ def extract_tables(pdf: bytes) -> list[Table]:
                     if spanning and ncols > 2:  # one spanning cell: a title or a footnote, not a data row
                         if clean(" ".join(own[i])):
                             master.notes.append(clean(" ".join(own[i])))
+                            master.note_at.append(len(master.rows))
                         continue
                     cells = _rebin(words, rows[i].bbox, master.col_edges)
                     if not any(cells):

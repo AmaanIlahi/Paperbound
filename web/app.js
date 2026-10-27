@@ -15,7 +15,7 @@ let streamToken = 0;
 let uploading = false;
 
 const EVENTS = ['meta', 'step', 'field', 'obligations', 'brief', 'action', 'done'];
-const TABS = ['summary', 'actions', 'rows', 'fields', 'trace'];
+const TABS = ['summary', 'actions', 'rows', 'lines', 'fields', 'trace'];
 const GROUPS = [
   { id: 'read', label: 'Read', stages: ['parse', 'classify'] },
   { id: 'extract', label: 'Extract', stages: ['extract'] },
@@ -33,8 +33,8 @@ const STAGE_HINTS = {
   obligations: 'Turning dates into obligations...', impact: 'Computing the numbers...', planner: 'Drafting actions for your approval...',
   gate: 'Setting up the approval gate...',
 };
-const TYPE_LABELS = { lease: 'Commercial lease', insurance_certificate: 'Certificate of liability insurance', rent_roll: 'Rent roll' };
-const TABLE_TYPES = ['rent_roll'];
+const TYPE_LABELS = { lease: 'Commercial lease', insurance_certificate: 'Certificate of liability insurance', rent_roll: 'Rent roll', t12: 'T-12 operating statement' };
+const TABLE_TYPES = ['rent_roll', 't12'];
 const PARTIES = {
   lease: [['Landlord', 'landlord'], ['Tenant', 'tenant']],
   insurance_certificate: [['Insured', 'insured'], ['Certificate holder', 'certificate_holder']],
@@ -43,6 +43,7 @@ const SUMMARY_KEYS = {
   lease: ['deadline', 'days_remaining', 'holdover_extra', 'current_rent'],
   insurance_certificate: ['earliest_expiration', 'days_remaining', 'expiring_soon'],
   rent_roll: ['occupancy_units', 'total_annual_rent', 'walt_rent', 'expiring_12m'],
+  t12: ['noi', 'egi', 'total_opex', 'expense_ratio'],
 };
 const GROUP_META = {
   reminders: ['Reminders', 'Staged reminders before the deadline. Approve each one, or all at once.'],
@@ -95,6 +96,8 @@ function displayValue(f) {
 function objectSummary(f) {
   const v = f.value;
   if (/^row_\d+$/.test(f.name)) return [v.unit, v.tenant, v.status].filter(Boolean).join(' · ');
+  if (/^line_\d+$/.test(f.name)) return [v.label, v.category].filter(Boolean).join(' · ');
+  if (f.name === 'columns') return `${(v.months || []).length} months`;
   if (f.name === 'mapping') return `${(v.columns || []).length} columns mapped`;
   if (f.name === 'totals') return 'stated totals row';
   return JSON.stringify(v);
@@ -479,6 +482,7 @@ function renderAll() {
   renderSummary();
   renderActions();
   renderRows();
+  renderLines();
   renderTrace();
 }
 
@@ -491,7 +495,7 @@ const fmtUsd = (n) => (n === null || n === undefined ? '' : '$' + fmtNum(n, 2));
 let rowsTimer = null;
 function scheduleRows() {
   if (rowsTimer) return;
-  rowsTimer = setTimeout(() => { rowsTimer = null; renderRows(); }, 30);
+  rowsTimer = setTimeout(() => { rowsTimer = null; renderRows(); renderLines(); }, 30);
 }
 function tableFields(pattern) {
   return Object.values(R.fields)
@@ -567,8 +571,70 @@ function renderRows() {
   }
 }
 
+function fmtMonth(n) {
+  if (n === null || n === undefined) return '';
+  const text = fmtNum(Math.abs(n), 0);
+  return n < 0 ? `(${text})` : text;
+}
+function renderLines() {
+  const isT12 = !!R && R.meta.doc_type === 't12';
+  $('tabbtn-lines').hidden = !isT12;
+  if (!isT12) return;
+  const cols = R.fields.columns && R.fields.columns.value;
+  const months = (cols && cols.months) || [];
+  const head = $('linesHead');
+  head.replaceChildren();
+  const hr = el('tr');
+  for (const h of ['Line', 'Category', ...months, 'Total', 'Flags']) hr.appendChild(el('th', months.includes(h) || h === 'Total' ? 'num' : '', h));
+  head.appendChild(hr);
+  const body = $('linesBody');
+  body.replaceChildren();
+  const lines = tableFields(/^line_\d+$/);
+  const blocked = (f) => (f.flags || []).some((x) => BLOCKING.has(x));
+  const clean = lines.filter((f) => !blocked(f)).length;
+  const absent = R.fields.table && R.fields.table.value === null;
+  const anomalies = lines.reduce((n, f) => n + ((f.value.anomalies || []).length), 0);
+  $('linesNote').textContent = absent ? 'No T-12 table was found in this PDF, so nothing was guessed.'
+    : `${lines.length} line${lines.length === 1 ? '' : 's'}` + (lines.length - clean ? ` · ${lines.length - clean} flagged (kept out of the sums)` : ' · all lines passed their checks')
+      + (anomalies ? ` · ${anomalies} month${anomalies === 1 ? '' : 's'} far from the line's median` : '');
+  const link = $('linesExport');
+  link.hidden = !(R.kind === 'live' && R.runId && clean);
+  if (!link.hidden) link.href = `/runs/${R.runId}/export.csv`;
+  let section = null;
+  for (const f of lines) {
+    const v = f.value;
+    if (v.section && v.section !== section) {
+      section = v.section;
+      const hrow = el('tr', 'frow heading');
+      const td = el('td', '', section);
+      td.colSpan = months.length + 4;
+      hrow.appendChild(td);
+      body.appendChild(hrow);
+    }
+    const tr = el('tr', 'frow' + (blocked(f) ? ' flagged' : '') + (v.category === 'subtotal' ? ' subtotal' : ''));
+    const first = el('td', '', v.label);
+    tr.appendChild(first);
+    addCell(tr, (v.category || 'uncategorised').replace(/_/g, ' '), 'cat');
+    for (let i = 0; i < months.length; i++) {
+      const anomalous = (v.anomalies || []).some((a) => a.month === months[i]);
+      addCell(tr, fmtMonth((v.months || [])[i]), 'num' + (anomalous ? ' anomaly' : ''));
+    }
+    addCell(tr, fmtMonth(v.total_stated !== null && v.total_stated !== undefined ? v.total_stated : v.total_computed), 'num');
+    flagCell(tr, f);
+    tr.title = (v.notes || []).join('; ') || (f.source_quote || '');
+    tr.addEventListener('click', () => {
+      if (activeRow) activeRow.classList.remove('active');
+      activeRow = tr;
+      tr.classList.add('active');
+      highlight(f);
+    });
+    body.appendChild(tr);
+  }
+}
+
 // ------------------------------------------------------------------------------------------------------------
 // summary
+// ------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------
 
 function supportedType() { return R && R.meta.doc_type && TYPE_LABELS[R.meta.doc_type]; }

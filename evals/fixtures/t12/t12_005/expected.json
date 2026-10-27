@@ -1,0 +1,409 @@
+{
+ "id": "t12_005",
+ "doc_type": "t12",
+ "dev_only": true,
+ "pdf": "doc.pdf",
+ "as_of": "2026-10-22",
+ "property": {
+  "name": "Lakeshore Square",
+  "address": "710 Lakeshore Boulevard, Chicago, IL 60611"
+ },
+ "pair": "pair_005",
+ "layout": "L3",
+ "pages": 1,
+ "months": [
+  "Oct 2025",
+  "Nov 2025",
+  "Dec 2025",
+  "Jan 2026",
+  "Feb 2026",
+  "Mar 2026",
+  "Apr 2026",
+  "May 2026",
+  "Jun 2026",
+  "Jul 2026",
+  "Aug 2026",
+  "Sep 2026"
+ ],
+ "total_header": "T-12 Total",
+ "lines": [
+  {
+   "label": "Rental Income",
+   "kind": "line",
+   "category": "base_rent",
+   "months": [
+    376212.0,
+    376742.0,
+    374954.0,
+    376307.0,
+    376596.0,
+    377827.0,
+    376908.0,
+    381690.0,
+    377616.0,
+    378879.0,
+    380384.0,
+    379069.0
+   ],
+   "total": 4533184.0,
+   "page": 1
+  },
+  {
+   "label": "CAM, Tax and Insurance Reimbursements",
+   "kind": "line",
+   "category": "recoveries",
+   "months": [
+    87859.0,
+    84615.0,
+    85617.0,
+    88068.0,
+    85918.0,
+    85426.0,
+    87647.0,
+    84846.0,
+    86424.0,
+    86483.0,
+    83866.0,
+    84573.0
+   ],
+   "total": 1031342.0,
+   "page": 1
+  },
+  {
+   "label": "Other Income",
+   "kind": "line",
+   "category": "other_income",
+   "months": [
+    7458.0,
+    7607.0,
+    7811.0,
+    7822.0,
+    7490.0,
+    7478.0,
+    7704.0,
+    7864.0,
+    7874.0,
+    7538.0,
+    7474.0,
+    7519.0
+   ],
+   "total": 91639.0,
+   "page": 1
+  },
+  {
+   "label": "Total Income",
+   "kind": "subtotal",
+   "category": "subtotal",
+   "months": [
+    471529.0,
+    468964.0,
+    468382.0,
+    472197.0,
+    470004.0,
+    470731.0,
+    472259.0,
+    474400.0,
+    471914.0,
+    472900.0,
+    471724.0,
+    471161.0
+   ],
+   "total": 5656165.0,
+   "page": 1
+  },
+  {
+   "label": "Less: Vacancy and Credit Loss",
+   "kind": "line",
+   "category": "vacancy_credit_loss",
+   "months": [
+    6620.0,
+    6358.0,
+    6447.0,
+    6489.0,
+    6625.0,
+    6608.0,
+    6625.0,
+    6447.0,
+    6578.0,
+    6546.0,
+    6371.0,
+    6686.0
+   ],
+   "total": 78400.0,
+   "page": 1
+  },
+  {
+   "label": "Effective Gross Income",
+   "kind": "subtotal",
+   "category": "subtotal",
+   "months": [
+    464909.0,
+    462606.0,
+    461935.0,
+    465708.0,
+    463379.0,
+    464123.0,
+    465634.0,
+    467953.0,
+    465336.0,
+    466354.0,
+    465353.0,
+    464475.0
+   ],
+   "total": 5577765.0,
+   "page": 1
+  },
+  {
+   "label": "Real Estate Taxes",
+   "kind": "line",
+   "category": "taxes",
+   "months": [
+    45501.0,
+    48046.0,
+    45861.0,
+    46127.0,
+    45808.0,
+    47839.0,
+    46907.0,
+    48187.0,
+    45578.0,
+    46632.0,
+    46062.0,
+    47607.0
+   ],
+   "total": 560155.0,
+   "page": 1
+  },
+  {
+   "label": "Property Insurance",
+   "kind": "line",
+   "category": "insurance",
+   "months": [
+    15963.0,
+    16023.0,
+    16555.0,
+    16525.0,
+    16349.0,
+    15926.0,
+    16171.0,
+    15678.0,
+    15923.0,
+    15699.0,
+    15800.0,
+    15899.0
+   ],
+   "total": 192511.0,
+   "page": 1
+  },
+  {
+   "label": "Utilities",
+   "kind": "line",
+   "category": "utilities",
+   "months": [
+    29443.0,
+    28838.0,
+    29159.0,
+    29747.0,
+    29294.0,
+    29646.0,
+    28717.0,
+    29667.0,
+    28468.0,
+    28149.0,
+    28363.0,
+    28934.0
+   ],
+   "total": 348425.0,
+   "page": 1
+  },
+  {
+   "label": "Repairs and Maintenance",
+   "kind": "line",
+   "category": "repairs_maintenance",
+   "months": [
+    23988.0,
+    24326.0,
+    23991.0,
+    24280.0,
+    24556.0,
+    24542.0,
+    24464.0,
+    24557.0,
+    24264.0,
+    24209.0,
+    23711.0,
+    24328.0
+   ],
+   "total": 291216.0,
+   "page": 1
+  },
+  {
+   "label": "Management Fees",
+   "kind": "line",
+   "category": "management",
+   "months": [
+    16272.0,
+    16191.0,
+    16168.0,
+    16300.0,
+    16218.0,
+    16244.0,
+    16297.0,
+    16378.0,
+    16287.0,
+    16322.0,
+    16287.0,
+    16257.0
+   ],
+   "total": 195221.0,
+   "page": 1
+  },
+  {
+   "label": "Payroll and Benefits",
+   "kind": "line",
+   "category": "payroll",
+   "months": [
+    22711.0,
+    22769.0,
+    22826.0,
+    22891.0,
+    22705.0,
+    22988.0,
+    23604.0,
+    23438.0,
+    23410.0,
+    22701.0,
+    22601.0,
+    23356.0
+   ],
+   "total": 276000.0,
+   "page": 1
+  },
+  {
+   "label": "General and Administrative",
+   "kind": "line",
+   "category": "general_admin",
+   "months": [
+    7252.0,
+    7508.0,
+    7156.0,
+    7277.0,
+    7452.0,
+    7150.0,
+    7183.0,
+    7460.0,
+    7427.0,
+    7437.0,
+    7340.0,
+    7576.0
+   ],
+   "total": 88218.0,
+   "page": 1
+  },
+  {
+   "label": "Other Operating Expenses",
+   "kind": "line",
+   "category": "other_opex",
+   "months": [
+    7600.0,
+    7924.0,
+    7650.0,
+    7885.0,
+    7848.0,
+    7604.0,
+    7577.0,
+    7518.0,
+    7833.0,
+    7862.0,
+    7740.0,
+    7891.0
+   ],
+   "total": 92932.0,
+   "page": 1
+  },
+  {
+   "label": "Total Operating Expenses",
+   "kind": "subtotal",
+   "category": "subtotal",
+   "months": [
+    168730.0,
+    171625.0,
+    169366.0,
+    171032.0,
+    170230.0,
+    171939.0,
+    170920.0,
+    172883.0,
+    169190.0,
+    169011.0,
+    167904.0,
+    171848.0
+   ],
+   "total": 2044678.0,
+   "page": 1
+  },
+  {
+   "label": "Net Operating Income",
+   "kind": "subtotal",
+   "category": "subtotal",
+   "months": [
+    296179.0,
+    290981.0,
+    292569.0,
+    294676.0,
+    293149.0,
+    292184.0,
+    294714.0,
+    295070.0,
+    296146.0,
+    297343.0,
+    297449.0,
+    292627.0
+   ],
+   "total": 3533087.0,
+   "page": 1
+  }
+ ],
+ "expected": {
+  "egi": 5577765.0,
+  "opex": 2044678.0,
+  "noi": 3533087.0,
+  "expense_ratio": 0.36657657681885125,
+  "noi_monthly": [
+   296179.0,
+   290981.0,
+   292569.0,
+   294676.0,
+   293149.0,
+   292184.0,
+   294714.0,
+   295070.0,
+   296146.0,
+   297343.0,
+   297449.0,
+   292627.0
+  ],
+  "base_rent": 4533184.0,
+  "vacancy_loss": 78400.0,
+  "below_line": 0.0,
+  "opex_by_category": {
+   "taxes": 560155.0,
+   "insurance": 192511.0,
+   "utilities": 348425.0,
+   "repairs_maintenance": 291216.0,
+   "management": 195221.0,
+   "payroll": 276000.0,
+   "general_admin": 88218.0,
+   "other_opex": 92932.0
+  }
+ },
+ "planted": {
+  "noi_mismatch": false,
+  "capex_in_opex": false,
+  "line_sum_mismatch": false,
+  "month_spike": false,
+  "rent_income_mismatch": false
+ },
+ "expected_flags": {},
+ "expected_anomalies": []
+}

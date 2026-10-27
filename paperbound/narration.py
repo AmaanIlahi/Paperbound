@@ -160,6 +160,11 @@ class Narrator:
         )
 
     def planner_table(self, n_actions: int) -> str:
+        if self.table == "t12":
+            return (
+                f"No model is used here. Code proposed {n_actions} action(s): a review flag if a line, subtotal or NOI did not check out or a "
+                "month looks far from its line's median. A T-12 states no dates, so there are no reminders, and there are no email drafts."
+            )
         return (
             f"No model is used here. Code proposed {n_actions} action(s): a calendar reminder for each verified lease that ends soon, and "
             "a review flag if anything failed a check. A flagged row never produces a reminder, and there are no email drafts "

@@ -1,0 +1,23 @@
+{
+ "id": "pair_005",
+ "doc_type": "pair",
+ "dev_only": true,
+ "rent_roll": "rr_005",
+ "t12": "t12_005",
+ "property": {
+  "name": "Lakeshore Square",
+  "address": "710 Lakeshore Boulevard, Chicago, IL 60611"
+ },
+ "as_of": "2026-10-22",
+ "tolerance": 0.05,
+ "rent_roll_total_annual_rent": 4544864.5,
+ "t12_base_rent": 4533184.0,
+ "difference": -11680.5,
+ "difference_share": -0.00257,
+ "expected_flags": [],
+ "planted": {
+  "rent_income_mismatch": false
+ },
+ "rent_roll_occupancy_sqft": 0.8349807445442875,
+ "t12_vacancy_loss": 78400.0
+}

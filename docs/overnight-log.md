@@ -42,3 +42,38 @@ Rules followed: no server started, nothing merged or deployed, no Fly or Supabas
   `tests/test_ui_links.py` now expects the four always-visible tabs plus the hidden table tabs.
 - **CSV:** clean rows only; cells starting with `= + - @` get a leading apostrophe; a `table_warning` column carries `totals_mismatch`.
 
+### Phase 2: T-12 operating statement
+
+- **Columns by code, labels by the model.** Month columns are any header that reads as a month (`Oct-25`, `Oct 2025`, `10/2025`,
+  `2025-10`, `October`); month names must be exact ("Marketing" is not March). The total column is the first non-month header
+  that reads "Total", "T-12", "TTM", "Annual"... A statement needs exactly 12 month columns, else it is "not found" and goes to
+  review (no guessing with 11 or 13). The model returns only `line number -> category`; a line it does not categorise (or one with
+  a category outside the list) is flagged `category_suspect`, not dropped.
+- **Sign conventions are code, not the model:** a vacancy/credit loss always reduces income whichever sign is printed
+  (`-abs`), expenses enter as `abs`, other revenue keeps its sign, below-the-line items (capex, reserves, debt service,
+  depreciation) are excluded from NOI. A negative expense line (a refund) will therefore show up as a mismatch against a stated
+  total: conservative, a human looks.
+- **Which subtotals are checked.** Only the ones whose composition is known: EGI ("effective gross", EGI), a "Total
+  Income/Revenue" line (must equal gross income OR net-of-vacancy income), "Total Operating Expenses", and NOI. Section subtotals
+  such as "Total Utilities" or "Cash Flow After Reserves" are shown but cannot be verified, so they are not flagged.
+- **Tolerance.** Rounded statements make months and totals differ by a few dollars. The tolerance is `6.5 x` the statement's rounding
+  unit (1000, 100, 10, 1, or 0.01 if any figure has cents; minimum $1), never a share of the figure: a first version used 0.1%
+  and let a $900 error on a $1.2M line through; the test caught it.
+- **Metrics use only lines without a blocking flag**, and the note says how many flagged lines were left out and which. The
+  *checks* (line sums, subtotals, NOI) use every categorised line as printed.
+- **Anomalies:** a month more than 25% from the line's median (median of the non-blank months, at least 6 of them, median not
+  zero) gets `month_anomaly`. It is informational, not blocking, so the line still counts; it does raise the review flag, as
+  asked. Lines that are naturally lumpy (annual premium paid in one month) will be flagged every time: expected.
+- **Obligations:** none (a T-12 states no dates). The planner proposes a review flag when any check failed or a month looks off,
+  and nothing otherwise. Section headings above a line (INCOME, OPERATING EXPENSES) are passed to the labeller as context only.
+- **Brief card text** is short (`$840,000.00`, `35.1%`) with the explanation in the note, so cards fit.
+- **Fixtures:** ten T-12s in three layouts; plants: one stated-NOI mismatch (t12_006), one capex inside the operating expenses
+  with stated totals that include it (t12_008), one line whose months do not add to its total (t12_007), two month spikes
+  (t12_002, t12_009), one base rent 18% below its rent roll (t12_004). The first five share a property and in-place rent with
+  rent rolls 1-5, which is what the Phase 3 pairs use. Fixture truth stores months exactly as printed (a loss printed
+  positive stays positive in the truth); the metrics are computed from the true values.
+- **Classifier bug found and fixed:** 43 `\b` word boundaries in the new classifier regexes had become backspace characters
+  through a bad edit, so the T-12 patterns matched nothing for two layouts. After the fix every dev fixture of every type
+  (and every lease, certificate and generic fixture) classifies by heuristics with the required margin, and none of the
+  generic fixtures is claimed by a new type.
+

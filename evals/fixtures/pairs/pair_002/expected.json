@@ -1,0 +1,23 @@
+{
+ "id": "pair_002",
+ "doc_type": "pair",
+ "dev_only": true,
+ "rent_roll": "rr_002",
+ "t12": "t12_002",
+ "property": {
+  "name": "Cedar Point Plaza",
+  "address": "455 Cedar Point Road, Columbus, OH 43215"
+ },
+ "as_of": "2026-10-22",
+ "tolerance": 0.05,
+ "rent_roll_total_annual_rent": 7036432.6,
+ "t12_base_rent": 7044927.9,
+ "difference": 8495.3,
+ "difference_share": 0.001207,
+ "expected_flags": [],
+ "planted": {
+  "rent_income_mismatch": false
+ },
+ "rent_roll_occupancy_sqft": 0.7816041206769684,
+ "t12_vacancy_loss": 177759.38
+}

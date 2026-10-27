@@ -1,0 +1,23 @@
+{
+ "id": "pair_001",
+ "doc_type": "pair",
+ "dev_only": true,
+ "rent_roll": "rr_001",
+ "t12": "t12_001",
+ "property": {
+  "name": "Harborview Commons",
+  "address": "1200 Harbor Street, Baltimore, MD 21202"
+ },
+ "as_of": "2026-10-22",
+ "tolerance": 0.05,
+ "rent_roll_total_annual_rent": 2600841.0,
+ "t12_base_rent": 2606493.02,
+ "difference": 5652.02,
+ "difference_share": 0.002173,
+ "expected_flags": [],
+ "planted": {
+  "rent_income_mismatch": false
+ },
+ "rent_roll_occupancy_sqft": 0.7081118330379996,
+ "t12_vacancy_loss": 51981.09
+}
